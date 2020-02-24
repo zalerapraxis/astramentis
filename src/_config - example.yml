@@ -1,0 +1,11 @@
+﻿prefix: ","
+loglevel: "Trace" # Debug > Trace > Info > Warn > Error > Fatal
+customMarketApiUrl: ""
+xivApiKey: ""
+tokens:
+    discord: 
+dbUsername: ""
+dbPassword: ""
+dbHost: ""
+dbName: ""
+timezoneOffset: 5 # system timezone offset from UTC
