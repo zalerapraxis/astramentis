@@ -318,7 +318,7 @@ namespace Astramentis.Services
                 var numOfListingsToTake = 17;
                 // for large requests, take a RAM hit to grab more listings
                 if (neededQuantity > 100)
-                    numOfListingsToTake = 25;
+                    numOfListingsToTake = 20;
 
                 var listings = GetMarketListings(itemName, itemId, worldsToSearch).Result;
 
