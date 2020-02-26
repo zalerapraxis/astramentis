@@ -574,8 +574,8 @@ namespace Astramentis.Modules
         [Command("market watchlist add", RunMode = RunMode.Async)]
         [Alias("mwa")]
         [RequireOwner]
-        [Summary("")]
-        [Example("")]
+        [Summary("Add item to market watchlist")]
+        [Example("market watchlist add heavens' eye materia viii")]
         public async Task MarketWatchlistAdd([Remainder] string input = null)
         {
             // check if companion api is down
@@ -609,6 +609,16 @@ namespace Astramentis.Modules
             await DatabaseMarketWatchlist.AddToWatchlist(watchlistEntry);
 
             await ReplyAsync($"Added item {watchlistEntry.itemName} ({watchlistEntry.itemId}) to watchlist.");
+        }
+
+        [Command("market watchlist pause", RunMode = RunMode.Async)]
+        [Alias("mwp")]
+        [RequireOwner]
+        [Summary("")]
+        [Example("")]
+        public async Task MarketWatchlistPause([Remainder] string input = null)
+        {
+
         }
 
         // for use with commands that take item names & potentially server as inputs
