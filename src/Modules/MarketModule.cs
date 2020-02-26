@@ -328,7 +328,7 @@ namespace Astramentis.Modules
                 categoryListBuilder.AppendLine("wcs - White Crafter Scrip items");
                 categoryListBuilder.AppendLine("ygs - Yellow Gatherer Scrip items");
                 categoryListBuilder.AppendLine("ycs - Yellow Crafter Scrip items");
-                categoryListBuilder.AppendLine("tome - tome mats");
+                categoryListBuilder.AppendLine("tome/tomes - tome mats");
 
                 await ReplyAsync(categoryListBuilder.ToString());
                 return;
@@ -421,8 +421,9 @@ namespace Astramentis.Modules
                 case "ycs":
                     authorurl = "https://xivapi.com/i/065000/065044.png";
                     break;
-                case "goetia":
-                    authorurl = "https://xivapi.com/i/065000/065066.png";
+                case "tome":
+                case "tomes":
+                    authorurl = "https://xivapi.com/i/065000/065067.png";
                     break;
             }
 
