@@ -52,6 +52,8 @@ namespace Astramentis.Services.MarketServices
         // get current market listings from custom api
         public async Task<dynamic> QueryCustomApiForPrices(int itemId, string server)
         {
+            // todo: catch when api fails with code 202 (waiting on se) and retry
+            
             var apiResponse = await PerformCustomApiRequest($"{_customMarketApiUrl}/market/?id={itemId}&server={server}");
 
             if (apiResponse.GetType() == typeof(CustomApiStatus))
@@ -63,6 +65,8 @@ namespace Astramentis.Services.MarketServices
         // get history data from custom api
         public async Task<dynamic> QueryCustomApiForHistory(int itemId, string server)
         {
+            // todo: catch when api fails with code 202 (waiting on se) and retry
+
             var apiResponse = await PerformCustomApiRequest($"{_customMarketApiUrl}/market/history.php?id={itemId}&server={server}");
 
             if (apiResponse.GetType() == typeof(CustomApiStatus))

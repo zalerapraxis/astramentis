@@ -233,8 +233,8 @@ namespace Astramentis.Services
             else
                 analysisOverall.Differential = Math.Round((((decimal)analysisOverall.AvgSalePrice / analysisOverall.AvgMarketPrice) * 100) - 100, 2);
 
-            analysisHQ.LowestPrice = apiMarketResponse.FirstOrDefault().CurrentPrice;
-            analysisHQ.LowestPriceServer = apiMarketResponse.FirstOrDefault().Server;
+            analysisOverall.LowestPrice = apiMarketResponse.FirstOrDefault().CurrentPrice;
+            analysisOverall.LowestPriceServer = apiMarketResponse.FirstOrDefault().Server;
 
 
             List<MarketItemAnalysisModel> response = new List<MarketItemAnalysisModel>();
