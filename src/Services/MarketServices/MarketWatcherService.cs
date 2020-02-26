@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Astramentis.Enums;
 using Astramentis.Models;
 using Astramentis.Services.DatabaseServices;
+using Discord;
 using Discord.WebSocket;
 using NLog;
 
@@ -57,18 +58,14 @@ namespace Astramentis.Services.MarketServices
                 Logger.Log(LogLevel.Debug, "Heartbeat service reports API is down, skipping watchlist check.");
                 return;
             }
-                
+            
+            // grab list of items to check
             var watchlist = await _databaseMarketWatchlist.GetWatchlist();
-
             if (watchlist.Count == 0)
                 return;
 
+            // grab market analyses for items on watchlist
             ConcurrentDictionary<string, MarketItemAnalysisModel> WatchlistDifferentials = new ConcurrentDictionary<string, MarketItemAnalysisModel>();
-
-            // DEBUG
-            Stopwatch timer = new Stopwatch();
-            timer.Start();
-
             var itemTasks = Task.Run(() => Parallel.ForEach(watchlist, parallelOptions, watchlistEntry =>
             {
                 var apiResponse =
@@ -84,25 +81,28 @@ namespace Astramentis.Services.MarketServices
             }));
             Task.WaitAll(itemTasks);
 
-            Console.WriteLine($"{WatchlistDifferentials.Count} entries took {timer.ElapsedMilliseconds}ms"); // DEBUG
-
+            // build embed & format data to send to my dm's
+            var dm = await _discord.GetUser(110866678161645568).GetOrCreateDMChannelAsync();
+            var embed = new EmbedBuilder();
             foreach (var watchlistEntry in WatchlistDifferentials)
             {
                 var entry = watchlistEntry.Value;
-                Logger.Log(LogLevel.Debug, $"{entry.Name} - {entry.Differential}% - sale price avg: {entry.AvgSalePrice}, listing price avg: {entry.AvgMarketPrice}");
                 if (entry.Differential > 10)
                 {
-                    var dm = await _discord.GetUser(110866678161645568).GetOrCreateDMChannelAsync();
-                    await dm.SendMessageAsync($"{entry.Name} - {entry.Differential}%");
+                    embed.AddField(new EmbedFieldBuilder()
+                    {
+                        Name = entry.Name,
+                        Value = $"diff: {entry.Differential}% - avg sold price: {entry.AvgSalePrice} - lowest: {entry.LowestPrice} on {entry.LowestPriceServer}"
+                    });
                 }
             }
+            await dm.SendMessageAsync(null, false, embed.Build());
 
+            // TODO: add pause function
             // adjust timer & start it again
-            /* 
             var _watchlistTimerInterval = Convert.ToInt32(TimeSpan.FromMinutes(10).TotalMilliseconds) + _rng.Next(-60000, 60000);
             Logger.Log(LogLevel.Debug, $"Next tick at {DateTime.Now.AddMilliseconds(_watchlistTimerInterval):hh:mm:ss tt}");
             _watchlistTimer.Change(_watchlistTimerInterval, Timeout.Infinite);
-            */
         }
     }
 }
