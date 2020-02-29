@@ -7,7 +7,6 @@ using Astramentis.Datasets;
 using Astramentis.Models;
 using Astramentis.Services.MarketServices;
 using Astramentis.Enums;
-using Microsoft.Extensions.Configuration;
 
 namespace Astramentis.Services
 {
@@ -149,7 +148,7 @@ namespace Astramentis.Services
                 analysisHQ.NumRecentSales = CountRecentSales(salesHQ);
 
                 // assign average price of last 5 sales
-                analysisHQ.AvgSalePrice = GetAveragePricePerUnit(salesHQ.Take(5).ToList());
+                analysisHQ.AvgSalePrice = GetAveragePricePerUnit(salesHQ.Take(10).ToList());
 
                 // assign average price of lowest ten listings
                 analysisHQ.AvgMarketPrice = GetAveragePricePerUnit(marketHQ.Take(10).ToList());
@@ -276,6 +275,7 @@ namespace Astramentis.Services
                     itemsList = CurrencyTradeableItemsDataset.YellowCrafterScripsItemsList;
                     break;
                 case "tome":
+                case "tomes":
                     itemsList = CurrencyTradeableItemsDataset.TomeItemsList;
                     break;
                 default:
@@ -419,8 +419,6 @@ namespace Astramentis.Services
                 .ThenBy(x => x.Sum(y => y.Price * y.Quantity)) // sort by total price of listing - typically leans towards more orders but cheaper overall
                 .Where(x => x.Sum(y => y.Quantity) >= needed) // where the total quantity is what we need, or more
                 .Take(5); // doesn't this just give us different possible options? do we need more than 1?
-
-            var test = target.ToList();
 
             return target.ToList();
         }
