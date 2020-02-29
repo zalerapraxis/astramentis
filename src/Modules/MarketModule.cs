@@ -464,6 +464,7 @@ namespace Astramentis.Modules
             input = CleanCommandInput(input);
 
             var plsWaitMsg = await ReplyAsync("This could take quite a while. Please hang tight.");
+            await Context.Channel.TriggerTypingAsync();
 
             // check if user input a gearset request instead of item lists - no spaces so we avoid catching things like
             // 'facet coat of casting' under the 'casting' gearset
