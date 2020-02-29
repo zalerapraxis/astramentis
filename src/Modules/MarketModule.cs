@@ -22,9 +22,10 @@ namespace Astramentis.Modules
     public class MarketModule : InteractiveBase
     {
         public MarketService MarketService { get; set; }
-        public DatabaseMarketWatchlist DatabaseMarketWatchlist { get; set; }
         public APIRequestService APIRequestService { get; set; }
         public APIHeartbeatService APIHeartbeatService { get; set; }
+        public DatabaseMarketWatchlist DatabaseMarketWatchlist { get; set; }
+        public MarketWatcherService MarketWatcherService { get; set; }
 
         private Dictionary<IUser, IUserMessage> _dictFindItemUserEmbedPairs = new Dictionary<IUser, IUserMessage>();
 
@@ -475,7 +476,7 @@ namespace Astramentis.Modules
                 foreach (var item in gearset)
                 {
                     var count = 1;
-                    if (item.Contains("Ring"))
+                    if (item.Contains(" Ring"))
                         count = 2;
 
                     gearsetInputSb.Append($"{item}:{count}");
@@ -508,8 +509,6 @@ namespace Astramentis.Modules
                     itemShouldBeHQ = true;
                     itemName = itemName.Replace("hq", "").Trim();
                 }
-
-                Console.WriteLine($"{itemShouldBeHQ.ToString()}");
 
                 itemsList.Add(new MarketItemCrossWorldOrderModel() { Name = itemName, NeededQuantity = NeededQuantity, ShouldBeHQ = itemShouldBeHQ });
             }
@@ -611,14 +610,58 @@ namespace Astramentis.Modules
             await ReplyAsync($"Added item {watchlistEntry.itemName} ({watchlistEntry.itemId}) to watchlist.");
         }
 
-        [Command("market watchlist pause", RunMode = RunMode.Async)]
-        [Alias("mwp")]
+        [Command("market watchlist toggle", RunMode = RunMode.Async)]
+        [Alias("mwt", "mwm")]
         [RequireOwner]
-        [Summary("")]
-        [Example("")]
-        public async Task MarketWatchlistPause([Remainder] string input = null)
+        [Summary("Toggle watchlist checking & reporting")]
+        public async Task MarketWatchlistMute()
         {
+            if (MarketWatcherService.WatchlistMuted)
+                MarketWatcherService.WatchlistMuted = false;
+            else
+                MarketWatcherService.WatchlistMuted = true;
 
+            await ReplyAsync($"Watchlist is now {(MarketWatcherService.WatchlistMuted ? "muted" : "unmuted")}.");
+        }
+
+        [Command("market watchlist cutoff", RunMode = RunMode.Async)]
+        [Alias("mwc")]
+        [RequireOwner]
+        [Summary("Adjust watchlist reporting cutoff")]
+        public async Task MarketWatchlistSetDifferentialCutoff(int cutoff)
+        {
+            MarketWatcherService.DifferentialCutoff = cutoff;
+            await ReplyAsync($"Watchlist report cutoff set to {cutoff}%");
+        }
+
+        [Command("market watchlist run", RunMode = RunMode.Async)]
+        [Alias("mwr")]
+        [RequireOwner]
+        [Summary("Force-run watchlist")]
+        public async Task MarketWatchlistForceRun()
+        {
+            await MarketWatcherService.WatchlistTimer();
+        }
+
+        [Command("market watchlist list", RunMode = RunMode.Async)]
+        [Alias("mwl")]
+        [RequireOwner]
+        [Summary("Show the contents of the watchlist")]
+        public async Task MarketWatchlistShowList()
+        {
+            var watchlist = await MarketWatcherService.GetMarketWatchlist();
+            var embed = new EmbedBuilder();
+            var watchlistSb = new StringBuilder();
+
+            foreach (var item in watchlist)
+            {
+                watchlistSb.AppendLine(item);
+            }
+
+            embed.WithTitle($"Watchlist - diff cutoff: {MarketWatcherService.DifferentialCutoff}%");
+            embed.WithDescription(watchlistSb.ToString());
+
+            await ReplyAsync(null, false, embed.Build());
         }
 
         // for use with commands that take item names & potentially server as inputs

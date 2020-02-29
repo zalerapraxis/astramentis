@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,6 +24,9 @@ namespace Astramentis.Services.MarketServices
         private readonly Random _rng;
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+        public bool WatchlistMuted = false;
+        public int DifferentialCutoff = 30;
 
         private Timer _watchlistTimer;
 
@@ -50,15 +54,43 @@ namespace Astramentis.Services.MarketServices
             _watchlistTimer = new Timer(async delegate { await WatchlistTimer(); }, null, 10000, Timeout.Infinite);
         }
 
-        private async Task WatchlistTimer()
+        public async Task<List<string>> GetMarketWatchlist()
+        {
+            var list = new List<string>();
+            var watchlist = await _databaseMarketWatchlist.GetWatchlist();
+         
+            foreach (var item in watchlist)
+            {
+                list.Add($"{item.itemName} {(item.hqOnly ? "(HQ)" : "")}");
+            }
+
+            return list;
+        }
+
+        public async Task WatchlistTimer()
         {
             Logger.Log(LogLevel.Debug, $"Watchlist timer ticked.");
+
+            // TODO: add pause function
+            // adjust timer & start it again
+            var _watchlistTimerInterval = Convert.ToInt32(TimeSpan.FromMinutes(10).TotalMilliseconds) + _rng.Next(-60000, 60000);
+            Logger.Log(LogLevel.Debug, $"Next tick at {DateTime.Now.AddMilliseconds(_watchlistTimerInterval):hh:mm:ss tt}");
+            _watchlistTimer.Change(_watchlistTimerInterval, Timeout.Infinite);
+
             if (_apiHeartbeatService.ApiStatus != CustomApiStatus.OK)
             {
                 Logger.Log(LogLevel.Debug, "Heartbeat service reports API is down, skipping watchlist check.");
                 return;
             }
-            
+
+            // Don't do anything if I've muted the watchlist
+            if (WatchlistMuted)
+            {
+                Logger.Log(LogLevel.Info, "Watchlist is muted, skipping.");
+                return;
+            }
+                
+
             // grab list of items to check
             var watchlist = await _databaseMarketWatchlist.GetWatchlist();
             if (watchlist.Count == 0)
@@ -87,22 +119,18 @@ namespace Astramentis.Services.MarketServices
             foreach (var watchlistEntry in WatchlistDifferentials)
             {
                 var entry = watchlistEntry.Value;
-                if (entry.Differential > 10)
+                if (entry.Differential > DifferentialCutoff)
                 {
                     embed.AddField(new EmbedFieldBuilder()
                     {
                         Name = entry.Name,
-                        Value = $"diff: {entry.Differential}% - avg sold price: {entry.AvgSalePrice} - lowest: {entry.LowestPrice} on {entry.LowestPriceServer}"
+                        Value = $"diff: {entry.Differential}% - average sold price: {entry.AvgSalePrice} - lowest: {entry.LowestPrice} on {entry.LowestPriceServer}"
                     });
                 }
             }
-            await dm.SendMessageAsync(null, false, embed.Build());
 
-            // TODO: add pause function
-            // adjust timer & start it again
-            var _watchlistTimerInterval = Convert.ToInt32(TimeSpan.FromMinutes(10).TotalMilliseconds) + _rng.Next(-60000, 60000);
-            Logger.Log(LogLevel.Debug, $"Next tick at {DateTime.Now.AddMilliseconds(_watchlistTimerInterval):hh:mm:ss tt}");
-            _watchlistTimer.Change(_watchlistTimerInterval, Timeout.Infinite);
+            if (embed.Fields.Any())
+                await dm.SendMessageAsync(null, false, embed.Build());
         }
     }
 }
