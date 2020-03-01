@@ -10,6 +10,7 @@ namespace Astramentis.Models
         public int ID { get; set; }
         public bool IsHQ { get; set; }
         public decimal Differential { get; set; }
+        public decimal DifferentialLowest { get; set; }
         public int AvgSalePrice { get; set; }
         public int AvgMarketPrice { get; set; }
         public int NumRecentSales { get; set; }

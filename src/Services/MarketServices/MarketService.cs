@@ -79,24 +79,25 @@ namespace Astramentis.Services
                     apiResponse == CustomApiStatus.NoResults)
                     return;
 
-                foreach (var listing in apiResponse.history)
+                foreach (var listing in apiResponse.Sales)
                 {
                     // convert companionapi's buyRealData from epoch time (milliseconds) to a normal datetime
                     // set this for converting from epoch time to normal people time
                     var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-                    var saleDate = epoch.AddMilliseconds(listing.buyRealDate);
+                    var saleDate = epoch.AddMilliseconds(listing.PurchaseDateMs);
 
                     // build a marketlisting with the info we get from method parameters and the api call
                     var historyListing = new HistoryItemListingModel()
                     {
-                        Name = itemName,
-                        ItemId = itemId,
-                        SoldPrice = int.Parse(listing.sellPrice),
-                        IsHq = (listing.hq == 1),
-                        Quantity = (int)listing.stack,
-                        SaleDate = saleDate,
-                        Server = server
+                        
                     };
+                    historyListing.Name = itemName;
+                    historyListing.ItemId = itemId;
+                    historyListing.SoldPrice = (int)listing.PricePerUnit;
+                    historyListing.IsHq = listing.IsHQ;
+                    historyListing.Quantity = (int)listing.Quantity;
+                    historyListing.SaleDate = saleDate;
+                    historyListing.Server = listing.Server;
 
                     historyListings.Add(historyListing);
                 }
@@ -153,6 +154,10 @@ namespace Astramentis.Services
                 // assign average price of lowest ten listings
                 analysisHQ.AvgMarketPrice = GetAveragePricePerUnit(marketHQ.Take(10).ToList());
 
+                // lowest values
+                analysisHQ.LowestPrice = apiMarketResponse.FirstOrDefault(x => x.IsHq == true).CurrentPrice;
+                analysisHQ.LowestPriceServer = apiMarketResponse.FirstOrDefault(x => x.IsHq == true).Server;
+
                 // set checks for if item's sold or has listings
                 if (analysisHQ.AvgMarketPrice == 0)
                     analysisHQ.ItemHasListings = false;
@@ -168,11 +173,12 @@ namespace Astramentis.Services
                 if (analysisHQ.ItemHasHistory == false || analysisHQ.ItemHasListings == false)
                     analysisHQ.Differential = 0;
                 else
-                    analysisHQ.Differential = Math.Round((((decimal)analysisHQ.AvgSalePrice / analysisHQ.AvgMarketPrice) * 100) - 100, 2);
-
-                analysisHQ.LowestPrice = apiMarketResponse.FirstOrDefault(x => x.IsHq == true).CurrentPrice;
-                analysisHQ.LowestPriceServer = apiMarketResponse.FirstOrDefault(x => x.IsHq == true).Server;
+                {
+                    analysisHQ.Differential = Math.Round(((decimal)analysisHQ.AvgSalePrice - analysisHQ.AvgMarketPrice) / analysisHQ.AvgSalePrice * 100, 2);
+                    analysisHQ.DifferentialLowest = Math.Round(((decimal)analysisHQ.AvgSalePrice - analysisHQ.LowestPrice) / analysisHQ.AvgSalePrice * 100, 2);
+                }
             }
+
 
             // handle NQ items
             // assign recent sale count
@@ -183,6 +189,10 @@ namespace Astramentis.Services
 
             // assign average price of lowest listings
             analysisNQ.AvgMarketPrice = GetAveragePricePerUnit(marketNQ.Take(5).ToList());
+
+            // lowest values
+            analysisNQ.LowestPrice = apiMarketResponse.FirstOrDefault(x => x.IsHq == false).CurrentPrice;
+            analysisNQ.LowestPriceServer = apiMarketResponse.FirstOrDefault(x => x.IsHq == false).Server;
 
             // set checks for if item's sold or has listings
             if (analysisNQ.AvgMarketPrice == 0)
@@ -199,12 +209,12 @@ namespace Astramentis.Services
             if (analysisNQ.ItemHasHistory == false || analysisNQ.ItemHasListings == false)
                 analysisNQ.Differential = 0;
             else
-                analysisNQ.Differential = Math.Round((((decimal)analysisNQ.AvgSalePrice / analysisNQ.AvgMarketPrice) * 100) - 100, 2);
+            {
+                analysisNQ.Differential = Math.Round(((decimal)analysisNQ.AvgSalePrice - analysisNQ.AvgMarketPrice) / analysisNQ.AvgSalePrice * 100, 2);
+                analysisNQ.DifferentialLowest = Math.Round(((decimal)analysisNQ.AvgSalePrice - analysisNQ.LowestPrice) / analysisNQ.AvgSalePrice * 100, 2);
+            }
 
-            analysisNQ.LowestPrice = apiMarketResponse.FirstOrDefault(x => x.IsHq == false).CurrentPrice;
-            analysisNQ.LowestPriceServer = apiMarketResponse.FirstOrDefault(x => x.IsHq == false).Server;
-
-
+            
             // handle overall items list
             // assign recent sale count
             analysisOverall.NumRecentSales = CountRecentSales(salesOverall);
@@ -214,6 +224,10 @@ namespace Astramentis.Services
 
             // assign average price of lowest listings
             analysisOverall.AvgMarketPrice = GetAveragePricePerUnit(marketOverall.Take(5).ToList());
+
+            // lowest values
+            analysisOverall.LowestPrice = apiMarketResponse.FirstOrDefault().CurrentPrice;
+            analysisOverall.LowestPriceServer = apiMarketResponse.FirstOrDefault().Server;
 
             // set checks for if item's sold or has listings
             if (analysisOverall.AvgMarketPrice == 0)
@@ -230,12 +244,12 @@ namespace Astramentis.Services
             if (analysisOverall.ItemHasHistory == false || analysisOverall.ItemHasListings == false)
                 analysisOverall.Differential = 0;
             else
-                analysisOverall.Differential = Math.Round((((decimal)analysisOverall.AvgSalePrice / analysisOverall.AvgMarketPrice) * 100) - 100, 2);
+            {
+                analysisOverall.Differential = Math.Round(((decimal)analysisOverall.AvgSalePrice - analysisOverall.AvgMarketPrice) / analysisOverall.AvgSalePrice * 100, 2);
+                analysisOverall.DifferentialLowest = Math.Round(((decimal)analysisOverall.AvgSalePrice - analysisOverall.LowestPrice) / analysisOverall.AvgSalePrice * 100, 2);
+            }
 
-            analysisOverall.LowestPrice = apiMarketResponse.FirstOrDefault().CurrentPrice;
-            analysisOverall.LowestPriceServer = apiMarketResponse.FirstOrDefault().Server;
-
-
+            
             List<MarketItemAnalysisModel> response = new List<MarketItemAnalysisModel>();
             response.Add(analysisHQ);
             response.Add(analysisNQ);

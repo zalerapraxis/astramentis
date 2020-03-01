@@ -119,12 +119,12 @@ namespace Astramentis.Services.MarketServices
             foreach (var watchlistEntry in WatchlistDifferentials)
             {
                 var entry = watchlistEntry.Value;
-                if (entry.Differential > DifferentialCutoff)
+                if (entry.DifferentialLowest > DifferentialCutoff)
                 {
                     embed.AddField(new EmbedFieldBuilder()
                     {
                         Name = entry.Name,
-                        Value = $"diff: {entry.Differential}% - avg sold: {entry.AvgSalePrice} - avg mrkt: {entry.AvgMarketPrice} - lowest: {entry.LowestPrice} on {entry.LowestPriceServer}"
+                        Value = $"lowest diff: {entry.DifferentialLowest}% (avg diff: {entry.Differential}%) - avg sold: {entry.AvgSalePrice} - avg mrkt: {entry.AvgMarketPrice} {Environment.NewLine} lowest: {entry.LowestPrice} on {entry.LowestPriceServer}"
                     });
                 }
             }

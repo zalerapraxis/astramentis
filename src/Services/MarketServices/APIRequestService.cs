@@ -168,9 +168,9 @@ namespace Astramentis.Services.MarketServices
                             return apiResponse;
                         }
 
-                        if (((IDictionary<String, object>) apiResponse).ContainsKey("history"))
+                        if (((IDictionary<String, object>) apiResponse).ContainsKey("Sales"))
                         {
-                            if (apiResponse.history == null || apiResponse.history.Count == 0)
+                            if (apiResponse.Sales == null || apiResponse.Sales.Count == 0)
                                 return CustomApiStatus.NoResults;
 
                             // success, return response
