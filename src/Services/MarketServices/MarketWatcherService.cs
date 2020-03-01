@@ -124,7 +124,7 @@ namespace Astramentis.Services.MarketServices
                     embed.AddField(new EmbedFieldBuilder()
                     {
                         Name = entry.Name,
-                        Value = $"diff: {entry.Differential}% - average sold price: {entry.AvgSalePrice} - lowest: {entry.LowestPrice} on {entry.LowestPriceServer}"
+                        Value = $"diff: {entry.Differential}% - avg sold: {entry.AvgSalePrice} - avg mrkt: {entry.AvgMarketPrice} - lowest: {entry.LowestPrice} on {entry.LowestPriceServer}"
                     });
                 }
             }
