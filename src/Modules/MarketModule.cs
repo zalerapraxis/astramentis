@@ -665,6 +665,15 @@ namespace Astramentis.Modules
             await ReplyAsync(null, false, embed.Build());
         }
 
+        [Command("apirequests", RunMode = RunMode.Async)]
+        [Alias("requests")]
+        [RequireOwner]
+        [Summary("Report number of API requests")]
+        public async Task GetNumberOfAPIRequests([Remainder] string input = null)
+        {
+            await ReplyAsync($"{APIRequestService.TotalAPIRequestsMade} requests ({APIRequestService.TotalAPIRequestsMadeSinceHeartbeat} since last heartbeat check).");
+        }
+
         // for use with commands that take item names & potentially server as inputs
         // cleans them up & splits them out, returns null if failure
         private async Task<MarketCommandInputsModel> SplitCommandInputs(string input, InteractiveCommandReturn function)

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Astramentis.Enums;
+using Discord.WebSocket;
 using NLog;
 
 namespace Astramentis.Services.MarketServices
@@ -36,9 +38,9 @@ namespace Astramentis.Services.MarketServices
 
         private async Task HeartbeatCheck()
         {
-            Logger.Log(LogLevel.Info, $"Heartbeat check - {_apiRequestService.TotalAPIRequestsMade} API requests made ({_apiRequestService.TotalAPIRequestsMadeSinceCheck} requests in the last hour) - starting server checks.");
+            Logger.Log(LogLevel.Info, $"Heartbeat check - {_apiRequestService.TotalAPIRequestsMade} API requests made ({_apiRequestService.TotalAPIRequestsMadeSinceHeartbeat} requests in the last hour) - starting server checks.");
             // thread-safe reset 30m counter
-            Interlocked.Exchange(ref _apiRequestService.TotalAPIRequestsMadeSinceCheck, 0);
+            Interlocked.Exchange(ref _apiRequestService.TotalAPIRequestsMadeSinceHeartbeat, 0);
 
             // figure out each server's status
             ConcurrentDictionary<Worlds, bool> serverStatusTracker = new ConcurrentDictionary<Worlds, bool>();

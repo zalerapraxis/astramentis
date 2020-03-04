@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Astramentis.Enums;
+using Discord.WebSocket;
 using Flurl.Http;
 using Microsoft.Extensions.Configuration;
 using NLog;
@@ -22,7 +23,7 @@ namespace Astramentis.Services.MarketServices
         private int exceptionRetryDelay = 1000; // ms delay between retries
 
         public int TotalAPIRequestsMade = 0;
-        public int TotalAPIRequestsMadeSinceCheck = 0;
+        public int TotalAPIRequestsMadeSinceHeartbeat = 0;
 
         public APIRequestService(IConfigurationRoot config)
         {
@@ -132,7 +133,7 @@ namespace Astramentis.Services.MarketServices
 
             // thread-safe tracking of number of custom API requests made
             Interlocked.Increment(ref TotalAPIRequestsMade);
-            Interlocked.Increment(ref TotalAPIRequestsMadeSinceCheck);
+            Interlocked.Increment(ref TotalAPIRequestsMadeSinceHeartbeat);
 
             while (i < exceptionRetryCount)
             {
