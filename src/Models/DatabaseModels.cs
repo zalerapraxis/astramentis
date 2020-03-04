@@ -107,6 +107,9 @@ namespace Astramentis.Services
 
         [BsonElement("hqonly")]
         public bool hqOnly { get; set; }
+
+        [BsonElement("enabled")]
+        public bool enabled { get; set; }
     }
 
     // internal list of servers, used for global access - not actually stored in the database
