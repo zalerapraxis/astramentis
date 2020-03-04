@@ -116,9 +116,8 @@ namespace Astramentis.Services.MarketServices
             // build embed & format data to send to my dm's
             var dm = await _discord.GetUser(110866678161645568).GetOrCreateDMChannelAsync();
             var embed = new EmbedBuilder();
-            foreach (var watchlistEntry in WatchlistDifferentials)
+            foreach (var entry in WatchlistDifferentials.Values)
             {
-                var entry = watchlistEntry.Value;
                 if (entry.DifferentialLowest > DifferentialCutoff)
                 {
                     embed.AddField(new EmbedFieldBuilder()
