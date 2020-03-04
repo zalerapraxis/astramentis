@@ -140,7 +140,7 @@ namespace Astramentis.Services
             // split market results by quality
             var marketHQ = apiMarketResponse.Where(x => x.IsHq == true).ToList();
             var marketNQ = apiMarketResponse.Where(x => x.IsHq == false).ToList();
-            var marketOverall = apiHistoryResponse.ToList();
+            var marketOverall = apiMarketResponse.ToList();
 
             // handle HQ items if they exist
             if (salesHQ.Any() && marketHQ.Any())
