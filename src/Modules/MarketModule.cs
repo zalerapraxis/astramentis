@@ -261,6 +261,8 @@ namespace Astramentis.Modules
                 hqFieldBuilder.AppendLine($"Avg Listed Price: {hqMarketAnalysis.AvgMarketPrice}");
                 hqFieldBuilder.AppendLine($"Avg Sale Price: {hqMarketAnalysis.AvgSalePrice}");
                 hqFieldBuilder.AppendLine($"Differential: {hqMarketAnalysis.Differential}%");
+                hqFieldBuilder.AppendLine($"Lowest diff: {hqMarketAnalysis.DifferentialLowest}%");
+                hqFieldBuilder.AppendLine($"Lowest Price: {hqMarketAnalysis.LowestPrice}");
                 hqFieldBuilder.Append("Active:");
                 if (hqMarketAnalysis.NumRecentSales >= 5)
                     hqFieldBuilder.AppendLine(" Yes");
@@ -280,6 +282,8 @@ namespace Astramentis.Modules
             nqFieldBuilder.AppendLine($"Avg Listed Price: {nqMarketAnalysis.AvgMarketPrice}");
             nqFieldBuilder.AppendLine($"Avg Sale Price: {nqMarketAnalysis.AvgSalePrice}");
             nqFieldBuilder.AppendLine($"Differential: {nqMarketAnalysis.Differential}%");
+            nqFieldBuilder.AppendLine($"Lowest diff: {nqMarketAnalysis.DifferentialLowest}%");
+            nqFieldBuilder.AppendLine($"Lowest Price: {nqMarketAnalysis.LowestPrice}");
             nqFieldBuilder.Append("Active:");
             if (nqMarketAnalysis.NumRecentSales >= 5)
                 nqFieldBuilder.AppendLine(" Yes");
