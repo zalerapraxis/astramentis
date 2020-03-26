@@ -88,11 +88,31 @@ namespace Astramentis
                 Logger.Log(LogLevel.Error, $"Could not retrieve timer for command {command.Value.Name}");
                 return;
             }
-               
-            timer.Stop();
-            Logger.Log(LogLevel.Info, $"Command \"{command.Value.Name}\" issued in \"{context.Guild.Name}\" executed {(result.IsSuccess? "successfully" : "unsuccessfully")} in {timer.ElapsedMilliseconds}ms");
 
-            // remove this entry from the tracker
+            timer.Stop();
+            var cmdResult = new System.Text.StringBuilder();
+
+
+            // build log message
+            cmdResult.Append($"Command \"{command.Value.Name}\"");
+
+            if (context.Guild == null)
+                cmdResult.Append($" issued via DM");
+            else
+                cmdResult.Append($" issued in \"{context.Guild.Name}\"");
+
+            cmdResult.Append("executed ");
+
+            if (result.IsSuccess)
+                cmdResult.Append($" successfully");
+            else
+                cmdResult.Append($" unsuccessfully with error code {result.Error}");
+
+            cmdResult.Append($" in {timer.ElapsedMilliseconds}ms");
+
+            Logger.Log(LogLevel.Info, cmdResult.ToString()) ;
+
+            // remove this entry from the time tracker
             CommandElapsedTimersTracker.Remove(context.Message.Id);
         }
     }

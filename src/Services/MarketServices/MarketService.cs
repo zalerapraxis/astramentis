@@ -25,7 +25,7 @@ namespace Astramentis.Services
             _apiRequestService = apiRequestService;
         }
 
-        public async Task<List<MarketItemListingModel>> GetMarketListings(string itemName, int itemId, List<string> worldsToSearch)
+        public async Task<List<MarketItemListingModel>> GetMarketListings(string itemName, int itemId, bool itemShouldBeHq, List<string> worldsToSearch)
         {
             var marketListings = new List<MarketItemListingModel>();
 
@@ -49,6 +49,7 @@ namespace Astramentis.Services
                         CurrentPrice = (int)listing.PricePerUnit,
                         Quantity = (int)listing.Quantity,
                         IsHq = (bool)listing.IsHQ,
+                        RetainerName = listing.RetainerName,
                         Server = server
                     };
 
@@ -57,6 +58,9 @@ namespace Astramentis.Services
             }));
 
             await Task.WhenAll(tasks);
+
+            if (itemShouldBeHq)
+                marketListings = marketListings.Where(x => x.IsHq).ToList();
 
             // sort the list by the item price
             marketListings = marketListings.OrderBy(x => x.CurrentPrice).ToList();
@@ -89,15 +93,15 @@ namespace Astramentis.Services
                     // build a marketlisting with the info we get from method parameters and the api call
                     var historyListing = new HistoryItemListingModel()
                     {
-                        
-                    };
-                    historyListing.Name = itemName;
-                    historyListing.ItemId = itemId;
-                    historyListing.SoldPrice = (int)listing.PricePerUnit;
-                    historyListing.IsHq = listing.IsHQ;
-                    historyListing.Quantity = (int)listing.Quantity;
-                    historyListing.SaleDate = saleDate;
-                    historyListing.Server = listing.Server;
+                        Name = itemName,
+                        ItemId = itemId,
+                        SoldPrice = (int)listing.PricePerUnit,
+                        IsHq = listing.IsHQ,
+                        Quantity = (int)listing.Quantity,
+                        SaleDate = saleDate,
+                        Server = listing.Server,
+                };
+                    
 
                     historyListings.Add(historyListing);
                 }
@@ -129,18 +133,18 @@ namespace Astramentis.Services
             analysisOverall.IsHQ = false;
 
             // make API requests for data
+            var apiMarketResponse = await GetMarketListings(itemName, itemID, false, worldsToSearch);
             var apiHistoryResponse = await GetHistoryListings(itemName, itemID, worldsToSearch);
-            var apiMarketResponse = await GetMarketListings(itemName, itemID, worldsToSearch);
-
-            // split history results by quality
-            var salesHQ = apiHistoryResponse.Where(x => x.IsHq == true).ToList();
-            var salesNQ = apiHistoryResponse.Where(x => x.IsHq == false).ToList();
-            var salesOverall = apiHistoryResponse.ToList();
 
             // split market results by quality
             var marketHQ = apiMarketResponse.Where(x => x.IsHq == true).ToList();
             var marketNQ = apiMarketResponse.Where(x => x.IsHq == false).ToList();
             var marketOverall = apiMarketResponse.ToList();
+
+            // split history results by quality
+            var salesHQ = apiHistoryResponse.Where(x => x.IsHq == true).ToList();
+            var salesNQ = apiHistoryResponse.Where(x => x.IsHq == false).ToList();
+            var salesOverall = apiHistoryResponse.ToList();
 
             // handle HQ items if they exist
             if (salesHQ.Any() && marketHQ.Any())
@@ -154,9 +158,13 @@ namespace Astramentis.Services
                 // assign average price of lowest ten listings
                 analysisHQ.AvgMarketPrice = GetAveragePricePerUnit(marketHQ.Take(10).ToList());
 
-                // lowest values
-                analysisHQ.LowestPrice = apiMarketResponse.FirstOrDefault(x => x.IsHq == true).CurrentPrice;
-                analysisHQ.LowestPriceServer = apiMarketResponse.FirstOrDefault(x => x.IsHq == true).Server;
+                // build lowest values list
+                analysisHQ.LowestPrices = new List<MarketItemAnalysisLowestPricesModel>();
+                foreach (var listing in apiMarketResponse)
+                {
+                    if (!analysisHQ.LowestPrices.Any(x => x.Server == listing.Server))
+                        analysisHQ.LowestPrices.Add(new MarketItemAnalysisLowestPricesModel() { Server = listing.Server, Price = listing.CurrentPrice });
+                }
 
                 // set checks for if item's sold or has listings
                 if (analysisHQ.AvgMarketPrice == 0)
@@ -175,7 +183,7 @@ namespace Astramentis.Services
                 else
                 {
                     analysisHQ.Differential = Math.Round(((decimal)analysisHQ.AvgSalePrice - analysisHQ.AvgMarketPrice) / analysisHQ.AvgSalePrice * 100, 2);
-                    analysisHQ.DifferentialLowest = Math.Round(((decimal)analysisHQ.AvgSalePrice - analysisHQ.LowestPrice) / analysisHQ.AvgSalePrice * 100, 2);
+                    analysisHQ.DifferentialLowest = Math.Round(((decimal)analysisHQ.AvgSalePrice - analysisHQ.LowestPrices.FirstOrDefault().Price) / analysisHQ.AvgSalePrice * 100, 2);
                 }
             }
 
@@ -190,9 +198,13 @@ namespace Astramentis.Services
             // assign average price of lowest listings
             analysisNQ.AvgMarketPrice = GetAveragePricePerUnit(marketNQ.Take(5).ToList());
 
-            // lowest values
-            analysisNQ.LowestPrice = apiMarketResponse.FirstOrDefault(x => x.IsHq == false).CurrentPrice;
-            analysisNQ.LowestPriceServer = apiMarketResponse.FirstOrDefault(x => x.IsHq == false).Server;
+            // build lowest values list
+            analysisNQ.LowestPrices = new List<MarketItemAnalysisLowestPricesModel>();
+            foreach (var listing in apiMarketResponse)
+            {
+                if (!analysisNQ.LowestPrices.Any(x => x.Server == listing.Server))
+                    analysisNQ.LowestPrices.Add(new MarketItemAnalysisLowestPricesModel() { Server = listing.Server, Price = listing.CurrentPrice });
+            }
 
             // set checks for if item's sold or has listings
             if (analysisNQ.AvgMarketPrice == 0)
@@ -211,7 +223,7 @@ namespace Astramentis.Services
             else
             {
                 analysisNQ.Differential = Math.Round(((decimal)analysisNQ.AvgSalePrice - analysisNQ.AvgMarketPrice) / analysisNQ.AvgSalePrice * 100, 2);
-                analysisNQ.DifferentialLowest = Math.Round(((decimal)analysisNQ.AvgSalePrice - analysisNQ.LowestPrice) / analysisNQ.AvgSalePrice * 100, 2);
+                analysisNQ.DifferentialLowest = Math.Round(((decimal)analysisNQ.AvgSalePrice - analysisNQ.LowestPrices.FirstOrDefault().Price) / analysisNQ.AvgSalePrice * 100, 2);
             }
 
             
@@ -225,9 +237,13 @@ namespace Astramentis.Services
             // assign average price of lowest listings
             analysisOverall.AvgMarketPrice = GetAveragePricePerUnit(marketOverall.Take(5).ToList());
 
-            // lowest values
-            analysisOverall.LowestPrice = apiMarketResponse.FirstOrDefault().CurrentPrice;
-            analysisOverall.LowestPriceServer = apiMarketResponse.FirstOrDefault().Server;
+            // build lowest values list
+            analysisOverall.LowestPrices = new List<MarketItemAnalysisLowestPricesModel>();
+            foreach (var listing in apiMarketResponse)
+            {
+                if (!analysisOverall.LowestPrices.Any(x => x.Server == listing.Server))
+                    analysisOverall.LowestPrices.Add(new MarketItemAnalysisLowestPricesModel() { Server = listing.Server, Price = listing.CurrentPrice });
+            }
 
             // set checks for if item's sold or has listings
             if (analysisOverall.AvgMarketPrice == 0)
@@ -246,7 +262,7 @@ namespace Astramentis.Services
             else
             {
                 analysisOverall.Differential = Math.Round(((decimal)analysisOverall.AvgSalePrice - analysisOverall.AvgMarketPrice) / analysisOverall.AvgSalePrice * 100, 2);
-                analysisOverall.DifferentialLowest = Math.Round(((decimal)analysisOverall.AvgSalePrice - analysisOverall.LowestPrice) / analysisOverall.AvgSalePrice * 100, 2);
+                analysisOverall.DifferentialLowest = Math.Round(((decimal)analysisOverall.AvgSalePrice - analysisOverall.LowestPrices.FirstOrDefault().Price) / analysisOverall.AvgSalePrice * 100, 2);
             }
 
             
@@ -271,6 +287,7 @@ namespace Astramentis.Services
                     itemsList = CurrencyTradeableItemsDataset.PoeticsItemsList;
                     break;
                 case "gemstones":
+                case "gems":
                     itemsList = CurrencyTradeableItemsDataset.GemstonesItemsList;
                     break;
                 case "nuts":
@@ -291,6 +308,11 @@ namespace Astramentis.Services
                 case "tome":
                 case "tomes":
                     itemsList = CurrencyTradeableItemsDataset.TomeItemsList;
+                    break;
+                case "sky":
+                case "skybuilder":
+                case "skybuilders":
+                    itemsList = CurrencyTradeableItemsDataset.SkybuildersTomeItemsList;
                     break;
                 default:
                     return itemsList;
@@ -329,21 +351,12 @@ namespace Astramentis.Services
                 var neededQuantity = input.NeededQuantity;
                 var shouldBeHq = input.ShouldBeHQ;
 
-                var numOfListingsToTake = 17;
-                // for large requests, take a RAM hit to grab more listings
-                if (neededQuantity > 100)
-                    numOfListingsToTake = 20;
+                var numOfListingsToTake = 20;
 
-                var listings = GetMarketListings(itemName, itemId, worldsToSearch).Result;
-
-                // if we need this item to be hq, we should filter out NQ listings now
-                if (shouldBeHq)
-                    listings = listings.Where(x => x.IsHq).ToList();
+                var listings = GetMarketListings(itemName, itemId, shouldBeHq, worldsToSearch).Result;
 
                 // put together a list of each market listing
                 var multiPartOrderList = new List<MarketItemCrossWorldOrderModel>();
-                // only look at listings that are less than double the price of the lowest cost item
-                // we'd need to change this to look at averages since the lowest price could be a major outlier
 
                 foreach (var listing in listings.Take(numOfListingsToTake))
                 {
@@ -367,7 +380,7 @@ namespace Astramentis.Services
 
 
                 if (efficientListings.Any())
-                    PurchaseOrderList.AddRange(efficientListings.FirstOrDefault());
+                    PurchaseOrderList.AddRange(efficientListings);
 
                 multiPartOrderList.Clear();
             }));
@@ -424,17 +437,12 @@ namespace Astramentis.Services
         }
 
         // this is used to determine the most efficient order of buying items cross-world
-        // this function returns the 20 values of best 'fit' for these requirements given the parameters
-        private static List<IEnumerable<MarketItemCrossWorldOrderModel>> GetMostEfficientPurchases(List<MarketItemCrossWorldOrderModel> listings, int needed)
+        private static List<MarketItemCrossWorldOrderModel> GetMostEfficientPurchases(List<MarketItemCrossWorldOrderModel> listings, int needed)
         {
-            var target = Enumerable.Range(1, listings.Count)
-                .SelectMany(p => listings.Combinations(p))
-                .OrderBy(p => Math.Abs((int)p.Select(x => x.Quantity).Sum() - needed)) // sort by number of listings - fewest orders possible
-                .ThenBy(x => x.Sum(y => y.Price * y.Quantity)) // sort by total price of listing - typically leans towards more orders but cheaper overall
-                .Where(x => x.Sum(y => y.Quantity) >= needed) // where the total quantity is what we need, or more
-                .Take(5); // doesn't this just give us different possible options? do we need more than 1?
-
-            return target.ToList();
+            var helper = new MarketOrderHelper();
+            var results = helper.SumUp(listings, needed);
+            return results.OrderBy(x => x.Sum(y => y.Price * y.Quantity))
+                    .ToList().FirstOrDefault();
         }
 
         // gets list of items, loads them into an list, returns list of items or empty list if request failed
@@ -489,17 +497,6 @@ namespace Astramentis.Services
                 });
 
             return tempItemList;
-        }
-    }
-
-    // for use with the GetMostEfficientPurchases command, to build order lists
-    public static class EnumerableExtensions
-    {
-        public static IEnumerable<IEnumerable<T>> Combinations<T>(this IEnumerable<T> elements, int k)
-        {
-            return k == 0 ? new[] { new T[0] } :
-                elements.SelectMany((e, i) =>
-                    elements.Skip(i + 1).Combinations(k - 1).Select(c => (new[] { e }).Concat(c)));
         }
     }
 }

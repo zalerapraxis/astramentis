@@ -9,6 +9,7 @@ namespace Astramentis.Models
         public string ItemName { get; set; }
         public int ItemId { get; set; }
         public string ItemIconUrl { get; set; }
+        public bool ItemHq { get; set; }
         public List<string> WorldsToSearch { get; set; }
     }
 }

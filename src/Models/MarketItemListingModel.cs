@@ -11,6 +11,7 @@ namespace Astramentis.Models
         public int CurrentPrice { get; set; }
         public int Quantity { get; set; }
         public bool IsHq { get; set; }
+        public string RetainerName { get; set; }
         public string Server { get; set; }
     }
 }

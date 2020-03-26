@@ -78,20 +78,18 @@ namespace Astramentis.Services
                 // if it's less than an hour and less or equal to fifteen minutes, try to modify an existing alert message or send a new one
                 if (timeStartDelta.TotalHours < 1 && timeStartDelta.TotalMinutes <= 15)
                 {
-                    var messageContents = $"{calendarEvent.Name} is starting shortly ({(int)timeStartDelta.TotalMinutes}m). Look for a party finder soon.";
+                    var messageContents = $"{calendarEvent.Name} is starting shortly ({(int)timeStartDelta.TotalMinutes}m).";
 
                     // if there's an alert message already, edit it
                     if (calendarEvent.AlertMessage != null)
                     {
                         await calendarEvent.AlertMessage.ModifyAsync(m => m.Content = messageContents);
-                        Logger.Log(LogLevel.Debug, $"DEBUG - {server.ServerName} - The event is less than 15m from now and we did have an alert message, editing it.");
                     }
                     // if there wasn't an alert message, send a new message
                     else
                     {
                         var msg = await server.ReminderChannel.SendMessageAsync(messageContents);
                         calendarEvent.AlertMessage = msg;
-                        Logger.Log(LogLevel.Debug, $"DEBUG - {server.ServerName} - The event is less than 15m from now and we did not have an alert message, sending one.");
                     }
                 }
 
@@ -109,14 +107,12 @@ namespace Astramentis.Services
                     if (calendarEvent.AlertMessage != null)
                     {
                         await calendarEvent.AlertMessage.ModifyAsync(m => m.Content = messageContents);
-                        Logger.Log(LogLevel.Debug, $"DEBUG - {server.ServerName} - The event is underway and we had an alert message, editing it.");
                     }
                     // if there wasn't an alert message, send a new message
                     else
                     {
                         var msg = await server.ReminderChannel.SendMessageAsync(messageContents);
                         calendarEvent.AlertMessage = msg;
-                        Logger.Log(LogLevel.Debug, $"DEBUG - {server.ServerName} - The event is underway and we did not have an alert message, sending one.");
                     }
                 }
 
@@ -125,16 +121,15 @@ namespace Astramentis.Services
                 {
                     await calendarEvent.AlertMessage.DeleteAsync();
                     calendarEvent.AlertMessage = null;
-                    Logger.Log(LogLevel.Debug, $"DEBUG - {server.ServerName} - The event end date is less than 5 mins from now, deleting alert message.");
                 }
 
-                // if the event is over an hour from now and an alert message exists, delete it.
+                // if the event is over an hour from now and an alert message exists, delete it. This should not occur normally.
                 if (calendarEvent.StartDate > GetCurrentTimePacific() + TimeSpan.FromMinutes(60) && calendarEvent.AlertMessage != null)
                 {
                     // await calendarEvent.AlertMessage.DeleteAsync();
 
                     calendarEvent.AlertMessage = null;
-                    Logger.Log(LogLevel.Debug, $"DEBUG - {server.ServerName} - The event start date is over an hour away, we would have deleted the alert message.");
+                    Logger.Log(LogLevel.Debug, $"DEBUG - {server.ServerName} - The event start date is over an hour away, we would have deleted the alert message. This should not occur normally.");
                 }
             }
         }
@@ -284,11 +279,26 @@ namespace Astramentis.Services
         private async Task<IUserMessage> GetPreviousReminderMessage(DiscordServer server, string messageContains)
         {
             // get all messages in reminder channel
-            var messages = await server.ReminderChannel.GetMessagesAsync().FlattenAsync();
+            IEnumerable<IMessage> messages = null;
+
+            while (messages == null)
+            {
+                try
+                {
+                    messages = await server.ReminderChannel.GetMessagesAsync().FlattenAsync();
+                }
+                catch
+                {
+                    Logger.Log(LogLevel.Debug, $"There was an error retrieving reminder messages, we're trying again...");
+                }
+                await Task.Delay(1000);
+            }
+
             // try to get a pre-existing message matching messageContains (so {eventtitle})
             //return the results or null
             var reminderMsg = messages.Where(msg => msg.Author.Id == _discord.CurrentUser.Id).FirstOrDefault(msg => msg.Content.Contains(messageContains));
             return (IUserMessage)reminderMsg;
+
         }
 
         private string GetTimeDeltaFormatting(TimeSpan timeDelta)

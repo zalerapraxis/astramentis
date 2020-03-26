@@ -46,7 +46,7 @@ namespace Astramentis.Modules
             var inputs = await SplitCommandInputs(input, InteractiveCommandReturn.Price);
 
             // get market data
-            var marketQueryResults = await MarketService.GetMarketListings(inputs.ItemName, inputs.ItemId, inputs.WorldsToSearch);
+            var marketQueryResults = await MarketService.GetMarketListings(inputs.ItemName, inputs.ItemId, inputs.ItemHq, inputs.WorldsToSearch);
 
             // if no listings found, notify and end
             if (marketQueryResults.Count == 0)
@@ -60,7 +60,7 @@ namespace Astramentis.Modules
             var pages = new List<PaginatedMessage.Page>();
 
             var i = 0;
-            var itemsPerPage = 12;
+            var itemsPerPage = 11;
 
             // iterate through the market results, making a page for every (up to) itemsPerPage listings
             while (i < marketQueryResults.Count)
@@ -83,7 +83,8 @@ namespace Astramentis.Modules
                         sbListing.Append($"for {listing.CurrentPrice * listing.Quantity} (**{listing.CurrentPrice}** per unit) ");
                     else // single units
                         sbListing.Append($"for **{listing.CurrentPrice}** ");
-                    sbListing.Append($"on **{listing.Server}**");
+                    sbListing.Append($"on **{listing.Server}** ");
+                    sbListing.Append($"via **{listing.RetainerName}** ");
                     sbListing.AppendLine();
                 }
 
@@ -262,7 +263,7 @@ namespace Astramentis.Modules
                 hqFieldBuilder.AppendLine($"Avg Sale Price: {hqMarketAnalysis.AvgSalePrice}");
                 hqFieldBuilder.AppendLine($"Differential: {hqMarketAnalysis.Differential}%");
                 hqFieldBuilder.AppendLine($"Lowest diff: {hqMarketAnalysis.DifferentialLowest}%");
-                hqFieldBuilder.AppendLine($"Lowest Price: {hqMarketAnalysis.LowestPrice}");
+                hqFieldBuilder.AppendLine($"Lowest Price: {hqMarketAnalysis.LowestPrices.FirstOrDefault().Price}");
                 hqFieldBuilder.Append("Active:");
                 if (hqMarketAnalysis.NumRecentSales >= 5)
                     hqFieldBuilder.AppendLine(" Yes");
@@ -283,7 +284,7 @@ namespace Astramentis.Modules
             nqFieldBuilder.AppendLine($"Avg Sale Price: {nqMarketAnalysis.AvgSalePrice}");
             nqFieldBuilder.AppendLine($"Differential: {nqMarketAnalysis.Differential}%");
             nqFieldBuilder.AppendLine($"Lowest diff: {nqMarketAnalysis.DifferentialLowest}%");
-            nqFieldBuilder.AppendLine($"Lowest Price: {nqMarketAnalysis.LowestPrice}");
+            nqFieldBuilder.AppendLine($"Lowest Price: {nqMarketAnalysis.LowestPrices.FirstOrDefault().Price}");
             nqFieldBuilder.Append("Active:");
             if (nqMarketAnalysis.NumRecentSales >= 5)
                 nqFieldBuilder.AppendLine(" Yes");
@@ -327,13 +328,14 @@ namespace Astramentis.Modules
 
                 categoryListBuilder.AppendLine("gc - grand company seals");
                 categoryListBuilder.AppendLine("poetics - i380 crafter mats, more later maybe");
-                categoryListBuilder.AppendLine("gemstones - bicolor gemstones from fates");
+                categoryListBuilder.AppendLine("gems/gemstones - bicolor gemstones from fates");
                 categoryListBuilder.AppendLine("nuts - sacks of nuts from hunts :peanut:");
                 categoryListBuilder.AppendLine("wgs - White Gatherer Scrip items");
                 categoryListBuilder.AppendLine("wcs - White Crafter Scrip items");
                 categoryListBuilder.AppendLine("ygs - Yellow Gatherer Scrip items");
                 categoryListBuilder.AppendLine("ycs - Yellow Crafter Scrip items");
                 categoryListBuilder.AppendLine("tome/tomes - tome mats");
+                categoryListBuilder.AppendLine("sky - skybuilders' scrips");
 
                 await ReplyAsync(categoryListBuilder.ToString());
                 return;
@@ -409,6 +411,7 @@ namespace Astramentis.Modules
                     authorurl = "https://xivapi.com/i/065000/065023.png";
                     break;
                 case "gemstones":
+                case "gems":
                     authorurl = "https://xivapi.com/i/065000/065071.png";
                     break;
                 case "nuts":
@@ -429,6 +432,11 @@ namespace Astramentis.Modules
                 case "tome":
                 case "tomes":
                     authorurl = "https://xivapi.com/i/065000/065067.png";
+                    break;
+                case "sky":
+                case "skybuilder":
+                case "skybuilders":
+                    authorurl = "https://xivapi.com/i/065000/065073.png";
                     break;
             }
 
@@ -572,7 +580,7 @@ namespace Astramentis.Modules
             }
 
             await plsWaitMsg.DeleteAsync();
-            await ReplyAsync("If any items are missing from the list, it's likely they'd take too many purchases to process. Consider using the market price (mbp) command for missing items.", false, purchaseOrderEmbed.Build());
+            await ReplyAsync("If any orders are incomplete, it's likely they'd take too many purchases to process.", false, purchaseOrderEmbed.Build());
         }
 
         [Command("market watchlist add", RunMode = RunMode.Async)]
@@ -670,12 +678,13 @@ namespace Astramentis.Modules
         }
 
         [Command("apirequests", RunMode = RunMode.Async)]
-        [Alias("requests")]
+        [Alias("requests", "r")]
         [RequireOwner]
         [Summary("Report number of API requests")]
         public async Task GetNumberOfAPIRequests([Remainder] string input = null)
         {
-            await ReplyAsync($"{APIRequestService.TotalAPIRequestsMade} requests ({APIRequestService.TotalAPIRequestsMadeSinceHeartbeat} since last heartbeat check).");
+            // TODO: add timezone conversion function somewhere and use it instead of this addhours(-4) crap
+            await ReplyAsync($"{APIRequestService.TotalAPIRequestsMade} requests since {System.Diagnostics.Process.GetCurrentProcess().StartTime.AddHours(-4)} ({APIRequestService.TotalAPIRequestsMadeSinceHeartbeat} since last heartbeat check).");
         }
 
         // for use with commands that take item names & potentially server as inputs
@@ -688,6 +697,7 @@ namespace Astramentis.Modules
 
             // clean up input
             var worldsToSearch = GetServer(input, false);
+            var itemShouldBeHq = CheckIfUserRequestedHq(input);
             input = CleanCommandInput(input);
 
             // declar vars to fill 
@@ -704,6 +714,7 @@ namespace Astramentis.Modules
             itemId = itemIdResponse.Value;
 
             // TODO: do we need to check the success of this function afterwards?
+            // we can test by running various commands with incorrect spellings and see how commands react, if at all
             var itemDetailsQueryResult = await APIRequestService.QueryXivapiWithItemId(itemId);
 
             itemName = itemDetailsQueryResult.Name;
@@ -714,6 +725,7 @@ namespace Astramentis.Modules
                 ItemName = itemName,
                 ItemId = itemId,
                 ItemIconUrl = itemIconUrl,
+                ItemHq = itemShouldBeHq,
                 WorldsToSearch = worldsToSearch
             };
 
@@ -775,45 +787,6 @@ namespace Astramentis.Modules
             }
 
             return itemId;
-        }
-
-        // returns a list of strings representing the servers that should be parsed
-        // can be either one server, in the case of the user requesting a specific server, or all servers in a datacenter
-        private List<string> GetServer(string input, bool useDefaultWorld)
-        {
-            var resultsList = new List<string>();
-
-            string server = null;
-
-            // look to see if the input contains one of the server names
-            foreach (var world in Enum.GetValues(typeof(Worlds)))
-            {
-                if (input.Contains(world.ToString()))
-                {
-                    server = world.ToString();
-                }
-            }
-
-            // if user supplied a server, return that in the list
-            if (server != null)
-            {
-                resultsList.Add(server);
-                return resultsList;
-            }
-
-            // if we didn't find a server, but calling function requested we use the default world instead of the default datacenter,
-            // return the default world instead of the default datacenter
-            if (useDefaultWorld && server == null)
-            {
-                resultsList.Add(DefaultWorld.ToString());
-                return resultsList;
-            }
-
-            // otherwise, add every server in the datacenter
-            foreach (var world in Enum.GetValues(typeof(Worlds)))
-                resultsList.Add(world.ToString());
-
-            return resultsList;
         }
 
         // interactive user selection prompt - each item in the passed collection gets listed out with an emoji
@@ -895,6 +868,45 @@ namespace Astramentis.Modules
             }
         }
 
+        // returns a list of strings representing the servers that should be parsed
+        // can be either one server, in the case of the user requesting a specific server, or all servers in a datacenter
+        private List<string> GetServer(string input, bool useDefaultWorld)
+        {
+            var resultsList = new List<string>();
+
+            string server = null;
+
+            // look to see if the input contains one of the server names
+            foreach (var world in Enum.GetValues(typeof(Worlds)))
+            {
+                if (input.Contains(world.ToString()))
+                {
+                    server = world.ToString();
+                }
+            }
+
+            // if user supplied a server, return that in the list
+            if (server != null)
+            {
+                resultsList.Add(server);
+                return resultsList;
+            }
+
+            // if we didn't find a server, but calling function requested we use the default world instead of the default datacenter,
+            // return the default world instead of the default datacenter
+            if (useDefaultWorld && server == null)
+            {
+                resultsList.Add(DefaultWorld.ToString());
+                return resultsList;
+            }
+
+            // otherwise, add every server in the datacenter
+            foreach (var world in Enum.GetValues(typeof(Worlds)))
+                resultsList.Add(world.ToString());
+
+            return resultsList;
+        }
+
         //
         private string CleanCommandInput(string input)
         {
@@ -904,6 +916,7 @@ namespace Astramentis.Modules
             // add each possible input into a list of words to look for
             foreach (var world in Enum.GetValues(typeof(Worlds)))
                 wordsToRemove.Add(world.ToString());
+            wordsToRemove.Add("hq");
 
             foreach (var word in wordsToRemove)
             {
@@ -914,6 +927,14 @@ namespace Astramentis.Modules
             }
 
             return result;
+        }
+
+        //
+        private bool CheckIfUserRequestedHq(string input)
+        {
+            if (input.Contains("hq"))
+                return true;
+            return false;
         }
 
         //

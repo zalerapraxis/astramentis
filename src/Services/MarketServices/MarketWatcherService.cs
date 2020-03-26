@@ -71,7 +71,6 @@ namespace Astramentis.Services.MarketServices
         {
             Logger.Log(LogLevel.Debug, $"Watchlist timer ticked.");
 
-            // TODO: add pause function
             // adjust timer & start it again
             var _watchlistTimerInterval = Convert.ToInt32(TimeSpan.FromMinutes(10).TotalMilliseconds) + _rng.Next(-60000, 60000);
             Logger.Log(LogLevel.Debug, $"Next tick at {DateTime.Now.AddMilliseconds(_watchlistTimerInterval):hh:mm:ss tt}");
@@ -97,7 +96,7 @@ namespace Astramentis.Services.MarketServices
                 return;
 
             // grab market analyses for items on watchlist
-            ConcurrentDictionary<string, MarketItemAnalysisModel> WatchlistDifferentials = new ConcurrentDictionary<string, MarketItemAnalysisModel>();
+            List<MarketItemAnalysisModel> WatchlistDifferentials = new List<MarketItemAnalysisModel>();
             var itemTasks = Task.Run(() => Parallel.ForEach(watchlist, parallelOptions, watchlistEntry =>
             {
                 var apiResponse =
@@ -109,21 +108,28 @@ namespace Astramentis.Services.MarketServices
                     analysis = apiResponse[0]; // overwrite with hq analysis if needed
                 }
 
-                WatchlistDifferentials.TryAdd(watchlistEntry.itemName, analysis);
+                WatchlistDifferentials.Add(analysis);
             }));
             Task.WaitAll(itemTasks);
 
             // build embed & format data to send to my dm's
             var dm = await _discord.GetUser(110866678161645568).GetOrCreateDMChannelAsync();
             var embed = new EmbedBuilder();
-            foreach (var entry in WatchlistDifferentials.Values)
+            foreach (var entry in WatchlistDifferentials)
             {
                 if (entry.DifferentialLowest > DifferentialCutoff)
                 {
+                    var sb = new StringBuilder();
+                    sb.AppendLine($"lowest diff: **{entry.DifferentialLowest}%** (avg diff: {entry.Differential}%) - avg sold: {entry.AvgSalePrice} - avg mrkt: {entry.AvgMarketPrice}");
+                    foreach (var lowestPrices in entry.LowestPrices.Take(3))
+                    {
+                        sb.Append($"• {lowestPrices.Price} on {lowestPrices.Server} ");
+                    }
+
                     embed.AddField(new EmbedFieldBuilder()
                     {
                         Name = entry.Name,
-                        Value = $"lowest diff: {entry.DifferentialLowest}% (avg diff: {entry.Differential}%) - avg sold: {entry.AvgSalePrice} - avg mrkt: {entry.AvgMarketPrice} {Environment.NewLine} lowest: {entry.LowestPrice} on {entry.LowestPriceServer}"
+                        Value = sb.ToString()
                     });
                 }
             }

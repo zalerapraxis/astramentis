@@ -22,6 +22,9 @@ namespace Astramentis.Services.MarketServices
         private int exceptionRetryCount = 5; // number of times to retry api requests
         private int exceptionRetryDelay = 1000; // ms delay between retries
 
+        private int concurrentAPIRequests = 0;
+        private int concurrentAPIRequestsMax = 20;
+
         public int TotalAPIRequestsMade = 0;
         public int TotalAPIRequestsMadeSinceHeartbeat = 0;
 
@@ -96,9 +99,23 @@ namespace Astramentis.Services.MarketServices
 
             while (i < exceptionRetryCount)
             {
+                while (concurrentAPIRequests >= concurrentAPIRequestsMax)
+                {
+                    //todo: DEBUG
+                    Console.WriteLine("Max requests hit, waiting...");
+                    await Task.Delay(1000);
+                }
+
+                // TODO: confirm this is an ok spot to put this
+                Interlocked.Increment(ref concurrentAPIRequests);
+                Console.WriteLine($"{concurrentAPIRequests} concurrent requests");
+
                 try
                 {
                     dynamic apiResponse = await url.GetJsonAsync();
+
+                    // TODO: confirm this is an ok spot to put this
+                    Interlocked.Decrement(ref concurrentAPIRequests);
 
                     // if our request was a search, this will cover any no results errors
                     if (((IDictionary<String, object>) apiResponse).ContainsKey("Results") &&
