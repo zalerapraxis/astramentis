@@ -35,7 +35,6 @@ namespace Astramentis.Modules
         [Alias("mbp")]
         [Summary("Get prices for an item - takes item name or item id")]
         [Example("market price (server) {name/id}")]
-        // function will attempt to parse server from searchTerm, no need to make a separate param
         public async Task MarketGetItemPrice([Remainder] string input)
         {
             // check if companion api is down
@@ -43,10 +42,15 @@ namespace Astramentis.Modules
                 return;
 
             // clean up inputs & parse them out
-            var inputs = (await SplitCommandInputs(input, InteractiveCommandReturn.Price)).FirstOrDefault();
+            MarketCommandInputsModel parsedInput = (await SplitCommandInputs(input, InteractiveCommandReturn.Price)).FirstOrDefault();
+
+            if (parsedInput == null)
+                // splitcommandinputs passed data off to InteractiveUserSelectItem, which will
+                // call this command again once the user has selected the item they want
+                return;                
 
             // get market data
-            var marketQueryResults = await MarketService.GetMarketListings(inputs.ItemName, inputs.ItemId, inputs.ItemHq, inputs.WorldsToSearch);
+            var marketQueryResults = await MarketService.GetMarketListings(parsedInput.ItemName, parsedInput.ItemId, parsedInput.ItemHq, parsedInput.WorldsToSearch);
 
             // if no listings found, notify and end
             if (marketQueryResults.Count == 0)
@@ -94,7 +98,7 @@ namespace Astramentis.Modules
                     {
                         new EmbedFieldBuilder()
                         {
-                            Name = $"{inputs.ItemName}",
+                            Name = $"{parsedInput.ItemName}",
                             Value = sbListing
                         }
                     }
@@ -110,9 +114,9 @@ namespace Astramentis.Modules
                 Pages = pages,
                 Author = new EmbedAuthorBuilder()
                 {
-                    Name = $"{marketQueryResults.Count} Market listing(s) for {inputs.ItemName}",
+                    Name = $"{marketQueryResults.Count} Market listing(s) for {parsedInput.ItemName}",
                 },
-                ThumbnailUrl = inputs.ItemIconUrl,
+                ThumbnailUrl = parsedInput.ItemIconUrl,
                 Color = Color.Blue,
                 Options = new PaginatedAppearanceOptions()
                 {
@@ -144,10 +148,15 @@ namespace Astramentis.Modules
                 return;
 
             // clean up inputs & parse them out
-            var inputs = (await SplitCommandInputs(input, InteractiveCommandReturn.History)).FirstOrDefault();
+            MarketCommandInputsModel parsedInput = (await SplitCommandInputs(input, InteractiveCommandReturn.History)).FirstOrDefault();
+
+            if (parsedInput == null)
+                // splitcommandinputs passed data off to InteractiveUserSelectItem, which will
+                // call this command again once the user has selected the item they want
+                return;
 
             // get history data
-            var historyQueryResults = await MarketService.GetHistoryListings(inputs.ItemName, inputs.ItemId, inputs.WorldsToSearch);
+            var historyQueryResults = await MarketService.GetHistoryListings(parsedInput.ItemName, parsedInput.ItemId, parsedInput.WorldsToSearch);
 
             // if no listings found, notify and end
             if (historyQueryResults.Count == 0)
@@ -197,7 +206,7 @@ namespace Astramentis.Modules
                     {
                         new EmbedFieldBuilder()
                         {
-                            Name = $"{inputs.ItemName}",
+                            Name = $"{parsedInput.ItemName}",
                             Value = sbListing
                         }
                     }
@@ -213,9 +222,9 @@ namespace Astramentis.Modules
                 Pages = pages,
                 Author = new EmbedAuthorBuilder()
                 {
-                    Name = $"{historyQueryResults.Count} History listing(s) for {inputs.ItemName}",
+                    Name = $"{historyQueryResults.Count} History listing(s) for {parsedInput.ItemName}",
                 },
-                ThumbnailUrl = inputs.ItemIconUrl,
+                ThumbnailUrl = parsedInput.ItemIconUrl,
                 Color = Color.Blue
             };
 
@@ -244,10 +253,15 @@ namespace Astramentis.Modules
                 return;
 
             // clean up inputs & parse them out
-            var inputs = (await SplitCommandInputs(input, InteractiveCommandReturn.Analyze)).FirstOrDefault();
+            MarketCommandInputsModel parsedInput = (await SplitCommandInputs(input, InteractiveCommandReturn.Analyze)).FirstOrDefault();
+
+            if (parsedInput == null)
+                // splitcommandinputs passed data off to InteractiveUserSelectItem, which will
+                // call this command again once the user has selected the item they want
+                return;
 
             // get analyses
-            var marketAnalysis = await MarketService.CreateMarketAnalysis(inputs.ItemName, inputs.ItemId, inputs.WorldsToSearch);
+            var marketAnalysis = await MarketService.CreateMarketAnalysis(parsedInput.ItemName, parsedInput.ItemId, parsedInput.WorldsToSearch);
             var hqMarketAnalysis = marketAnalysis[0];
             var nqMarketAnalysis = marketAnalysis[1];
 
@@ -299,15 +313,15 @@ namespace Astramentis.Modules
             analysisEmbedBuilder.AddField("NQ", nqFieldBuilder.ToString());
 
             StringBuilder embedNameBuilder = new StringBuilder();
-            embedNameBuilder.Append($"Market analysis for {inputs.ItemName}");
-            if (inputs.WorldsToSearch.Count == 1)
-                embedNameBuilder.Append($" on {inputs.WorldsToSearch[0]}");
+            embedNameBuilder.Append($"Market analysis for {parsedInput.ItemName}");
+            if (parsedInput.WorldsToSearch.Count == 1)
+                embedNameBuilder.Append($" on {parsedInput.WorldsToSearch[0]}");
 
             analysisEmbedBuilder.Author = new EmbedAuthorBuilder()
             {
                 Name = embedNameBuilder.ToString()
             };
-            analysisEmbedBuilder.ThumbnailUrl = inputs.ItemIconUrl;
+            analysisEmbedBuilder.ThumbnailUrl = parsedInput.ItemIconUrl;
             analysisEmbedBuilder.Color = Color.Blue;
 
             await ReplyAsync(null, false, analysisEmbedBuilder.Build());
@@ -459,28 +473,22 @@ namespace Astramentis.Modules
         [Example("market order {itemname:count, itemname:count, etc...} or marker order {fending, crafting, etc} - add hq to an item name to require high quality")]
         public async Task MarketCrossWorldPurchaseOrderAsync([Remainder] string input = null)
         {
-
-            // TODO: does splitcommandinputs handle checking for null inputs? this may not be necessary
-            // also wouldn't be necessary if we implemented the interactivecommandreturn function, since that would take care
-            // of any messed up inputs
-            if (input == null || !input.Any())
-            {
-                // let the user know they fucked up, or don't
-                return;
-            }
-
             // check if companion api is down
             if (await IsCompanionAPIUsable() == false)
                 return;
 
-            // TODO: we could potentially allow the mbo command to make use of interactivecommandreturn?
-            var inputs = await SplitCommandInputs(input, InteractiveCommandReturn.Price);
+            // regarding interactivecommandreturn, we can't actually take advantage of the interactiveuserselect stuff since this command typically
+            // takes multiple items and it's not designed for that - we pass this so those commands know NOT to try to handle this interactively
+            List<MarketCommandInputsModel> parsedInputs = await SplitCommandInputs(input, InteractiveCommandReturn.Order);
 
-            var plsWaitMsg = await ReplyAsync("This could take quite a while. Please hang tight.");
-            await Context.Channel.TriggerTypingAsync();
+            if (!parsedInputs.Any())
+            {
+                await ReplyAsync("I couldn't get info for one or more items entered. This command can only take exact item names.");
+                return;
+            }
+                
 
             // TODO: check how we can integrate the gearset check stuff into the cmd using splitcommandinputs now
-
             /* 
             // check if user input a gearset request instead of item lists - no spaces so we avoid catching things like
             // 'facet coat of casting' under the 'casting' gearset
@@ -510,12 +518,15 @@ namespace Astramentis.Modules
 
 
             var itemsList = new List<MarketItemCrossWorldOrderModel>();
-            foreach (var item in inputs)
+            foreach (var item in parsedInputs)
             {
-                itemsList.Add(new MarketItemCrossWorldOrderModel() { Name = item.ItemName, NeededQuantity = item.NeededQuantity, ShouldBeHQ = item.ItemHq});
+                itemsList.Add(new MarketItemCrossWorldOrderModel() { Name = item.ItemName, ItemID = item.ItemId, NeededQuantity = item.NeededQuantity, ShouldBeHQ = item.ItemHq});
             }
 
-            var results = await MarketService.GetMarketCrossworldPurchaseOrder(itemsList, inputs[0].WorldsToSearch);
+            var plsWaitMsg = await ReplyAsync("This could take quite a while. Please hang tight.");
+            await Context.Channel.TriggerTypingAsync();
+
+            var results = await MarketService.GetMarketCrossworldPurchaseOrder(itemsList, parsedInputs[0].WorldsToSearch);
 
             // sort the results into different lists, grouped by server
             var purchaseOrder = results.GroupBy(x => x.Server).ToList();
@@ -666,6 +677,7 @@ namespace Astramentis.Modules
             await ReplyAsync(null, false, embed.Build());
         }
 
+
         [Command("apirequests", RunMode = RunMode.Async)]
         [Alias("requests", "r")]
         [RequireOwner]
@@ -675,6 +687,7 @@ namespace Astramentis.Modules
             // TODO: add timezone conversion function somewhere and use it instead of this addhours(-4) crap
             await ReplyAsync($"{APIRequestService.TotalAPIRequestsMade} requests since {System.Diagnostics.Process.GetCurrentProcess().StartTime.AddHours(-4)} ({APIRequestService.TotalAPIRequestsMadeSinceHeartbeat} since last heartbeat check).");
         }
+
 
         // for use with commands that take item names & potentially server as inputs
         // cleans them up & splits them out, returns null if failure
@@ -703,7 +716,7 @@ namespace Astramentis.Modules
                 var itemIdResponse = await GetItemIdFromInput(inputName, function, worldsToSearch);
 
                 if (itemIdResponse == null)
-                    return null;
+                    return inputsSplit;
 
                 var itemId = itemIdResponse.Value;
 
@@ -730,6 +743,7 @@ namespace Astramentis.Modules
             return inputsSplit;
         }
 
+
         // provides an item id for market commands - 
         private async Task<int?> GetItemIdFromInput(string input, InteractiveCommandReturn function, List<string> worldsToSearch)
         {
@@ -741,8 +755,12 @@ namespace Astramentis.Modules
             // if user passed a itemname, get corresponding itemid.
             if (!searchTermIsItemId)
             {
-                // response is either a ordereddictionary of keyvaluepairs, or null
-                var itemIdQueryResult = await MarketService.SearchForItemByName(input);
+                List<ItemSearchResultModel> itemIdQueryResult;
+
+                if (function == InteractiveCommandReturn.Order)
+                    itemIdQueryResult = await MarketService.SearchForItemByNameExact(input);
+                else
+                    itemIdQueryResult = await MarketService.SearchForItemByName(input);
 
                 // something is wrong with xivapi
                 if (itemIdQueryResult == null)
@@ -758,7 +776,6 @@ namespace Astramentis.Modules
                     await Context.Channel.SendMessageAsync("No tradeable items found. Try to expand your search terms, or check for typos. ");
                     return null;
                 }
-                    
 
                 // too many results
                 if (itemIdQueryResult.Count > 15)
@@ -766,26 +783,32 @@ namespace Astramentis.Modules
                     await Context.Channel.SendMessageAsync("Too many results found. Try narrowing down your search terms.");
                     return null;
                 }
-                    
+
+                
 
                 // if more than one result was found, send the results to the selection function to narrow it down to one
                 // terminate this function, as the selection function will eventually re-call this method with a single result item
                 // 10 is the max number of items we can use interactiveuserselectitem with
-                if (itemIdQueryResult.Count > 1 && itemIdQueryResult.Count < 15)
+                if (itemIdQueryResult.Count > 1 && itemIdQueryResult.Count < 15 && function != InteractiveCommandReturn.Order)
                 {
                     await InteractiveUserSelectItem(itemIdQueryResult, function, worldsToSearch);
                     return null;
                 }
 
+                // if we can't find a singular item to return, and interactiveuserselection would kick in, but this was called from
+                // the market order command, then end the function and return null
+                if (itemIdQueryResult.Count > 1 && function == InteractiveCommandReturn.Order)
+                    return null;
+
                 // if only one result was found, select it and continue without any prompts
                 if (itemIdQueryResult.Count == 1)
-                {
                     itemId = itemIdQueryResult[0].ID;
-                }
+
             }
 
             return itemId;
         }
+
 
         // interactive user selection prompt - each item in the passed collection gets listed out with an emoji
         // user selects an emoji, and the handlecallback function is run with the corresponding item ID as its parameter

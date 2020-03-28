@@ -18,5 +18,9 @@ namespace Astramentis.Enums
         ///     Market Analyze command
         /// </summary>
         Analyze,
+        /// <summary>
+        ///     Market Order command
+        /// </summary>
+        Order
     }
 }

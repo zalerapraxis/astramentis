@@ -7,11 +7,18 @@ namespace Astramentis.Services.MarketServices
 {
     public class MarketOrderHelper
     {
+        public int rngId = 0;
+
         public List<List<MarketItemCrossWorldOrderModel>> ValidResults = new List<List<MarketItemCrossWorldOrderModel>>();
 
-        public List<List<MarketItemCrossWorldOrderModel>> SumUp(List<MarketItemCrossWorldOrderModel> listings, int target)
+        public MarketOrderHelper()
         {
+        }
+
+        public List<List<MarketItemCrossWorldOrderModel>> SumUp(List<MarketItemCrossWorldOrderModel> listings, int target)
+        {            
             sum_up_recursive(listings, target, new List<MarketItemCrossWorldOrderModel>());
+            
             return ValidResults;
         }
 

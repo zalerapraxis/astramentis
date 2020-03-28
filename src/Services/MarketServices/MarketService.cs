@@ -342,11 +342,9 @@ namespace Astramentis.Services
             // iterate through each item
             var tasks = Task.Run(() => Parallel.ForEach(inputs, parallelOptions, input =>
             {
-                var response = SearchForItemByNameExact(input.Name).Result;
-
                 // getting first response for now, but we should find a way to make this more flexible later
-                var itemName = response[0].Name;
-                var itemId = response[0].ID;
+                var itemName = input.Name;
+                var itemId = input.ItemID;
                 // paramer values only for use in this function
                 var neededQuantity = input.NeededQuantity;
                 var shouldBeHq = input.ShouldBeHQ;
@@ -378,7 +376,6 @@ namespace Astramentis.Services
                 // send our listings off to find what the most efficient set of listings to buy are
                 var efficientListings = GetMostEfficientPurchases(multiPartOrderList, input.NeededQuantity);
 
-
                 if (efficientListings.Any())
                     PurchaseOrderList.AddRange(efficientListings);
 
@@ -387,7 +384,7 @@ namespace Astramentis.Services
 
             await Task.WhenAll(tasks);
 
-            PurchaseOrderList = PurchaseOrderList.OrderBy(x => x.Server).ToList();
+            PurchaseOrderList = PurchaseOrderList.ToList();
 
             return PurchaseOrderList;
         }
@@ -441,8 +438,9 @@ namespace Astramentis.Services
         {
             var helper = new MarketOrderHelper();
             var results = helper.SumUp(listings, needed);
-            return results.OrderBy(x => x.Sum(y => y.Price * y.Quantity))
-                    .ToList().FirstOrDefault();
+            var resultsOrdered = results.OrderBy(x => x.Sum(y => y.Price * y.Quantity)).ToList().FirstOrDefault();
+
+            return resultsOrdered;
         }
 
         // gets list of items, loads them into an list, returns list of items or empty list if request failed
