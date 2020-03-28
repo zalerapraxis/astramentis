@@ -100,21 +100,13 @@ namespace Astramentis.Services.MarketServices
             while (i < exceptionRetryCount)
             {
                 while (concurrentAPIRequests >= concurrentAPIRequestsMax)
-                {
-                    //todo: DEBUG
-                    Console.WriteLine("Max requests hit, waiting...");
                     await Task.Delay(1000);
-                }
-
-                // TODO: confirm this is an ok spot to put this
                 Interlocked.Increment(ref concurrentAPIRequests);
-                Console.WriteLine($"{concurrentAPIRequests} concurrent requests");
 
                 try
                 {
                     dynamic apiResponse = await url.GetJsonAsync();
 
-                    // TODO: confirm this is an ok spot to put this
                     Interlocked.Decrement(ref concurrentAPIRequests);
 
                     // if our request was a search, this will cover any no results errors
