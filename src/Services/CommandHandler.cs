@@ -101,7 +101,7 @@ namespace Astramentis
             else
                 cmdResult.Append($" issued in \"{context.Guild.Name}\"");
 
-            cmdResult.Append("executed ");
+            cmdResult.Append(" executed");
 
             if (result.IsSuccess)
                 cmdResult.Append($" successfully");
