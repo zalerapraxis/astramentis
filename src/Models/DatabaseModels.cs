@@ -112,8 +112,8 @@ namespace Astramentis.Services
         public bool enabled { get; set; }
     }
 
-    // internal list of servers, used for global access - not actually stored in the database
-    public class Servers
+    // internal list of servers, used for global tag access & schedule data - not actually stored in the database
+    public class DiscordServers
     {
         public static List<DiscordServer> ServerList = new List<DiscordServer>();
     }

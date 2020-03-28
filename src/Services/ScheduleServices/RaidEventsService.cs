@@ -48,7 +48,7 @@ namespace Astramentis.Services
             // sets global ServersList variable
             await GetServersInfoFromDatabase();
 
-            foreach (var server in Servers.ServerList)
+            foreach (var server in DiscordServers.ServerList)
             {
                 //authenticate
                 await _googleCalendarSyncService.Login(server);
@@ -101,7 +101,7 @@ namespace Astramentis.Services
         // timer executes these functions on each run
         private async void Timer_Tick()
         {
-            foreach (var server in Servers.ServerList)
+            foreach (var server in DiscordServers.ServerList)
             {
                 // check if it's possible for us to sync
                 var syncStatus = _googleCalendarSyncService.CheckIfSyncPossible(server);
@@ -155,7 +155,7 @@ namespace Astramentis.Services
                     // set this server's discord channel & server refs
                     SetServerDiscordObjects(server);
                     // add this server to the ServerList
-                    Servers.ServerList.Add(server);
+                    DiscordServers.ServerList.Add(server);
                 }
             }
         }

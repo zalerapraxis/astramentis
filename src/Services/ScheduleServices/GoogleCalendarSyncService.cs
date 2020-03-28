@@ -98,7 +98,7 @@ namespace Astramentis.Services
         {
             // if server is null, context is not null - we're calling via command, so get the right server via context
             if (server == null && context != null)
-                server = Servers.ServerList.Find(x => x.DiscordServerObject == context.Guild);
+                server = DiscordServers.ServerList.Find(x => x.DiscordServerObject == context.Guild);
 
             // check if we're authenticated and have a calendar id to sync from
             var syncStatus = CheckIfSyncPossible(server);
@@ -253,7 +253,7 @@ namespace Astramentis.Services
 
         public bool? AdjustUpcomingEvent(string function, int value, SocketCommandContext context)
         {
-            var server = Servers.ServerList.Find(x => x.DiscordServerObject == context.Guild);
+            var server = DiscordServers.ServerList.Find(x => x.DiscordServerObject == context.Guild);
 
             // if no events, return null
             if (!server.Events.Any())
@@ -338,11 +338,11 @@ namespace Astramentis.Services
         public async Task SetCalendarId(string calendarId, SocketCommandContext context)
         {
             // grab server by id of current guild via context
-            var server = Servers.ServerList.Find(x => x.DiscordServerObject == context.Guild);
+            var server = DiscordServers.ServerList.Find(x => x.DiscordServerObject == context.Guild);
 
             // and its index in the ServerList so we can assign to the ServerList directly
-            var serverIndex = Servers.ServerList.IndexOf(server);
-            Servers.ServerList[serverIndex].CalendarId = calendarId;
+            var serverIndex = DiscordServers.ServerList.IndexOf(server);
+            DiscordServers.ServerList[serverIndex].CalendarId = calendarId;
 
             // and update the database as well
             await _databaseServers.EditServerInfo(server.ServerId, "calendar_id", calendarId);
@@ -385,7 +385,7 @@ namespace Astramentis.Services
             var authCode = userInput.Split('=', '&')[1];
 
             // grab server by id of current guild via context
-            var server = Servers.ServerList.Find(x => x.DiscordServerObject == context.Guild);
+            var server = DiscordServers.ServerList.Find(x => x.DiscordServerObject == context.Guild);
 
             var credentialPath = $@"{_credentialPathPrefix}/{server.ServerId}";
 

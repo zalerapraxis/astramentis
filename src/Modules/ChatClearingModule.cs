@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Astramentis.Attributes;
 using Astramentis.Services;
 using NLog;
+using System.Collections.Generic;
 
 namespace Astramentis.Modules
 {
@@ -31,7 +32,9 @@ namespace Astramentis.Modules
         {
             var channel = Context.Channel as SocketTextChannel;
             var messages = await channel.GetMessagesAsync(count).FlattenAsync();
-            var server = Servers.ServerList.Find(x => x.DiscordServerObject == Context.Guild);
+
+            // try to locate the server in our database
+            var server = DiscordServers.ServerList.Find(x => x.DiscordServerObject == Context.Guild);
 
             // remove schedule embed message from the messages list, so it doesn't get deleted
             if (server != null && server.EventEmbedMessage != null)
@@ -80,39 +83,6 @@ namespace Astramentis.Modules
                     // done with deleting stuff, so delete the notification
                     await responseMsg.DeleteAsync();
                 }
-            }
-        }
-
-
-        // clear chatlogs
-        [Command("rclear")]
-        [Summary("Clears messages up to a message specified via a reaction")]
-        [RequireBotPermission(ChannelPermission.ManageMessages)]
-        [RequireUserPermission(GuildPermission.Administrator)]
-        public async Task ReactionClearChatlogsAsync()
-        {
-            var channel = Context.Channel as SocketTextChannel;
-
-            IEmote deleteEmote = new Emoji("✖");
-            var message = await EventReactionAddedService.GetMessageByReactionAdded(deleteEmote, Context);
-
-            if (message != null)
-            {
-                // get all messages from after the reacted message
-                var messagesAfter = await channel.GetMessagesAsync(message.Message, Direction.After).FlattenAsync();
-
-                // and bulk delete them
-                if (messagesAfter.Any())
-                {
-                    // delete the reacted message and everything after it
-                    await channel.DeleteMessageAsync(message.Message);
-                    await channel.DeleteMessagesAsync(messagesAfter);
-                }
-                    
-            }
-            else
-            {
-                await ReplyAsync($"You need to select a message (using an {deleteEmote} reaction) to use this command.");
             }
         }
     }

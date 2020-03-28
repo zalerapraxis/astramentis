@@ -39,7 +39,7 @@ namespace Astramentis.Modules
 
             if (result == true)
             {
-                var server = Servers.ServerList.Find(x => x.DiscordServerObject == Context.Guild);
+                var server = DiscordServers.ServerList.Find(x => x.DiscordServerObject == Context.Guild);
 
                 StringBuilder responseBuilder = new StringBuilder();
                 responseBuilder.Append($"Event {server.Events[0].Name} adjusted - ");
@@ -158,7 +158,7 @@ namespace Astramentis.Modules
             RaidEventsService.SetServerDiscordObjects(newServer);
 
             // update the ServerList with the new server
-            Servers.ServerList.Add(newServer);
+            DiscordServers.ServerList.Add(newServer);
 
             // set up google api authentication
             await AuthAsync();
@@ -183,7 +183,7 @@ namespace Astramentis.Modules
         [Summary("Manually display upcoming events")]
         public async Task CalendarEventsAsync()
         {
-            var server = Servers.ServerList.Find(x => x.DiscordServerObject == Context.Guild);
+            var server = DiscordServers.ServerList.Find(x => x.DiscordServerObject == Context.Guild);
             if (server != null)
                 await ScheduleService.GetEvents(Context);
             else
@@ -196,7 +196,7 @@ namespace Astramentis.Modules
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task ToggleRemindersAsync()
         {
-            var server = Servers.ServerList.Find(x => x.DiscordServerObject == Context.Guild);
+            var server = DiscordServers.ServerList.Find(x => x.DiscordServerObject == Context.Guild);
 
             if (server.RemindersEnabled)
                 server.RemindersEnabled = false;

@@ -173,7 +173,7 @@ namespace Astramentis.Services
         // posts the list of future events into the channel that called the command
         public async Task GetEvents(SocketCommandContext context)
         {
-            var server = Servers.ServerList.Find(x => x.DiscordServerObject == context.Guild);
+            var server = DiscordServers.ServerList.Find(x => x.DiscordServerObject == context.Guild);
 
             // if command context is the reminders channel, there's already an event embed
             // so just update it instead of sending a new embed
