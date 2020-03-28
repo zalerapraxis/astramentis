@@ -10,6 +10,7 @@ namespace Astramentis.Models
         public int ItemId { get; set; }
         public string ItemIconUrl { get; set; }
         public bool ItemHq { get; set; }
+        public int NeededQuantity { get; set; } // for market order command
         public List<string> WorldsToSearch { get; set; }
     }
 }

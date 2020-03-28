@@ -43,7 +43,7 @@ namespace Astramentis.Modules
                 return;
 
             // clean up inputs & parse them out
-            var inputs = await SplitCommandInputs(input, InteractiveCommandReturn.Price);
+            var inputs = (await SplitCommandInputs(input, InteractiveCommandReturn.Price)).FirstOrDefault();
 
             // get market data
             var marketQueryResults = await MarketService.GetMarketListings(inputs.ItemName, inputs.ItemId, inputs.ItemHq, inputs.WorldsToSearch);
@@ -144,7 +144,7 @@ namespace Astramentis.Modules
                 return;
 
             // clean up inputs & parse them out
-            var inputs = await SplitCommandInputs(input, InteractiveCommandReturn.History);
+            var inputs = (await SplitCommandInputs(input, InteractiveCommandReturn.History)).FirstOrDefault();
 
             // get history data
             var historyQueryResults = await MarketService.GetHistoryListings(inputs.ItemName, inputs.ItemId, inputs.WorldsToSearch);
@@ -244,7 +244,7 @@ namespace Astramentis.Modules
                 return;
 
             // clean up inputs & parse them out
-            var inputs = await SplitCommandInputs(input, InteractiveCommandReturn.Analyze);
+            var inputs = (await SplitCommandInputs(input, InteractiveCommandReturn.Analyze)).FirstOrDefault();
 
             // get analyses
             var marketAnalysis = await MarketService.CreateMarketAnalysis(inputs.ItemName, inputs.ItemId, inputs.WorldsToSearch);
@@ -358,15 +358,17 @@ namespace Astramentis.Modules
             // grab data from api
             var currencyDeals = await MarketService.GetBestCurrencyExchange(category, worldsToSearch);
 
-            // keep items that are actively selling, and order by value ratio to put the best stuff to sell on top
-            currencyDeals = currencyDeals.Where(x => x.NumRecentSales > 5).OrderByDescending(x => x.ValueRatio).ToList();
-
             // catch if the user didn't send a good category
             if (currencyDeals.Count == 0 || !currencyDeals.Any())
             {
                 await ReplyAsync("You didn't input an existing category. Run the command by itself to get the categories this command can take.");
                 return;
             }
+
+            // keep items that are actively selling, and order by value ratio to put the best stuff to sell on top
+            // currencyDeals = currencyDeals.Where(x => x.NumRecentSales > 5).OrderByDescending(x => x.ValueRatio).ToList();
+            currencyDeals = currencyDeals.OrderByDescending(x => x.ValueRatio).ToList();
+
 
             EmbedBuilder dealsEmbedBuilder = new EmbedBuilder();
 
@@ -457,6 +459,10 @@ namespace Astramentis.Modules
         [Example("market order {itemname:count, itemname:count, etc...} or marker order {fending, crafting, etc} - add hq to an item name to require high quality")]
         public async Task MarketCrossWorldPurchaseOrderAsync([Remainder] string input = null)
         {
+
+            // TODO: does splitcommandinputs handle checking for null inputs? this may not be necessary
+            // also wouldn't be necessary if we implemented the interactivecommandreturn function, since that would take care
+            // of any messed up inputs
             if (input == null || !input.Any())
             {
                 // let the user know they fucked up, or don't
@@ -467,17 +473,15 @@ namespace Astramentis.Modules
             if (await IsCompanionAPIUsable() == false)
                 return;
 
-            // convert to lowercase so that if user specified server in capitals,
-            // it doesn't break our text matching in serverlist and with api request
-            input = input.ToLower();
-
-            // clean up input
-            var worldsToSearch = GetServer(input, false);
-            input = CleanCommandInput(input);
+            // TODO: we could potentially allow the mbo command to make use of interactivecommandreturn?
+            var inputs = await SplitCommandInputs(input, InteractiveCommandReturn.Price);
 
             var plsWaitMsg = await ReplyAsync("This could take quite a while. Please hang tight.");
             await Context.Channel.TriggerTypingAsync();
 
+            // TODO: check how we can integrate the gearset check stuff into the cmd using splitcommandinputs now
+
+            /* 
             // check if user input a gearset request instead of item lists - no spaces so we avoid catching things like
             // 'facet coat of casting' under the 'casting' gearset
             if (!input.Contains(" ") && MarketOrderGearsetDataset.Gearsets.Any(x => input.Contains(x.Key)))
@@ -502,31 +506,16 @@ namespace Astramentis.Modules
 
                 input = gearsetInputSb.ToString();
             }
-
-            // split each item:count pairing
-            var inputList = input.Split(", ");
+            */
 
 
             var itemsList = new List<MarketItemCrossWorldOrderModel>();
-            foreach (var item in inputList)
+            foreach (var item in inputs)
             {
-                var itemSplit = item.Split(":");
-
-                var itemName = itemSplit[0];
-                var NeededQuantity = int.Parse(itemSplit[1]);
-                var itemShouldBeHQ = false;
-
-                // replace hq text in itemname var if it exists, and set shouldbehq flag to true
-                if (itemName.Contains("hq"))
-                {
-                    itemShouldBeHQ = true;
-                    itemName = itemName.Replace("hq", "").Trim();
-                }
-
-                itemsList.Add(new MarketItemCrossWorldOrderModel() { Name = itemName, NeededQuantity = NeededQuantity, ShouldBeHQ = itemShouldBeHQ });
+                itemsList.Add(new MarketItemCrossWorldOrderModel() { Name = item.ItemName, NeededQuantity = item.NeededQuantity, ShouldBeHQ = item.ItemHq});
             }
 
-            var results = await MarketService.GetMarketCrossworldPurchaseOrder(itemsList, worldsToSearch);
+            var results = await MarketService.GetMarketCrossworldPurchaseOrder(itemsList, inputs[0].WorldsToSearch);
 
             // sort the results into different lists, grouped by server
             var purchaseOrder = results.GroupBy(x => x.Server).ToList();
@@ -689,45 +678,54 @@ namespace Astramentis.Modules
 
         // for use with commands that take item names & potentially server as inputs
         // cleans them up & splits them out, returns null if failure
-        private async Task<MarketCommandInputsModel> SplitCommandInputs(string input, InteractiveCommandReturn function)
+        private async Task<List<MarketCommandInputsModel>> SplitCommandInputs(string input, InteractiveCommandReturn function)
         {
+            List <MarketCommandInputsModel> inputsSplit = new List<MarketCommandInputsModel>();
+
             // convert to lowercase so that if user specified server in capitals,
             // it doesn't break our text matching in serverlist and with api request
             input = input.ToLower();
 
-            // clean up input
-            var worldsToSearch = GetServer(input, false);
-            var itemShouldBeHq = CheckIfUserRequestedHq(input);
-            input = CleanCommandInput(input);
+            // if multiple item inputs are given, split them by comma delimiter
+            // won't break anything if no delimiter is found
+            var individualInputs = input.Split(',');
 
-            // declar vars to fill 
-            int itemId;
-            string itemName = "";
-            string itemIconUrl = "";
-
-            // try to get an itemid from input - returns null if failure
-            var itemIdResponse = await GetItemIdFromInput(input, function, worldsToSearch);
-
-            if (itemIdResponse == null)
-                return null;
-
-            itemId = itemIdResponse.Value;
-
-            // TODO: do we need to check the success of this function afterwards?
-            // we can test by running various commands with incorrect spellings and see how commands react, if at all
-            var itemDetailsQueryResult = await APIRequestService.QueryXivapiWithItemId(itemId);
-
-            itemName = itemDetailsQueryResult.Name;
-            itemIconUrl = $"https://xivapi.com/{itemDetailsQueryResult.Icon}";
-
-            var inputsSplit = new MarketCommandInputsModel()
+            foreach (var individualInput in individualInputs)
             {
-                ItemName = itemName,
-                ItemId = itemId,
-                ItemIconUrl = itemIconUrl,
-                ItemHq = itemShouldBeHq,
-                WorldsToSearch = worldsToSearch
-            };
+                // clean up input
+                var worldsToSearch = GetServer(individualInput, false);
+                var itemShouldBeHq = CheckIfUserRequestedHq(individualInput);
+                var quantity = GetUserRequestedQuantity(individualInput); // used for market order command
+                var inputName = CleanCommandInput(individualInput);
+                
+
+                // try to get an itemid from input - returns null if failure
+                var itemIdResponse = await GetItemIdFromInput(inputName, function, worldsToSearch);
+
+                if (itemIdResponse == null)
+                    return null;
+
+                var itemId = itemIdResponse.Value;
+
+                // TODO: do we need to check the success of this function afterwards?
+                // we can test by running various commands with incorrect spellings and see how commands react, if at all
+                var itemDetailsQueryResult = await APIRequestService.QueryXivapiWithItemId(itemId);
+
+                var itemName = itemDetailsQueryResult.Name;
+                var itemIconUrl = $"https://xivapi.com/{itemDetailsQueryResult.Icon}";
+
+                var inputModel = new MarketCommandInputsModel()
+                {
+                    ItemName = itemName,
+                    ItemId = itemId,
+                    ItemIconUrl = itemIconUrl,
+                    ItemHq = itemShouldBeHq,
+                    NeededQuantity = quantity,
+                    WorldsToSearch = worldsToSearch
+                };
+
+                inputsSplit.Add(inputModel);
+            }
 
             return inputsSplit;
         }
@@ -922,9 +920,13 @@ namespace Astramentis.Modules
             {
                 if (Regex.Match(input, $@"\b{word}\b", RegexOptions.IgnoreCase).Success)
                 {
-                    result = ReplaceWholeWord(input, word, "");
+                    result = ReplaceWholeWord(result, word, "");
                 }
             }
+
+            // if input contains a quantity request, get rid of it (quantity should be checked before cleaning)
+            var resultSplit = result.Split(':');
+            result = resultSplit[0].Trim(); // clean up any whitespace
 
             return result;
         }
@@ -935,6 +937,28 @@ namespace Astramentis.Modules
             if (input.Contains("hq"))
                 return true;
             return false;
+        }
+
+        // eg market order where request is marked by a colon followed by desired quantity
+        private int GetUserRequestedQuantity(string input)
+        {
+            var inputSplit = input.Split(':');
+            
+            // if so, try to get the quantity and return it
+            if (inputSplit.Count() > 1)
+            {
+                // regex to match numbers in case we get a scenario like 'mbo grade 3 tincture of strength hq:300 gilgamesh'
+                // which would put 'gilgamesh' in the number side of the delimiter and cause it to fail
+                var success = int.TryParse(Regex.Match(inputSplit[1], @"\d+").Value, out var quantity);
+
+                if (success)
+                    return quantity;
+                else
+                    return 0; // failure case, if someone inputs a non-number after a colon
+            }
+
+            // if no quantity was requested, assume 1 - though nothing should actually use this response
+            return 1;
         }
 
         //
