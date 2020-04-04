@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 using System.Threading.Tasks;
 using Astramentis.Attributes;
@@ -7,6 +8,7 @@ using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
 using Astramentis.Services;
+using Discord.WebSocket;
 
 namespace Astramentis.Modules
 {
@@ -14,6 +16,8 @@ namespace Astramentis.Modules
     [Remarks("Random stuff")]
     public class MiscModule : InteractiveBase
     {
+        public PathOfBuildingService PathOfBuildingService { get; set; }
+
         [Command("vote", RunMode = RunMode.Async)]
         [Summary("Start a vote using yes/no reactions")]
         [Example("vote {message}")]
@@ -49,5 +53,14 @@ namespace Astramentis.Modules
         {
             await ReplyAsync("Hi!");
         }
+
+        [Command("PoB")]
+        [Name("PoB")]
+        [Description("Parses the PasteBin export from Path of Building and shows the information about the build")]
+        [Example("pob https://pastebin.com/cwQVpT8J")]
+        public async Task PoBAsync(
+            [Name("Pastebin Url")]
+            [Description("Url of the Path of Building export")]
+            [Remainder] string pasteBinURL) => await ReplyAsync(embed: await PathOfBuildingService.BuildPathOfBuildingEmbed(pasteBinURL));
     }
 }

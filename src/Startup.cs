@@ -89,6 +89,8 @@ namespace Astramentis
 
                 .AddSingleton<MarketService>()
                 .AddSingleton<MarketWatcherService>()
+
+                .AddSingleton<PathOfBuildingService>()
                 .AddSingleton(Configuration) // Add the configuration to the collection
                 ;
         }
