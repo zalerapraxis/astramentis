@@ -4,6 +4,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
+// Code from https://github.com/Kyle-Undefined/PoE-Bot
+
 namespace Astramentis.Models.PathOfBuilding
 {
     public class Summary

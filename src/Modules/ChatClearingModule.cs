@@ -77,7 +77,7 @@ namespace Astramentis.Modules
                     foreach (var oldMessage in oldMessages)
                     {
                         await oldMessage.DeleteAsync();
-                        await Task.Delay(250);
+                        await Task.Delay(1000);
                     }
 
                     // done with deleting stuff, so delete the notification

@@ -42,6 +42,8 @@ namespace Astramentis
 
             await provider.GetRequiredService<StartupService>().StartAsync();       // Start the startup service
 
+            provider.GetRequiredService<EventMessageReceivedService>();
+
             provider.GetRequiredService<APIRequestService>();   // start api reuest service
             provider.GetRequiredService<APIHeartbeatService>(); // start api heartbeat timer
             provider.GetRequiredService<MarketWatcherService>();

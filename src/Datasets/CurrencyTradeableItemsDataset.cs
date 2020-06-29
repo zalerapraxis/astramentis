@@ -505,6 +505,54 @@ namespace Astramentis.Datasets
                 ItemID = 18027,
                 CurrencyCost = 250
             },
+            new CurrencyTradeableItem()
+            {
+                Name = "Oddly Specific Petrified Log",
+                ItemID = 29661,
+                CurrencyCost = 50
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Oddly Specific Iron Sand",
+                ItemID = 29662,
+                CurrencyCost = 50
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Oddly Specific Iron Ore",
+                ItemID = 29663,
+                CurrencyCost = 50
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Oddly Specific Uncut Gemstone",
+                ItemID = 29664,
+                CurrencyCost = 50
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Oddly Specific Skin",
+                ItemID = 29665,
+                CurrencyCost = 50
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Oddly Specific Cotton",
+                ItemID = 29666,
+                CurrencyCost = 50
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Oddly Specific Quartz",
+                ItemID = 29667,
+                CurrencyCost = 50
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Oddly Specific Seeds",
+                ItemID = 29668,
+                CurrencyCost = 50
+            },
         };
 
         public static List<CurrencyTradeableItem> YellowGathererScripsItemsList = new List<CurrencyTradeableItem>()

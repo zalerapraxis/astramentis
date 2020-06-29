@@ -15,6 +15,8 @@ using Newtonsoft.Json.Linq;
 using CompressionMode = SharpCompress.Compressors.CompressionMode;
 using ZlibStream = SharpCompress.Compressors.Deflate.ZlibStream;
 
+// Code from https://github.com/Kyle-Undefined/PoE-Bot
+
 namespace Astramentis.Services
 {
     public class Config
@@ -223,7 +225,7 @@ namespace Astramentis.Services
                     .WithFooter("Pastebin: " + pasteBinURL)
                     .WithTitle((IsSupport(character) ? "Support" : character.Skills.MainSkillGroup.Gems.Where(x => x.Enabled).Select(x => x.Name).First()) + " - "
                         + (character.Ascendancy?.Length == 0 ? character.Class : character.Ascendancy) + " (Lvl: " + character.Level + ")")
-                    .WithThumbnailUrl("https://raw.githubusercontent.com/zalerapraxis/astramentis/master/Resources/Images/Path-Of-Building/Classes/"
+                    .WithThumbnailUrl("https://raw.githubusercontent.com/zalerapraxis/astramentis-pob-class-icons/master/Classes/"
                         + (character.Ascendancy?.Length == 0 ? character.Class : character.Ascendancy) + ".png")
                     .WithCurrentTimestamp();
 
@@ -357,6 +359,9 @@ namespace Astramentis.Services
                     }
                 }
 
+                if (sb.Length == 0)
+                    sb.Append("No parseable configs were set in this PoB.");
+
                 return sb.ToString();
             }
 
@@ -481,6 +486,9 @@ namespace Astramentis.Services
 
                 if (dps > 0 || avg > 0)
                     sb.Append(GenerateDamageString(character, dps, avg));
+
+                if (sb.Length == 0)
+                    sb.Append("No offense skill selected in this PoB, so we can't parse damage.");
 
                 return sb.ToString();
             }

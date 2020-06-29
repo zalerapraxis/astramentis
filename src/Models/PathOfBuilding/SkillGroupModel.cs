@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+// Code from https://github.com/Kyle-Undefined/PoE-Bot
+
 namespace Astramentis.Models.PathOfBuilding
 {
     public class SkillGroup

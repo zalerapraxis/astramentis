@@ -54,6 +54,8 @@ namespace Astramentis.Modules
             await ReplyAsync("Hi!");
         }
 
+
+        // Code from https://github.com/Kyle-Undefined/PoE-Bot
         [Command("PoB")]
         [Name("PoB")]
         [Description("Parses the PasteBin export from Path of Building and shows the information about the build")]

@@ -376,8 +376,9 @@ namespace Astramentis.Services
                 // send our listings off to find what the most efficient set of listings to buy are
                 var efficientListings = GetMostEfficientPurchases(multiPartOrderList, input.NeededQuantity);
 
-                if (efficientListings.Any())
-                    PurchaseOrderList.AddRange(efficientListings);
+                if (efficientListings != null)
+                    if (efficientListings.Any())
+                        PurchaseOrderList.AddRange(efficientListings);
 
                 multiPartOrderList.Clear();
             }));
