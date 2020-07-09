@@ -14,6 +14,7 @@ namespace Astramentis.Services.MarketServices
 {
     public class APIHeartbeatService
     {
+        private readonly DiscordSocketClient _discord;
         private readonly APIRequestService _apiRequestService;
         private readonly Random _rng;
 
@@ -27,8 +28,9 @@ namespace Astramentis.Services.MarketServices
         // set to -1 for default behavior
         private static ParallelOptions parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = -1 };
 
-        public APIHeartbeatService(APIRequestService apiRequestService, Random rng)
+        public APIHeartbeatService(DiscordSocketClient discord, APIRequestService apiRequestService, Random rng)
         {
+            _discord = discord;
             _apiRequestService = apiRequestService;
             _rng = rng;
 
@@ -42,41 +44,69 @@ namespace Astramentis.Services.MarketServices
             // thread-safe reset 30m counter
             Interlocked.Exchange(ref _apiRequestService.TotalAPIRequestsMadeSinceHeartbeat, 0);
 
+            // do a global companion status check to see if the API is down or something else is wrong
+            CustomApiStatus globalCompanionStatusRequestResult = GetCompanionApiStatus().Result;
+
+            // companion maintenance, reset timer and stop
+            if (globalCompanionStatusRequestResult == CustomApiStatus.UnderMaintenance) 
+            {
+                AdjustHeartbeatTimer();
+                Logger.Log(LogLevel.Info, $"The SE API is down for maintenance at the moment. Trying again later.");
+                return;
+            }
+            // log any error responses that aren't logged-out or maintenance issues
+            if (globalCompanionStatusRequestResult != CustomApiStatus.OK && globalCompanionStatusRequestResult != CustomApiStatus.NotLoggedIn && globalCompanionStatusRequestResult != CustomApiStatus.UnderMaintenance)
+            {
+                Logger.Log(LogLevel.Info, $"SE API error - received error: {globalCompanionStatusRequestResult}.");
+
+                var dm = await _discord.GetUser(110866678161645568).GetOrCreateDMChannelAsync();
+                await dm.SendMessageAsync($"Something's wrong with the API - received error: {globalCompanionStatusRequestResult}.");
+            }
+
             // figure out each server's status
-            ConcurrentDictionary<Worlds, bool> serverStatusTracker = new ConcurrentDictionary<Worlds, bool>();
+            ConcurrentDictionary<Worlds, bool> serverLoginStatusTracker = new ConcurrentDictionary<Worlds, bool>();
             var tasks = Task.Run(() => Parallel.ForEach((Worlds[])Enum.GetValues(typeof(Worlds)), parallelOptions, async server =>
             {
-                var serverStatusRequestResult = GetCompanionApiStatus(server.ToString()).Result;
-                bool serverStatus;
+                CustomApiStatus serverStatusRequestResult = GetCompanionApiStatus(server.ToString()).Result;
+                bool serverLoggedIn = false;
 
-                if (serverStatusRequestResult == CustomApiStatus.OK)
-                    serverStatus = true;
-                else
-                    serverStatus = false;
+                if (serverStatusRequestResult == CustomApiStatus.OK) // logged in, continue processing
+                    serverLoggedIn = true;
+                else if (serverStatusRequestResult == CustomApiStatus.NotLoggedIn) // not logged in, continue processing
+                    serverLoggedIn = false;
 
-                serverStatusTracker.TryAdd(server, serverStatus);
+                // runs if servers are logged in or not logged in, will not run if api error or maintenance
+                serverLoginStatusTracker.TryAdd(server, serverLoggedIn);
             }));
             await Task.WhenAll(tasks);
 
-            var serverUpCount = serverStatusTracker.Count(x => x.Value == true);
-            Logger.Log(LogLevel.Info, $"{serverUpCount} of {serverStatusTracker.Count} servers are logged in. ");
+            var serverLoggedInCount = serverLoginStatusTracker.Count(x => x.Value == true);
+            Logger.Log(LogLevel.Info, $"{serverLoggedInCount} of {serverLoginStatusTracker.Count} servers are logged in. ");
 
             // if any servers are down, try to log them in
-            // do it in order with a delay so we don't get banhammered
-            if (serverUpCount != serverStatusTracker.Count)
+            // use a random delay to avoid potential bans
+            if (serverLoggedInCount != serverLoginStatusTracker.Count)
             {
-                foreach (var serverStatus in serverStatusTracker.Where(x => x.Value == false))
+                int errorCount = 0;
+                foreach (var serverStatus in serverLoginStatusTracker.Where(x => x.Value == false))
                 {
                     var server = serverStatus.Key;
                     Logger.Log(LogLevel.Info, $"Logging into {server}...");
                     var loginResult = await _apiRequestService.LoginToCompanionApi(server.ToString());
 
                     Logger.Log(LogLevel.Info, $"Login to {server} was {(loginResult ? "successful" : "unsuccessful")}.");
+                    if (!loginResult) errorCount++; // increment on unsuccessful logins
 
                     await Task.Delay(_rng.Next(5000, 10000)); // random delay between 5-10 seconds
                 }
+                Logger.Log(LogLevel.Info, $"Login process completed with {errorCount} error(s).");
             }
 
+            AdjustHeartbeatTimer();
+        }
+
+        private void AdjustHeartbeatTimer()
+        {
             // adjust the timer tick to 30m +- 1m interval & start it again
             var _heartbeatTimerInterval = Convert.ToInt32(TimeSpan.FromMinutes(30).TotalMilliseconds) + _rng.Next(-60000, 60000);
             Logger.Log(LogLevel.Debug, $"Next tick at {DateTime.Now.AddMilliseconds(_heartbeatTimerInterval):hh:mm:ss tt}");
