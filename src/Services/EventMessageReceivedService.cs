@@ -29,8 +29,6 @@ namespace Astramentis.Services
             var message = messageParam as SocketUserMessage;
             if (message == null) return;
 
-            Console.WriteLine(message.Content);
-
             // Create a number to track where the prefix ends and the command begins
             int argPos = 0;
 
@@ -49,10 +47,13 @@ namespace Astramentis.Services
             if (message.Content ==
                 "DON'T DRINK WATER AFTER EATING FISH!!! cuz the water may cause the fish to swim and then u will feel gluglgulguglu gluglgulgu in your stomach !!!!!!!!!!REMEMBER!!!!!!!!!!")
             {
-                Console.WriteLine("ping");
-                IEmote[] reactions = { new Emoji(":regional_indicator_s:"), new Emoji(":regional_indicator_t:"), new Emoji(":regional_indicator_f:"), new Emoji(":regional_indicator_u:") };
+                IEmote[] reactions = { new Emoji("🐟") };
 
-                await context.Message.AddReactionsAsync(reactions);
+                foreach (var reaction in reactions)
+                {
+                    await context.Message.AddReactionAsync(reaction);
+                }
+                
             }
         }
     }
