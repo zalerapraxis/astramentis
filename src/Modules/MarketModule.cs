@@ -131,8 +131,9 @@ namespace Astramentis.Modules
                 Backward = true,
                 First = true,
                 Last = true,
+                Jump = false,
+                Stop = false,
                 Info = true,
-                Jump = true,
             });
         }
 
@@ -235,8 +236,9 @@ namespace Astramentis.Modules
                 Backward = true,
                 First = true,
                 Last = true,
+                Jump = false,
+                Stop = false,
                 Info = true,
-                Jump = true
             });
         }
 
