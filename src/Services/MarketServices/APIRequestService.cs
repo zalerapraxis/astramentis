@@ -46,7 +46,7 @@ namespace Astramentis.Services.MarketServices
                 $"https://xivapi.com/search?string={itemName}&indexes=Item&filters=IsUntradable=0&private_key={_xivApiKey}");
         }
 
-        // search XIVAPI using  EXACT item name - generally used to get an item's ID
+        // search XIVAPI using EXACT item name - generally used to get an item's ID
         public async Task<dynamic> QueryXivapiWithStringExact(string itemName)
         {
             return await PerformXivapiRequest(
@@ -94,7 +94,7 @@ namespace Astramentis.Services.MarketServices
 
         private async Task<dynamic> PerformXivapiRequest(string url)
         {
-            // number of retries
+            // number of retries attempted
             var i = 0;
 
             while (i < exceptionRetryCount)
@@ -137,7 +137,7 @@ namespace Astramentis.Services.MarketServices
 
         private async Task<dynamic> PerformCustomApiRequest(string url)
         {
-            // number of retries
+            // number of retries attempted
             var i = 0;
 
             // thread-safe tracking of number of custom API requests made
