@@ -53,9 +53,12 @@ namespace Astramentis
                 // Execute the command
                 var result = await _commands.ExecuteAsync(context, argPos, _provider);
 
-                // if command is valid (?), start up a timer & add the command msg and timer to the tracker
+                // if command is valid, start up a timer & add the command msg and timer to the tracker
                 if (result.IsSuccess)
                 {
+                    // add processing notification emoji to command message
+                    await msg.AddReactionAsync(new Emoji("⌚"));
+
                     // start up timer for this command, add to tracker list
                     var timer = new Stopwatch();
                     timer.Start();
@@ -110,9 +113,12 @@ namespace Astramentis
 
             cmdResult.Append($" in {timer.ElapsedMilliseconds}ms");
 
-            Logger.Log(LogLevel.Info, cmdResult.ToString()) ;
+            Logger.Log(LogLevel.Info, cmdResult.ToString());
 
-            // remove this entry from the time tracker
+            // remove processing notification emoji from command message
+            await context.Message.RemoveReactionAsync(new Emoji("⌚"), _discord.CurrentUser);
+
+            // remove this command entry from the time tracker
             CommandElapsedTimersTracker.Remove(context.Message.Id);
         }
     }

@@ -14,6 +14,7 @@ using Discord.Addons.Interactive;
 using Discord.Commands;
 using Astramentis.Enums;
 using Astramentis.Services.DatabaseServices;
+using Discord.WebSocket;
 
 namespace Astramentis.Modules
 {
@@ -47,7 +48,7 @@ namespace Astramentis.Modules
             if (parsedInput == null)
                 // splitcommandinputs passed data off to InteractiveUserSelectItem, which will
                 // call this command again once the user has selected the item they want
-                return;                
+                return;
 
             // get market data
             var marketQueryResults = await MarketService.GetMarketListings(parsedInput.ItemName, parsedInput.ItemId, parsedInput.ItemHq, parsedInput.WorldsToSearch);
@@ -526,7 +527,6 @@ namespace Astramentis.Modules
             }
 
             var plsWaitMsg = await ReplyAsync("This could take quite a while. Please hang tight.");
-            await Context.Channel.TriggerTypingAsync();
 
             var results = await MarketService.GetMarketCrossworldPurchaseOrder(itemsList, parsedInputs[0].WorldsToSearch);
 
