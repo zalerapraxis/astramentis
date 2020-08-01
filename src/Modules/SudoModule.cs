@@ -17,7 +17,6 @@ namespace Astramentis.Modules
     {
         public DatabaseSudo DatabaseSudo { get; set; }
 
-
         [Command("sudo", RunMode = RunMode.Async)]
         [Summary("Ignores private scope of tags & allows bot administration")]
         [Example("sudo")]
