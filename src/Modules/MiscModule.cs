@@ -13,12 +13,14 @@ using Discord.WebSocket;
 namespace Astramentis.Modules
 {
     [Name("Misc")]
-    [Remarks("Random stuff")]
+    [Summary("Random stuff")]
     public class MiscModule : InteractiveBase
     {
+        // TODO: add many-choice voting
         [Command("vote", RunMode = RunMode.Async)]
         [Summary("Start a vote using yes/no reactions")]
-        [Example("vote {message}")]
+        [Syntax("vote {message}")]
+        [Example("vote should we cancel raid tonight?")]
         [RequireUserPermission(GuildPermission.Administrator)]
         [RequireBotPermission(ChannelPermission.ManageMessages)]
         public async Task VoteCommandAsync([Remainder]string messageContents)
@@ -46,7 +48,7 @@ namespace Astramentis.Modules
         }
 
         [Command("doccer")]
-        [Summary("Say hi")]
+        [Summary("Say hi. Just to check if the bot's alive.")]
         public async Task Doccer()
         {
             await ReplyAsync("Hi!");

@@ -13,7 +13,7 @@ using System.Collections.Generic;
 namespace Astramentis.Modules
 {
     [Name("Clear")]
-    [Remarks("Clearing chat messages")]
+    [Summary("Clearing chat messages")]
     [RequireContext(ContextType.Guild)]
     public class ChatClearingModule : ModuleBase<SocketCommandContext>
     {
@@ -25,7 +25,8 @@ namespace Astramentis.Modules
         [Command("clear")]
         [Summary("Clears the last x messages in current channel - default 100")]
         [Alias("clean", "prune")]
-        [Example("clear 100")]
+        [Syntax("clear {optional: number of messages}")]
+        [Example("clear 5")]
         [RequireBotPermission(ChannelPermission.ManageMessages)]
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task ClearChatlogsAsync(int count = 100)

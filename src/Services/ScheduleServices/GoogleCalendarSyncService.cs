@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Astramentis.Enums;
-using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -14,16 +13,11 @@ using Astramentis.Models;
 using Astramentis.Services.DatabaseServiceComponents;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
-using Google.Apis.Auth.OAuth2.Requests;
 using Google.Apis.Auth.OAuth2.Responses;
-using Google.Apis.Auth.OAuth2.Web;
 using Google.Apis.Calendar.v3;
-using Google.Apis.Calendar.v3.Data;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Primitives;
 using NLog;
 
 namespace Astramentis.Services
@@ -313,8 +307,7 @@ namespace Astramentis.Services
                 }));
                 return CalendarSyncStatus.ServerUnavailable;
             }
-                
-
+            
             return CalendarSyncStatus.OK;
         }
 

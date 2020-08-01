@@ -14,7 +14,7 @@ using Astramentis.Services;
 namespace Astramentis.Modules
 {
     [Name("Item")]
-    [Remarks("Getting data on FFXIV items")]
+    [Summary("Getting data on FFXIV items")]
     public class ItemModule : InteractiveBase
     {
         public MarketService MarketService { get; set; }
@@ -22,7 +22,9 @@ namespace Astramentis.Modules
 
         [Command("item search", RunMode = RunMode.Async)]
         [Summary("Search for items by name - requires a search term")]
-        [Example("item search {name}")]
+        [Alias("isearch")]
+        [Syntax("item search {name}")]
+        [Example("item search dried hi-ether")]
         public async Task ItemSearchAsync([Remainder] string searchTerm)
         {
             // show that the bot's processing

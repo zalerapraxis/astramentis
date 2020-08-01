@@ -14,7 +14,7 @@ using Astramentis.Services.DatabaseServiceComponents;
 namespace Astramentis.Modules
 {
     [Name("Tags")]
-    [Remarks("Store & retrieve info, links, funny stuff, etc.")]
+    [Summary("Store & retrieve info, links, funny stuff, etc.")]
     public class TagModule : InteractiveBase
     {
         public DatabaseTags DatabaseTags { get; set; }
@@ -26,7 +26,8 @@ namespace Astramentis.Modules
 
         [Command("tag", RunMode = RunMode.Async)]
         [Summary("Get a tag by name")]
-        [Example("tag {name}")]
+        [Syntax("tag {name}")]
+        [Example("tag no_hit")]
         public async Task TagGetCommandAsync(string tagName)
         {
             // check if user intended to run a different command but forgot some parameters
@@ -60,7 +61,8 @@ namespace Astramentis.Modules
         [Command("tag add", RunMode = RunMode.Async)]
         [Summary("Add a new tag")]
         [Alias("tag create")]
-        [Example("tag add {name} {content} - can also upload a file with the command to add that file to a tag")]
+        [Syntax("tag add {name} {content} - can also upload a file with the command to add that file to a tag")]
+        [Example("tag add statweights who the fuck uses stat weights anymore lmao")]
         public async Task TagAddCommandAsync(string tagName, [Remainder] string content = null)
         {
             bool messageContainsAttachment = Context.Message.Attachments.Any();
@@ -94,6 +96,7 @@ namespace Astramentis.Modules
 
         [Command("tag make", RunMode = RunMode.Async)]
         [Summary("React a ⭐ to a message you want to make into a tag")]
+        [Syntax("React to a message with a ⭐ emoji and then run this command.")]
         public async Task TagMakeCommandAsync(string tagName = null)
         {
             // find a msg that the calling user has reacted with the right emote to
@@ -124,8 +127,9 @@ namespace Astramentis.Modules
 
         [Command("tag remove", RunMode = RunMode.Async)]
         [Summary("Remove a tag")]
-        [Alias("tag delete")]
-        [Example("tag remove {name}")]
+        [Alias("tag delete", "tag rm")]
+        [Syntax("tag remove {name}")]
+        [Example("tag remove statweights")]
         public async Task TagRemoveCommandAsync(string tagName)
         {
             var result = await DatabaseTags.RemoveTagFromDatabase(Context, tagName);
@@ -144,7 +148,8 @@ namespace Astramentis.Modules
 
         [Command("tag edit", RunMode = RunMode.Async)]
         [Summary("Edit a tag's contents")]
-        [Example("tag edit {name} {content}")]
+        [Syntax("tag edit {name} {content}")]
+        [Example("tag edit statweights 19.7 1 0.151 0.163 0.138 0.151")]
         public async Task TagEditCommandAsync(string tagName, [Remainder] string newContent)
         {
             var result = await DatabaseTags.EditTagInDatabase(Context, tagName, "text", newContent);
@@ -164,7 +169,8 @@ namespace Astramentis.Modules
 
         [Command("tag rename", RunMode = RunMode.Async)]
         [Summary("Rename a tag")]
-        [Example("tag rename {name} {newName}")]
+        [Syntax("tag rename {name} {newName}")]
+        [Example("tag rename statweights stattiers")]
         public async Task TagRenameCommandAsync(string tagName, string newName)
         {
             var result = await DatabaseTags.EditTagInDatabase(Context, tagName, "name", newName);
@@ -183,7 +189,8 @@ namespace Astramentis.Modules
 
         [Command("tag describe", RunMode = RunMode.Async)]
         [Summary("Describe a tag - descriptions are optional and used for tag lists & info")]
-        [Example("tag describe {description}")]
+        [Syntax("tag describe {name} {description}")]
+        [Example("tag describe stattiers MNK stat weights")]
         public async Task TagDescribeCommandAsync(string tagName, [Remainder] string description)
         {
             var result = await DatabaseTags.EditTagInDatabase(Context, tagName, "description", description);
@@ -202,7 +209,8 @@ namespace Astramentis.Modules
 
         [Command("tag global", RunMode = RunMode.Async)]
         [Summary("Toggle the tag's global status. Global tags can be used on other servers")]
-        [Example("tag global {name} {true/false}")]
+        [Syntax("tag global {name} {true/false}")]
+        [Example("tag global stattiers true")]
         public async Task TagGlobalCommandAsync(string tagName, string flag)
         {
             bool global;
@@ -234,7 +242,7 @@ namespace Astramentis.Modules
 
         [Command("tag list", RunMode = RunMode.Async)]
         [Summary("Get a list of tags by you or someone else")]
-        [Example("tag list (@username) - username is optional")]
+        [Syntax("tag list (@username) - username is optional")]
         public async Task TagGetByUserCommandAsync(IUser user = null)
         {
             var results = await DatabaseTags.GetTagsByUserFromDatabase(Context, user);
@@ -352,7 +360,8 @@ namespace Astramentis.Modules
         [Command("tag search", RunMode = RunMode.Async)]
         [Summary("Search for a tag - tag search {searchterm}")]
         [Alias("tag find")]
-        [Example("tag search {searchterm}")]
+        [Syntax("tag search {searchterm}")]
+        [Example("tag search drk")]
         public async Task TagSearchCommandAsync(string search)
         {
             var results = await DatabaseTags.SearchTagsInDatabase(Context, search);

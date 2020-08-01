@@ -13,7 +13,7 @@ using Astramentis.Services.DatabaseServiceComponents;
 namespace Astramentis.Modules
 {
     [Name("RaidSchedule")]
-    [Remarks("Configure & control raid scheduling")]
+    [Summary("Configure & control raid scheduling")]
     public class RaidScheduleModule : InteractiveBase
     {
         // Dependency Injection will fill this value in for us 
@@ -25,7 +25,8 @@ namespace Astramentis.Modules
 
         [Command("adjust")]
         [Summary("Manually adjusts start/end times for the next upcoming event")]
-        [Example("adjust {start/end} {value}")]
+        [Syntax("adjust {start/end} {value in minutes}")]
+        [Example("adjust start 15")]
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task AdjustEventAsync(string function, int value = 0)
         {
@@ -63,7 +64,7 @@ namespace Astramentis.Modules
 
         // resync raid schedule timer
         [Command("resync")]
-        [Summary("Realigns the timer to nearest time interval")]
+        [Summary("Realigns the timer to nearest interval")]
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task ScheduleTimerResyncAsync()
         {

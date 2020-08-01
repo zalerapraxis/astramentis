@@ -9,7 +9,7 @@ using Astramentis.Attributes;
 namespace Astramentis.Modules
 {
     [Name("Help")]
-    [Remarks("You are here.")]
+    [Summary("You are here.")]
     public class HelpModule : ModuleBase<SocketCommandContext>
     {
         private readonly CommandService _service;
@@ -23,10 +23,12 @@ namespace Astramentis.Modules
 
 
         [Command("helpmod")]
-        [Summary("Displays help for a specific module - help {modulename}")]
+        [Summary("Displays help for a specific module")]
+        [Syntax("helpmod {module}")]
+        [Example("helpmod market")]
         public async Task HelpModuleAsync(string requestedModule)
         {
-            // idiot check
+            // crem-check
             if (requestedModule == "{module}")
             {
                 await ReplyAsync("Don't be a dingus, you dingus.");
@@ -44,17 +46,26 @@ namespace Astramentis.Modules
 
             foreach (var cmd in module.Commands)
             {
+                // figure out if the user can run this command
                 var result = await cmd.CheckPreconditionsAsync(Context);
 
+                // get custom example attribute for this command
                 var example = cmd.Attributes.OfType<ExampleAttribute>().FirstOrDefault();
+                var syntax = cmd.Attributes.OfType<SyntaxAttribute>().FirstOrDefault();
 
                 StringBuilder descriptionBuilder = new StringBuilder();
 
+                // if example attribute exists, append it to summary
                 descriptionBuilder.Append(cmd.Summary);
+                descriptionBuilder.AppendLine();
+                if (syntax != null && syntax.SyntaxText != "")
+                    descriptionBuilder.AppendLine($" - Syntax: *{syntax.SyntaxText}*");
                 if (example != null && example.ExampleText != "")
-                    descriptionBuilder.Append($" - Example: *{example.ExampleText}*");
+                    descriptionBuilder.AppendLine($" - Example: *{example.ExampleText}*");
+                
 
-                if (result.IsSuccess && example != null)
+                // if user can run this command, build a field for it and add it into the response
+                if (result.IsSuccess)
                 {
                     builder.AddField(x =>
                     {
@@ -79,12 +90,12 @@ namespace Astramentis.Modules
                 Description = "These are the command modules you have access to. Use .helpmod {module} to see the commands in each."
             };
             
-            foreach (var module in _service.Modules.Where(x => x.Remarks.Any()))
+            foreach (var module in _service.Modules.Where(x => x.Summary.Any()))
             {
                 builder.AddField(x =>
                 {
                     x.Name = module.Name;
-                    x.Value = module.Remarks;
+                    x.Value = module.Summary;
                     x.IsInline = false;
                 });
             }

@@ -12,7 +12,7 @@ using Astramentis.Services.DatabaseServiceComponents;
 namespace Astramentis.Modules
 {
     [Name("Sudo")]
-    [Remarks("rm -rf /")]
+    [Summary("rm -rf /")]
     public class SudoModule : InteractiveBase
     {
         public DatabaseSudo DatabaseSudo { get; set; }
@@ -42,7 +42,8 @@ namespace Astramentis.Modules
 
         [Command("sudoer", RunMode = RunMode.Async)]
         [Summary("Adds or removes a user from the sudo list")]
-        [Example("sudoer {add/remove} {@user}")]
+        [Syntax("sudoer {add/remove} {@user}")]
+        [Example("sudoer add @Zalera")]
         public async Task SudoerAddRemoveCommandAsync(string function, string username)
         {
             ulong userid;

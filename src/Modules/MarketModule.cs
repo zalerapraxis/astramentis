@@ -19,7 +19,7 @@ using Discord.WebSocket;
 namespace Astramentis.Modules
 {
     [Name("Market")]
-    [Remarks("Get data from FFXIV markets on Aether")]
+    [Summary("Get data from FFXIV markets on Aether")]
     public class MarketModule : InteractiveBase
     {
         public MarketService MarketService { get; set; }
@@ -34,8 +34,9 @@ namespace Astramentis.Modules
 
         [Command("market price", RunMode = RunMode.Async)]
         [Alias("mbp")]
-        [Summary("Get prices for an item - takes item name or item id")]
-        [Example("market price (server) {name/id}")]
+        [Summary("Get prices for an item")]
+        [Syntax("market price {optional: server} {name/ID}")]
+        [Example("mbp grade 3 tincture of strength cactuar")]
         public async Task MarketGetItemPrice([Remainder] string input)
         {
             // check if companion api is down
@@ -140,9 +141,9 @@ namespace Astramentis.Modules
 
         [Command("market history", RunMode = RunMode.Async)]
         [Alias("mbh")]
-        [Summary("Get history for an item - takes item name or item id")]
-        [Example("market price (server) {name/id}")]
-        // function will attempt to parse server from searchTerm, no need to make a separate param
+        [Summary("Get history for an item")]
+        [Syntax("market history {optional: server} {name/ID}")]
+        [Example("mbh gold ore")]
         public async Task MarketGetItemHistory([Remainder] string input)
         {
             // check if companion api is down
@@ -247,8 +248,8 @@ namespace Astramentis.Modules
         [Command("market analyze", RunMode = RunMode.Async)]
         [Alias("mba")]
         [Summary("Get market analysis for an item")]
-        [Example("market analyze {name/id} (server) - defaults to Gilgamesh")]
-        // function will attempt to parse server from searchTerm, no need to make a separate param
+        [Syntax("market analyze {name/ID} {optional: server, defaults to Gilgamesh}")]
+        [Example("mba 27770")]
         public async Task MarketAnalyzeItem([Remainder] string input)
         {
             // check if companion api is down
@@ -333,9 +334,9 @@ namespace Astramentis.Modules
         // should be able to accept inputs in any order - if two values are provided, they will be treated as minilvl and maxilvl respectively
         [Command("market exchange", RunMode = RunMode.Async)]
         [Alias("mbe")]
-        [Summary("Get best items to spend your tomes/seals on")]
-        [Example("market exchange {currency} (server) - defaults to Gilgamesh")]
-        // function will attempt to parse server from searchTerm, no need to make a separate param
+        [Summary("Find the best items to spend your tomes/seals on - run without any options to view currency types")]
+        [Syntax("market exchange {currency} {optional: server, defaults to Gilgamesh}")]
+        [Example("mbe ycs sargatanas")]
         public async Task MarketGetBestCurrencyExchangesAsync([Remainder] string input = null)
         {
             if (input == null || !input.Any())
@@ -473,7 +474,8 @@ namespace Astramentis.Modules
         [Command("market order", RunMode = RunMode.Async)]
         [Alias("mbo")]
         [Summary("Build a list of the lowest market prices for items, ordered by server")]
-        [Example("market order {itemname:count, itemname:count, etc...} or marker order {fending, crafting, etc} - add hq to an item name to require high quality")]
+        [Syntax("market order {itemname/ID:count, itemname/ID:count, etc} or marker order {fending, crafting, etc} - add hq to an item name to require high quality")]
+        [Example("mbo zonure skin:122, caprice fleece:20, 5:1000")]
         public async Task MarketCrossWorldPurchaseOrderAsync([Remainder] string input = null)
         {
             // check if companion api is down
@@ -617,7 +619,8 @@ namespace Astramentis.Modules
         [Alias("mwa")]
         [RequireOwner]
         [Summary("Add item to market watchlist")]
-        [Example("market watchlist add heavens' eye materia viii")]
+        [Syntax("market watchlist add {name/id}")]
+        [Example("mwa heavens' eye materia viii")]
         public async Task MarketWatchlistAdd([Remainder] string input = null)
         {
             // check if companion api is down
@@ -670,7 +673,9 @@ namespace Astramentis.Modules
         [Command("market watchlist cutoff", RunMode = RunMode.Async)]
         [Alias("mwc")]
         [RequireOwner]
-        [Summary("Adjust watchlist reporting cutoff")]
+        [Summary("Adjust watchlist analysis differential cutoff")]
+        [Syntax("market watchlist cutoff {percent}")]
+        [Example("mwc 40")]
         public async Task MarketWatchlistSetDifferentialCutoff(int cutoff)
         {
             MarketWatcherService.DifferentialCutoff = cutoff;
