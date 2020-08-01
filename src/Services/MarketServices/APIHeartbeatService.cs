@@ -18,6 +18,8 @@ namespace Astramentis.Services.MarketServices
         private readonly APIRequestService _apiRequestService;
         private readonly Random _rng;
 
+        public ConcurrentDictionary<Worlds, bool> serverLoginStatusTracker = new ConcurrentDictionary<Worlds, bool>();
+
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         private Timer _heartbeatTimer;
@@ -64,7 +66,7 @@ namespace Astramentis.Services.MarketServices
             }
 
             // figure out each server's status
-            ConcurrentDictionary<Worlds, bool> serverLoginStatusTracker = new ConcurrentDictionary<Worlds, bool>();
+            serverLoginStatusTracker.Clear();
             var tasks = Task.Run(() => Parallel.ForEach((Worlds[])Enum.GetValues(typeof(Worlds)), parallelOptions, async server =>
             {
                 CustomApiStatus serverStatusRequestResult = GetCompanionApiStatus(server.ToString()).Result;
