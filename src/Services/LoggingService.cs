@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using NLog;
+using NLog.LayoutRenderers;
 using NLog.Targets;
 
 namespace Astramentis
@@ -32,9 +33,12 @@ namespace Astramentis
 
             var logConfig = new NLog.Config.LoggingConfiguration();
 
-            var logFile = new NLog.Targets.FileTarget("logFile") { FileName = _logFile, ArchiveEvery = FileArchivePeriod.Day };
-            var logConsole = new NLog.Targets.ConsoleTarget("logConsole");
 
+            var logLayout = "${longdate}|${level:uppercase=true}|${logger:shortName=true}|${message}";
+            var logFile = new NLog.Targets.FileTarget("logFile") { FileName = _logFile, ArchiveEvery = FileArchivePeriod.Day, Layout = logLayout };
+            var logConsole = new NLog.Targets.ConsoleTarget("logConsole") {Layout = logLayout };
+
+            
 
             logConfig.AddRule(LogLevel.Debug, LogLevel.Fatal, logFile);
             logConfig.AddRule(LogLevel.Debug, LogLevel.Fatal, logConsole);
