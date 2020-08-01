@@ -25,7 +25,7 @@ namespace Astramentis.Services.MarketServices
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public bool WatchlistMuted = false;
+        public bool WatchlistMuted = true; // mute by default
         public int DifferentialCutoff = 30;
 
         private Timer _watchlistTimer;
@@ -50,8 +50,8 @@ namespace Astramentis.Services.MarketServices
                 worldsToSearch.Add(world.ToString());
             }
 
-            Logger.Log(LogLevel.Debug, $"Watchlist timer started!");
-            _watchlistTimer = new Timer(async delegate { await WatchlistTimer(); }, null, 10000, Timeout.Infinite);
+            Logger.Log(LogLevel.Info, $"Watchlist timer started!");
+            _watchlistTimer = new Timer(async delegate { await WatchlistTimerTick(); }, null, 10000, Timeout.Infinite);
         }
 
         public async Task<List<string>> GetMarketWatchlist()
@@ -67,7 +67,7 @@ namespace Astramentis.Services.MarketServices
             return list;
         }
 
-        public async Task WatchlistTimer()
+        public async Task WatchlistTimerTick()
         {
             Logger.Log(LogLevel.Debug, $"Watchlist timer ticked.");
 
@@ -78,17 +78,16 @@ namespace Astramentis.Services.MarketServices
 
             if (_apiHeartbeatService.ApiStatus != CustomApiStatus.OK)
             {
-                Logger.Log(LogLevel.Debug, "Heartbeat service reports API is down, skipping watchlist check.");
+                Logger.Log(LogLevel.Info, "Heartbeat service reports API is down, skipping watchlist check.");
                 return;
             }
 
-            // Don't do anything if I've muted the watchlist
+            // Don't do anything if the watchlist is muted
             if (WatchlistMuted)
             {
                 Logger.Log(LogLevel.Info, "Watchlist is muted, skipping.");
                 return;
             }
-                
 
             // grab list of items to check
             var watchlist = await _databaseMarketWatchlist.GetWatchlist();
