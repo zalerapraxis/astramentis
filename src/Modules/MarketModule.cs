@@ -382,12 +382,12 @@ namespace Astramentis.Modules
                 return;
             }
 
-            // keep items that are actively selling, and order by value ratio to put the best stuff to sell on top
-            // currencyDeals = currencyDeals.Where(x => x.NumRecentSales > 5).OrderByDescending(x => x.ValueRatio).ToList();
-            currencyDeals = currencyDeals.OrderByDescending(x => x.ValueRatio).ToList();
-
-
             EmbedBuilder dealsEmbedBuilder = new EmbedBuilder();
+
+            // keep items that are actively selling, and order by value ratio to put the best stuff to sell on top
+            currencyDeals = currencyDeals.OrderByDescending(x => x.NumRecentSales)
+                .ThenByDescending(y => y.ValueRatio)
+                .ToList();
 
             foreach (var item in currencyDeals.Take(8))
             {
@@ -480,19 +480,6 @@ namespace Astramentis.Modules
             if (await IsCompanionAPIUsable() == false)
                 return;
 
-            // regarding interactivecommandreturn, we can't actually take advantage of the interactiveuserselect stuff since this command typically
-            // takes multiple items and it's not designed for that - we pass this so those commands know NOT to try to handle this interactively
-            List<MarketCommandInputsModel> parsedInputs = await SplitCommandInputs(input, InteractiveCommandReturn.Order);
-
-            if (!parsedInputs.Any())
-            {
-                await ReplyAsync("I couldn't get info for one or more items entered. This command can only take exact item names.");
-                return;
-            }
-                
-
-            // TODO: check how we can integrate the gearset check stuff into the cmd using splitcommandinputs now
-            /* 
             // check if user input a gearset request instead of item lists - no spaces so we avoid catching things like
             // 'facet coat of casting' under the 'casting' gearset
             if (!input.Contains(" ") && MarketOrderGearsetDataset.Gearsets.Any(x => input.Contains(x.Key)))
@@ -517,7 +504,18 @@ namespace Astramentis.Modules
 
                 input = gearsetInputSb.ToString();
             }
-            */
+
+            // regarding interactivecommandreturn, we can't actually take advantage of the interactiveuserselect stuff since this command typically
+            // takes multiple items and it's not designed for that - we pass this param so it knows to NOT try to handle this interactively
+            List<MarketCommandInputsModel> parsedInputs = await SplitCommandInputs(input, InteractiveCommandReturn.Order);
+
+            if (!parsedInputs.Any())
+            {
+                await ReplyAsync("I couldn't get info for one or more items entered. This command can only take exact item names.");
+                return;
+            }
+
+            var plsWaitMsg = await ReplyAsync("This could take some time. Hang tight.");
 
 
             var itemsList = new List<MarketItemCrossWorldOrderModel>();
@@ -525,9 +523,7 @@ namespace Astramentis.Modules
             {
                 itemsList.Add(new MarketItemCrossWorldOrderModel() { Name = item.ItemName, ItemID = item.ItemId, NeededQuantity = item.NeededQuantity, ShouldBeHQ = item.ItemHq});
             }
-
-            var plsWaitMsg = await ReplyAsync("This could take quite a while. Please hang tight.");
-
+            
             var results = await MarketService.GetMarketCrossworldPurchaseOrder(itemsList, parsedInputs[0].WorldsToSearch);
 
             // sort the results into different lists, grouped by server
@@ -581,8 +577,40 @@ namespace Astramentis.Modules
 
             }
 
-            await plsWaitMsg.DeleteAsync();
-            await ReplyAsync("If any orders are incomplete, it's likely they'd take too many purchases to process.", false, purchaseOrderEmbed.Build());
+            await plsWaitMsg.ModifyAsync(m =>
+            {
+                m.Content = "If any orders are incomplete, it's likely they'd take too many purchases to process.";
+                m.Embed = purchaseOrderEmbed.Build();
+            });
+        }
+
+        [Command("market status", RunMode = RunMode.Async)]
+        [Alias("mbs")]
+        [Summary("Display login status of servers & display number of API requests performed")]
+        public async Task MarketStatus([Remainder] string input = null)
+        {
+            StringBuilder MarketStatusStringBuilder = new StringBuilder();
+            MarketStatusStringBuilder.AppendLine("**Server login status**");
+
+            foreach (var entry in APIHeartbeatService.serverLoginStatusTracker)
+            {
+                string serverStatus;
+
+                if (entry.Value)
+                    serverStatus = "✅";
+                else
+                    serverStatus = "❌";
+
+                MarketStatusStringBuilder.AppendLine($"{entry.Key}: {serverStatus}");
+            }
+
+            MarketStatusStringBuilder.AppendLine();
+            MarketStatusStringBuilder.AppendLine("**API status**");
+            // TODO: add timezone conversion function somewhere and use it instead of this addhours(-4) crap
+            MarketStatusStringBuilder.Append(
+                $"{APIRequestService.TotalAPIRequestsMade} requests since {System.Diagnostics.Process.GetCurrentProcess().StartTime.AddHours(-4)} ({APIRequestService.TotalAPIRequestsMadeSinceHeartbeat} since last heartbeat check).");
+
+            await ReplyAsync(MarketStatusStringBuilder.ToString());
         }
 
         [Command("market watchlist add", RunMode = RunMode.Async)]
@@ -655,7 +683,7 @@ namespace Astramentis.Modules
         [Summary("Force-run watchlist")]
         public async Task MarketWatchlistForceRun()
         {
-            await MarketWatcherService.WatchlistTimer();
+            await MarketWatcherService.WatchlistTimerTick();
         }
 
         [Command("market watchlist list", RunMode = RunMode.Async)]
@@ -677,17 +705,6 @@ namespace Astramentis.Modules
             embed.WithDescription(watchlistSb.ToString());
 
             await ReplyAsync(null, false, embed.Build());
-        }
-
-
-        [Command("apirequests", RunMode = RunMode.Async)]
-        [Alias("requests", "r")]
-        [RequireOwner]
-        [Summary("Report number of API requests")]
-        public async Task GetNumberOfAPIRequests([Remainder] string input = null)
-        {
-            // TODO: add timezone conversion function somewhere and use it instead of this addhours(-4) crap
-            await ReplyAsync($"{APIRequestService.TotalAPIRequestsMade} requests since {System.Diagnostics.Process.GetCurrentProcess().StartTime.AddHours(-4)} ({APIRequestService.TotalAPIRequestsMadeSinceHeartbeat} since last heartbeat check).");
         }
 
 
