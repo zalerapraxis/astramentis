@@ -319,12 +319,13 @@ namespace Astramentis.Modules
         }
 
 
-        [Command("tag all", RunMode = RunMode.Async)]
+        [Command("tags", RunMode = RunMode.Async)]
         [Summary("Get list of all tags")]
-        [Alias("tags")]
         public async Task TagGetAllCommandAsync(string extra = null)
         {
             var tags = await DatabaseTags.GetAllTagsFromDatabase(Context);
+
+            tags = tags.OrderBy(x => x.Name).ToList();
 
             if (tags.Any())
             {
