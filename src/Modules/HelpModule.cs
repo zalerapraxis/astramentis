@@ -44,6 +44,13 @@ namespace Astramentis.Modules
 
             var module = _service.Modules.FirstOrDefault(x => x.Name.ToLower() == requestedModule.ToLower());
 
+            // this shouldn't happen
+            if (module == null)
+            {
+                await ReplyAsync("You can't use any commands on this server.");
+                return;
+            }
+
             foreach (var cmd in module.Commands)
             {
                 // figure out if the user can run this command
