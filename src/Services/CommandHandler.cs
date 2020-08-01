@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using Discord;
 using NLog;
 
@@ -47,7 +48,8 @@ namespace Astramentis
             
             var context = new SocketCommandContext(_discord, msg);     // Create the command context
 
-            int argPos = 0;     // Check if the message has a valid command prefix
+            // Check if the message has a valid command prefix
+            int argPos = 0;
             if (msg.HasStringPrefix(_config["prefix"], ref argPos) || msg.HasMentionPrefix(_discord.CurrentUser, ref argPos))
             {
                 // Execute the command
@@ -56,9 +58,6 @@ namespace Astramentis
                 // if command is valid, start up a timer & add the command msg and timer to the tracker
                 if (result.IsSuccess)
                 {
-                    // add processing notification emoji to command message
-                    await msg.AddReactionAsync(new Emoji("⌚"));
-
                     // start up timer for this command, add to tracker list
                     var timer = new Stopwatch();
                     timer.Start();
@@ -72,13 +71,12 @@ namespace Astramentis
                         Logger.Log(LogLevel.Error, $"Command \"{msg}\" failed: {result}");
                     }
                 }
-                    
             }
         }
 
         private async Task OnCommandCompletion(Optional<CommandInfo> command, ICommandContext context, IResult result)
         {
-            // don't do anything if the command given isn't a valid command
+            // don't do anything if the command given isn't valid
             if (command.IsSpecified == false)
                 return;
 
