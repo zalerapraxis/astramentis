@@ -74,7 +74,7 @@ namespace Astramentis
                     logConfig.AddRule(LogLevel.Error, LogLevel.Fatal, logDiscord);
                 }
                 else
-                    Console.WriteLine("ERROR: The discordBotOwnerId provided in the config file is invalid. Discord log alerts are disabled.");
+                    Logger.Log(LogLevel.Error, "The discordBotOwnerId provided in the config file is invalid. Discord log alerts are disabled.");
             }
 
             LogManager.Configuration = logConfig;
