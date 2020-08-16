@@ -74,7 +74,8 @@ namespace Astramentis.Services.MarketServices
             var apiResponse = await PerformCustomApiRequest($"{_customMarketApiUrl}/market/?id={itemId}&server={server}");
 
             if (apiResponse.GetType() == typeof(CustomApiStatus))
-                Logger.Log(LogLevel.Error, $"Custom API listing query for {itemId} on {server} gave {apiResponse.ToString()}");
+                if (apiResponse != CustomApiStatus.NoResults)
+                    Logger.Log(LogLevel.Error, $"Custom API listing query for {itemId} on {server} gave {apiResponse.ToString()}");
 
             return apiResponse;
         }
@@ -87,7 +88,8 @@ namespace Astramentis.Services.MarketServices
             var apiResponse = await PerformCustomApiRequest($"{_customMarketApiUrl}/market/history.php?id={itemId}&server={server}");
 
             if (apiResponse.GetType() == typeof(CustomApiStatus))
-                Logger.Log(LogLevel.Error, $"Custom API history query for {itemId} on {server} gave {apiResponse.ToString()}");
+                if (apiResponse != CustomApiStatus.NoResults)
+                    Logger.Log(LogLevel.Error, $"Custom API history query for {itemId} on {server} gave {apiResponse.ToString()}");
 
             return apiResponse;
         }
