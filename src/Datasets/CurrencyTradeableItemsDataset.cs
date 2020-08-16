@@ -553,6 +553,12 @@ namespace Astramentis.Datasets
                 ItemID = 29668,
                 CurrencyCost = 50
             },
+            new CurrencyTradeableItem()
+            {
+                Name = "Slithersand",
+                ItemID = 31320,
+                CurrencyCost = 500
+            },
         };
 
         public static List<CurrencyTradeableItem> YellowGathererScripsItemsList = new List<CurrencyTradeableItem>()
