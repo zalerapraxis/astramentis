@@ -165,20 +165,12 @@ namespace Astramentis.Modules
             await AuthAsync();
         }
 
-        // set up google api auth
+        // set up google auth
         [RequireUserPermission(GuildPermission.Administrator)]
         [Summary("Sets up authentication with Google API")]
         [Command("auth", RunMode = RunMode.Async)]
         public async Task AuthAsync()
         {
-            // before we begin, check if the pre-reqs are met
-            if (!GoogleCalendarSyncService.DoesGoogleAPIClientIDFileExist())
-            {
-                await ReplyAsync(
-                    $"We can't find some things we need for this to work. Contact {Context.Guild.GetUser(110866678161645568).Mention} (client_id.json file missing).");
-                return;
-            }
-
             await GoogleCalendarSyncService.GetAuthCode(Context);
             var response = await NextMessageAsync(true, true, TimeSpan.FromSeconds(60));
             if (response != null)
