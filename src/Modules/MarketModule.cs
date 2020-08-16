@@ -588,13 +588,66 @@ namespace Astramentis.Modules
             });
         }
 
+        [Command("market collectable")]
+        [Alias("mbc")]
+        [Summary("Build a list of the lowest market prices for items, ordered by server")]
+        [Syntax(
+            "market order {itemname/ID:count, itemname/ID:count, etc} or marker order {fending, crafting, etc} - add hq to an item name to require high quality")]
+        [Example("mbo zonure skin:122, caprice fleece:20, 5:1000")]
+        public async Task MarketGetBestCollectable(int numOfCollectables)
+        {
+            var plsWaitMsg = await ReplyAsync("This could take some time. Hang tight.");
+
+            // we specifically want all worlds enabled
+            var worlds = GetServer(" ", false);
+
+            var yellowCrafterScripCollectableList = CollectableRecipesDataset.YellowCrafterScripTurnInsList;
+
+            foreach (var collectable in yellowCrafterScripCollectableList)
+            {
+                // build order models for each recipe mat
+                var itemsList = new List<MarketItemCrossWorldOrderModel>();
+                foreach (var material in collectable.Materials)
+                {
+                    itemsList.Add(new MarketItemCrossWorldOrderModel() { Name = material.Name, ItemID = material.ItemID, NeededQuantity = material.Quantity * numOfCollectables, ShouldBeHQ = false });
+                }
+
+                // get back purchase orders for the recipe mats
+                var results = await MarketService.GetMarketCrossworldPurchaseOrder(itemsList, worlds);
+
+                // add up their costs
+                var totalValue = 0;
+                foreach (var wot in results)
+                {
+                    totalValue += wot.Price * wot.Quantity;
+                }
+
+                collectable.TotalPrice = totalValue;
+            }
+
+            // sort from lowest to highest total price 
+            var parsedCollectablesList = yellowCrafterScripCollectableList.OrderBy(x => x.TotalPrice);
+
+            var collectableListSb = new StringBuilder();
+            foreach (var collectable in parsedCollectablesList)
+            {
+                collectableListSb.AppendLine(
+                    $"{collectable.Name} - subcrafts: {collectable.SubcraftCount} - Total: {collectable.TotalPrice}");
+            }
+
+            await plsWaitMsg.ModifyAsync(m =>
+            {
+                m.Content = collectableListSb.ToString();
+            });
+        }
+
         [Command("market status")]
         [Alias("mbs")]
         [Summary("Display login status of servers & display number of API requests performed")]
         public async Task MarketStatus([Remainder] string input = null)
         {
-            StringBuilder MarketStatusStringBuilder = new StringBuilder();
-            MarketStatusStringBuilder.AppendLine("**Server login status**");
+            var marketStatusSb = new StringBuilder();
+            marketStatusSb.AppendLine("**Server login status**");
 
             foreach (var entry in APIHeartbeatService.serverLoginStatusTracker)
             {
@@ -605,16 +658,16 @@ namespace Astramentis.Modules
                 else
                     serverStatus = "❌";
 
-                MarketStatusStringBuilder.AppendLine($"{entry.Key}: {serverStatus}");
+                marketStatusSb.AppendLine($"{entry.Key}: {serverStatus}");
             }
 
-            MarketStatusStringBuilder.AppendLine();
-            MarketStatusStringBuilder.AppendLine("**API status**");
+            marketStatusSb.AppendLine();
+            marketStatusSb.AppendLine("**API status**");
             // TODO: add timezone conversion function somewhere and use it instead of this addhours(-4) crap
-            MarketStatusStringBuilder.Append(
+            marketStatusSb.Append(
                 $"{APIRequestService.totalCustomAPIRequestsMade} requests since {System.Diagnostics.Process.GetCurrentProcess().StartTime.AddHours(-4)} ({APIRequestService.totalCustomAPIRequestsMadeSinceHeartbeat} since last heartbeat check).");
 
-            await ReplyAsync(MarketStatusStringBuilder.ToString());
+            await ReplyAsync(marketStatusSb.ToString());
         }
 
         [Command("market watchlist add")]
