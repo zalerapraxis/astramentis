@@ -4,6 +4,7 @@ using Discord.WebSocket;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using NLog;
 using NLog.LayoutRenderers;
 using NLog.Targets;
@@ -14,6 +15,7 @@ namespace Astramentis
     {
         private readonly DiscordSocketClient _discord;
         private readonly CommandService _commands;
+        private readonly IConfigurationRoot _config;
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -21,12 +23,13 @@ namespace Astramentis
         private string _logFile => Path.Combine(_logDirectory, "log.txt");
 
         // DiscordSocketClient and CommandService are injected automatically from the IServiceProvider
-        public LoggingService(DiscordSocketClient discord, CommandService commands)
+        public LoggingService(DiscordSocketClient discord, CommandService commands, IConfigurationRoot config)
         {
             _logDirectory = Path.Combine(AppContext.BaseDirectory, "logs");
             
             _discord = discord;
             _commands = commands;
+            _config = config;
             
             _discord.Log += OnLogAsync;
             _commands.Log += OnLogAsync;
@@ -42,7 +45,8 @@ namespace Astramentis
             // configure targets for NLog to send messages to
             var logFile = new FileTarget("logFile") { FileName = _logFile, ArchiveEvery = FileArchivePeriod.Day, Layout = logLayout };
             var logConsole = new ConsoleTarget("logConsole") {Layout = logLayout };
-            var logDiscord = new NLogDiscordTarget() { DiscordClient = discord, Layout = logLayout};
+            // TODO: parse this to ulong somewhere else, or do a config check on startup to make sure everything's the right type
+            var logDiscord = new NLogDiscordTarget() { DiscordClient = discord, DiscordOwnerId = ulong.Parse(_config["discordBotOwnerId"]), Layout = logLayout};
 
             // tell NLog what range of LogLevels to send to each target
             logConfig.AddRule(LogLevel.Debug, LogLevel.Fatal, logFile);

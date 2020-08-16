@@ -1,5 +1,6 @@
 ﻿prefix: ","
-loglevel: "Trace" # Debug > Trace > Info > Warn > Error > Fatal
+discordBotOwnerId: 
+logLevel: "Trace" # Debug > Trace > Info > Warn > Error > Fatal - we need to implement this properly, eventually
 customMarketApiUrl: ""
 xivApiKey: ""
 tokens:

@@ -59,7 +59,7 @@ namespace Astramentis
             services.AddSingleton(new DiscordSocketClient(new DiscordSocketConfig
                 {
                     // Add discord to the collection
-                    LogLevel = LogSeverity.Verbose, // Tell the logger to give Verbose amount of info
+                    LogLevel = LogSeverity.Verbose, // Tell the discord logger to give Verbose amount of info
                     MessageCacheSize = 1000 // Cache 1,000 messages per channel
                 }))
                 .AddSingleton(new CommandService(new CommandServiceConfig

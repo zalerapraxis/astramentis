@@ -12,12 +12,11 @@ namespace Astramentis
     [Target("NLogDiscordTarget")]
     public sealed class NLogDiscordTarget : AsyncTaskTarget
     {
-        public NLogDiscordTarget()
-        {
-        }
-
         [RequiredParameter]
         public DiscordSocketClient DiscordClient { get; set; }
+
+        [RequiredParameter]
+        public ulong DiscordOwnerId { get; set; }
 
         protected override Task WriteAsyncTask(LogEventInfo logEvent, CancellationToken token)
         {
@@ -28,7 +27,8 @@ namespace Astramentis
 
         private async Task SendMessageToBotAdministrator(string message, IDictionary<string, object> properties)
         {
-            await DiscordClient.GetUser(110866678161645568).SendMessageAsync(message);
+            var wot = 110866678161645568;
+            await DiscordClient.GetUser(DiscordOwnerId).SendMessageAsync(message);
         }
     }
 }
