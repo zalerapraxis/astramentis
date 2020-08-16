@@ -19,7 +19,7 @@ namespace Astramentis
         private readonly IConfigurationRoot _config;
         private readonly IServiceProvider _provider;
 
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         // ulong is command message id, to match up between command received and command executed
         private Dictionary<ulong, Stopwatch> CommandElapsedTimersTracker = new Dictionary<ulong, Stopwatch>();
@@ -55,17 +55,17 @@ namespace Astramentis
                 // Execute the command
                 var result = await _commands.ExecuteAsync(context, argPos, _provider);
 
-                // if command is valid, start up a timer & add the command msg and timer to the tracker
-                if (result.IsSuccess)
+                // start up timer for this command, add to tracker list
+                var timer = new Stopwatch();
+                timer.Start();
+                CommandElapsedTimersTracker.Add(context.Message.Id, timer);
+
+                // handle command failed
+                if (!result.IsSuccess)
                 {
-                    // start up timer for this command, add to tracker list
-                    var timer = new Stopwatch();
-                    timer.Start();
-                    CommandElapsedTimersTracker.Add(context.Message.Id, timer);
-                }
-                else // command failed, notify the user
-                {
-                    if (result.Error != CommandError.UnknownCommand) // don't track unknown commands, like someone sending "..."
+                    // don't track unknown commands, like someone sending "..."
+                    // don't track commands that just didn't get input correctly
+                    if (result.Error != CommandError.UnknownCommand && result.Error != CommandError.BadArgCount) 
                     {
                         await context.Channel.SendMessageAsync(result.ToString());
                         Logger.Log(LogLevel.Error, $"Command \"{msg}\" failed: {result}");
@@ -81,16 +81,9 @@ namespace Astramentis
                 return;
 
             // grab the timer from the tracker list using the message id of the command
-            var timerRetrieved = CommandElapsedTimersTracker.TryGetValue(context.Message.Id, out var timer);
+            CommandElapsedTimersTracker.TryGetValue(context.Message.Id, out var timer);
 
-            // this should never happen, but in case it does...
-            if (timerRetrieved == false)
-            {
-                Logger.Log(LogLevel.Error, $"Could not retrieve timer for command {command.Value.Name}");
-                return;
-            }
-
-            timer.Stop();
+            timer?.Stop();
             var cmdResult = new System.Text.StringBuilder();
 
 
@@ -109,12 +102,9 @@ namespace Astramentis
             else
                 cmdResult.Append($" unsuccessfully with error code {result.Error}");
 
-            cmdResult.Append($" in {timer.ElapsedMilliseconds}ms");
+            cmdResult.Append($" in {timer?.ElapsedMilliseconds}ms");
 
             Logger.Log(LogLevel.Info, cmdResult.ToString());
-
-            // remove processing notification emoji from command message
-            await context.Message.RemoveReactionAsync(new Emoji("⌚"), _discord.CurrentUser);
 
             // remove this command entry from the time tracker
             CommandElapsedTimersTracker.Remove(context.Message.Id);
