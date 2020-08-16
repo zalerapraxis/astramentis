@@ -403,7 +403,7 @@ namespace Astramentis.Services
             }
 
             string resultMessage =
-                ":white_check_mark: Authorization successful. Get your calendar ID and run ```.calendarid {id}``` to finish setup." +
+                $":white_check_mark: Authorization successful. Get your calendar ID and run ```{_config["prefix"]}calendarid {{id}}``` to finish setup." +
                 "Your calendar ID can be found by going to your raid calendar's settings, and scrolling to the \"Integrate Calendar\" section.";
             await _interactiveService.ReplyAndDeleteAsync(context, resultMessage, false, null,
                 TimeSpan.FromMinutes(1));

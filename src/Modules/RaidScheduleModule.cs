@@ -24,7 +24,6 @@ namespace Astramentis.Modules
         public DatabaseServers DatabaseServers { get; set; }
         public IConfigurationRoot Config { get; set; }
 
-
         [Command("adjust")]
         [Summary("Manually adjusts start/end times for the next upcoming event")]
         [Syntax("adjust {start/end} {value in minutes}")]
@@ -34,7 +33,7 @@ namespace Astramentis.Modules
         {
             if (function != "start" && function != "end" && function != "clear" || function != "clear" && value == 0)
             {
-                await ReplyAsync("You didn't correctly fill out the command. Syntax is `adjust start/end amount (in minutes)`");
+                await ReplyAsync($"You didn't correctly fill out the command. Syntax is ```{Config["prefix"]}adjust start/end amount (in minutes)```");
                 return;
             }
 
@@ -52,7 +51,7 @@ namespace Astramentis.Modules
                 if (function == "end")
                     responseBuilder.Append($" new end time: {server.Events[0].EndDate}");
                 if (function == "clear")
-                    responseBuilder.Append("adjustment cleared. Use `sync` command to reload original values.");
+                    responseBuilder.Append($"adjustment cleared. Use the ```{Config["prefix"]}sync``` command to reload original values.");
 
                 await ReplyAsync(responseBuilder.ToString());
             }
@@ -94,7 +93,7 @@ namespace Astramentis.Modules
             {
                 await GoogleCalendarSyncService.SetCalendarId(input, Context);
                 await ReplyAndDeleteAsync(
-                    ":white_check_mark: Calendar ID set. You can use ```.sync``` to sync up your calendar now.", false, null, TimeSpan.FromMinutes(1));
+                    $":white_check_mark: Calendar ID set. You can use ```{Config["prefix"]}sync``` to sync up your calendar now.", false, null, TimeSpan.FromMinutes(1));
             }
             else
                 await ReplyAsync("You need to provide a calendar ID after the command.");
@@ -177,7 +176,9 @@ namespace Astramentis.Modules
             if (!GoogleCalendarSyncService.DoesGoogleAPIClientIDFileExist())
             {
                 await ReplyAsync(
-                    $"We can't find some things we need for this to work. Contact {Context.Guild.GetUser(ulong.Parse(Config["discordBotOwnerId"])).Mention} (client_id.json file missing).");
+                    $"We can't find some things we need for this to work. " +
+                    $"Contact {Context.Guild.GetUser(ulong.Parse(Config["discordBotOwnerId"])).Mention} (client_id.json file missing). " +
+                    $"When that's resolved, run the ```{Config["prefix"]}auth``` command to continue the process.");
                 return;
             }
 

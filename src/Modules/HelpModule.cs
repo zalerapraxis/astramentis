@@ -15,10 +15,14 @@ namespace Astramentis.Modules
         private readonly CommandService _service;
         private readonly IConfigurationRoot _config;
 
+        private string commandPrefix;
+
         public HelpModule(CommandService service, IConfigurationRoot config)
         {
             _service = service;
             _config = config;
+
+            commandPrefix = _config["prefix"];
         }
 
 
@@ -35,7 +39,6 @@ namespace Astramentis.Modules
                 return;
             }
             
-            string prefix = _config["prefix"];
             var builder = new EmbedBuilder()
             {
                 Color = Color.Blue,
@@ -76,7 +79,7 @@ namespace Astramentis.Modules
                 {
                     builder.AddField(x =>
                     {
-                        x.Name = $"{prefix}{cmd.Aliases.First()}";
+                        x.Name = $"{commandPrefix}{cmd.Aliases.First()}";
                         x.Value = $"{descriptionBuilder}";
                         x.IsInline = false;
                     });
@@ -94,7 +97,7 @@ namespace Astramentis.Modules
             var builder = new EmbedBuilder()
             {
                 Color = Color.Blue,
-                Description = "These are the command modules you have access to. Use .helpmod {module} to see the commands in each."
+                Description = $"These are the command modules you have access to. Use {commandPrefix}helpmod {{module}} to see the commands in each."
             };
             
             foreach (var module in _service.Modules.Where(x => x.Summary.Any()))
