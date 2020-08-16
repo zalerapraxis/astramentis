@@ -31,17 +31,23 @@ namespace Astramentis
             _discord.Log += OnLogAsync;
             _commands.Log += OnLogAsync;
 
+            // implement custom target to send messages to the bot admin via Discord DMs
+            Target.Register<Astramentis.NLogDiscordTarget>("NLogDiscordTarget");
+
             var logConfig = new NLog.Config.LoggingConfiguration();
 
-
+            // configure how NLog will display log messages
             var logLayout = "${longdate}|${level:uppercase=true}|${logger:shortName=true}|${message}";
-            var logFile = new NLog.Targets.FileTarget("logFile") { FileName = _logFile, ArchiveEvery = FileArchivePeriod.Day, Layout = logLayout };
-            var logConsole = new NLog.Targets.ConsoleTarget("logConsole") {Layout = logLayout };
 
-            
+            // configure targets for NLog to send messages to
+            var logFile = new FileTarget("logFile") { FileName = _logFile, ArchiveEvery = FileArchivePeriod.Day, Layout = logLayout };
+            var logConsole = new ConsoleTarget("logConsole") {Layout = logLayout };
+            var logDiscord = new NLogDiscordTarget() { DiscordClient = discord, Layout = logLayout};
 
+            // tell NLog what range of LogLevels to send to each target
             logConfig.AddRule(LogLevel.Debug, LogLevel.Fatal, logFile);
             logConfig.AddRule(LogLevel.Debug, LogLevel.Fatal, logConsole);
+            logConfig.AddRule(LogLevel.Error, LogLevel.Fatal, logDiscord);
 
             NLog.LogManager.Configuration = logConfig;
         }
