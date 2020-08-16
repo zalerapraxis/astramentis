@@ -55,14 +55,7 @@ namespace Astramentis.Modules
         [Summary("Say hi. Just to check if the bot's alive.")]
         public async Task Doccer()
         {
-            int i = 0;
-            while (i < 10)
-            {
-                Console.WriteLine($"{ApiRequestService.concurrentCustomAPIRequestsCompleted} / {ApiRequestService.concurrentCustomAPIRequestsTotal}");
-
-                Thread.Sleep(1000);
-                i++;
-            }
+            await ReplyAsync("Hi!");
         }
     }
 }
