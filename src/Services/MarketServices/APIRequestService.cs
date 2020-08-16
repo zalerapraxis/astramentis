@@ -73,6 +73,7 @@ namespace Astramentis.Services.MarketServices
             
             var apiResponse = await PerformCustomApiRequest($"{_customMarketApiUrl}/market/?id={itemId}&server={server}");
 
+            // log any important errors
             if (apiResponse.GetType() == typeof(CustomApiStatus))
                 if (apiResponse != CustomApiStatus.NoResults)
                     Logger.Log(LogLevel.Error, $"Custom API listing query for {itemId} on {server} gave {apiResponse.ToString()}");
@@ -87,6 +88,7 @@ namespace Astramentis.Services.MarketServices
 
             var apiResponse = await PerformCustomApiRequest($"{_customMarketApiUrl}/market/history.php?id={itemId}&server={server}");
 
+            // log any important errors
             if (apiResponse.GetType() == typeof(CustomApiStatus))
                 if (apiResponse != CustomApiStatus.NoResults)
                     Logger.Log(LogLevel.Error, $"Custom API history query for {itemId} on {server} gave {apiResponse.ToString()}");
@@ -190,21 +192,23 @@ namespace Astramentis.Services.MarketServices
                         // check if prices or history key exists
                         if (((IDictionary<String, object>)apiResponse).ContainsKey("Prices"))
                         {
+                            Interlocked.Increment(ref concurrentCustomAPIRequestsCompleted); // concurrent requests completed
+
                             if (apiResponse.Prices == null || apiResponse.Prices.Count == 0)
                                 return CustomApiStatus.NoResults;
 
                             // success, return response
-                            Interlocked.Increment(ref concurrentCustomAPIRequestsCompleted); // concurrent requests completed
                             return apiResponse;
                         }
 
                         if (((IDictionary<String, object>) apiResponse).ContainsKey("Sales"))
                         {
+                            Interlocked.Increment(ref concurrentCustomAPIRequestsCompleted); // concurrent requests completed
+
                             if (apiResponse.Sales == null || apiResponse.Sales.Count == 0)
                                 return CustomApiStatus.NoResults;
 
                             // success, return response
-                            Interlocked.Increment(ref concurrentCustomAPIRequestsCompleted); // concurrent requests completed
                             return apiResponse;
                         }
 
