@@ -12,14 +12,13 @@ namespace Astramentis.Modules
     [Summary("You are here.")]
     public class HelpModule : ModuleBase<SocketCommandContext>
     {
-        private readonly CommandService _service;
+        public CommandService CommandService { get; set; }
         private readonly IConfigurationRoot _config;
 
         private string commandPrefix;
 
-        public HelpModule(CommandService service, IConfigurationRoot config)
+        public HelpModule(IConfigurationRoot config)
         {
-            _service = service;
             _config = config;
 
             commandPrefix = _config["prefix"];
@@ -45,7 +44,7 @@ namespace Astramentis.Modules
                 //Description = "These are the commands you can use."
             };
 
-            var module = _service.Modules.FirstOrDefault(x => x.Name.ToLower() == requestedModule.ToLower());
+            var module = CommandService.Modules.FirstOrDefault(x => x.Name.ToLower() == requestedModule.ToLower());
 
             // this shouldn't happen
             if (module == null)
@@ -100,7 +99,7 @@ namespace Astramentis.Modules
                 Description = $"These are the command modules you have access to. Use {commandPrefix}helpmod {{module}} to see the commands in each."
             };
             
-            foreach (var module in _service.Modules.Where(x => x.Summary.Any()))
+            foreach (var module in CommandService.Modules.Where(x => x.Summary.Any()))
             {
                 builder.AddField(x =>
                 {
