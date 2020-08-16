@@ -2,16 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Discord.Rest;
 using Discord.WebSocket;
-using Astramentis.Models;
-using Google.Apis.Calendar.v3.Data;
+using Astramentis.Services.Logging;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using NLog;
 
 namespace Astramentis.Services
@@ -24,7 +20,7 @@ namespace Astramentis.Services
         private readonly DiscordSocketClient _discord;
         private readonly IConfiguration _config;
 
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         public ScheduleService(
             DiscordSocketClient discord,

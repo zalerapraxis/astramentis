@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Astramentis.Services;
 using Astramentis.Services.DatabaseServiceComponents;
 using Astramentis.Services.DatabaseServices;
+using Astramentis.Services.Logging;
 using Astramentis.Services.MarketServices;
 using Discord;
 using Discord.Addons.Interactive;
@@ -65,7 +66,7 @@ namespace Astramentis
                 .AddSingleton(new CommandService(new CommandServiceConfig
                 {
                     // Add the command service to the collection
-                    LogLevel = LogSeverity.Verbose, // Tell the logger to give Verbose amount of info
+                    LogLevel = LogSeverity.Verbose, // Tell the discord logger to give Verbose amount of info
                     DefaultRunMode = RunMode.Async, // Force all commands to run async by default
                 }))
                 .AddSingleton<CommandHandler>()

@@ -11,6 +11,7 @@ using Astramentis.Models;
 using Astramentis.Services.DatabaseServices;
 using Discord;
 using Discord.WebSocket;
+using Microsoft.Extensions.Configuration;
 using NLog;
 
 namespace Astramentis.Services.MarketServices
@@ -21,9 +22,10 @@ namespace Astramentis.Services.MarketServices
         private readonly MarketService _marketService;
         private readonly DatabaseMarketWatchlist _databaseMarketWatchlist;
         private readonly APIHeartbeatService _apiHeartbeatService;
+        private readonly IConfigurationRoot _config;
         private readonly Random _rng;
 
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         public bool WatchlistMuted = true; // mute by default
         public int DifferentialCutoff = 30;
@@ -36,12 +38,18 @@ namespace Astramentis.Services.MarketServices
         // set to -1 for default behavior
         private static ParallelOptions parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = -1 };
 
-        public MarketWatcherService(DiscordSocketClient discord, MarketService marketService, DatabaseMarketWatchlist databaseMarketWatchlist, APIHeartbeatService apiHeartbeatService, Random rng)
+        public MarketWatcherService(DiscordSocketClient discord, 
+            MarketService marketService, 
+            DatabaseMarketWatchlist databaseMarketWatchlist, 
+            APIHeartbeatService apiHeartbeatService, 
+            IConfigurationRoot config,
+            Random rng)
         {
             _discord = discord;
             _marketService = marketService;
             _databaseMarketWatchlist = databaseMarketWatchlist;
             _apiHeartbeatService = apiHeartbeatService;
+            _config = config;
             _rng = rng;
 
             // build worlds list

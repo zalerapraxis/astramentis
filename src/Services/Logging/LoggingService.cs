@@ -1,16 +1,14 @@
-﻿using Discord;
+﻿using System;
+using System.IO;
+using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using NLog;
-using NLog.LayoutRenderers;
 using NLog.Targets;
 
-namespace Astramentis
+namespace Astramentis.Services.Logging
 {
     public class LoggingService
     {
@@ -18,7 +16,7 @@ namespace Astramentis
         private readonly CommandService _commands;
         private readonly IConfigurationRoot _config;
 
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         private string _logDirectory { get; }
         private string _logFile => Path.Combine(_logDirectory, "log.txt");
@@ -39,7 +37,7 @@ namespace Astramentis
             _discord.Ready += CheckAndConfigureDiscordLogger;
 
             // implement custom target to send messages to the bot admin via Discord DMs
-            Target.Register<Astramentis.NLogDiscordTarget>("NLogDiscordTarget");
+            Target.Register<NLogDiscordTarget>("NLogDiscordTarget");
 
             var logConfig = new NLog.Config.LoggingConfiguration();
 
@@ -54,7 +52,7 @@ namespace Astramentis
             logConfig.AddRule(LogLevel.Debug, LogLevel.Fatal, logFile);
             logConfig.AddRule(LogLevel.Debug, LogLevel.Fatal, logConsole);
 
-            NLog.LogManager.Configuration = logConfig;
+            LogManager.Configuration = logConfig;
         }
 
         private async Task CheckAndConfigureDiscordLogger()
@@ -70,7 +68,7 @@ namespace Astramentis
                 // check if the user ID is valid
                 if (_discord.GetUser(discordBotOwnerId) != null)
                 {
-                    var logDiscord = new NLogDiscordTarget() { DiscordClient = _discord, DiscordBotOwnerId = discordBotOwnerId, Layout = logLayout };
+                    var logDiscord = new NLogDiscordTarget { DiscordClient = _discord, DiscordBotOwnerId = discordBotOwnerId, Layout = logLayout };
                     logConfig.AddRule(LogLevel.Error, LogLevel.Fatal, logDiscord);
                 }
                 else
