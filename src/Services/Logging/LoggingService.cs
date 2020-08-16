@@ -70,7 +70,7 @@ namespace Astramentis
                 // check if the user ID is valid
                 if (_discord.GetUser(discordBotOwnerId) != null)
                 {
-                    var logDiscord = new NLogDiscordTarget() { DiscordClient = _discord, DiscordOwnerId = discordBotOwnerId, Layout = logLayout };
+                    var logDiscord = new NLogDiscordTarget() { DiscordClient = _discord, DiscordBotOwnerId = discordBotOwnerId, Layout = logLayout };
                     logConfig.AddRule(LogLevel.Error, LogLevel.Fatal, logDiscord);
                 }
                 else

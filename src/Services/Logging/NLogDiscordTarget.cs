@@ -16,7 +16,7 @@ namespace Astramentis
         public DiscordSocketClient DiscordClient { get; set; }
 
         [RequiredParameter]
-        public ulong DiscordOwnerId { get; set; }
+        public ulong DiscordBotOwnerId { get; set; }
 
         protected override Task WriteAsyncTask(LogEventInfo logEvent, CancellationToken token)
         {
@@ -27,7 +27,7 @@ namespace Astramentis
 
         private async Task SendMessageToBotAdministrator(string message, IDictionary<string, object> properties)
         {
-            await DiscordClient.GetUser(DiscordOwnerId).SendMessageAsync(message);
+            await DiscordClient.GetUser(DiscordBotOwnerId).SendMessageAsync(message);
         }
     }
 }
