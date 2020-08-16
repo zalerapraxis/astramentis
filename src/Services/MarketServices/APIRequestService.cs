@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Astramentis.Enums;
+using Discord;
 using Discord.WebSocket;
 using Flurl.Http;
 using Microsoft.Extensions.Configuration;
@@ -14,6 +15,8 @@ namespace Astramentis.Services.MarketServices
 {
     public class APIRequestService
     {
+        private readonly DiscordSocketClient _discord;
+
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         private string _customMarketApiUrl;
@@ -34,8 +37,12 @@ namespace Astramentis.Services.MarketServices
         public int concurrentCustomAPIRequestsCompleted = 0; // number of requests completed
         public int concurrentCustomAPIRequestsTotal = 0; // number of requests to do
 
-        public APIRequestService(IConfigurationRoot config)
+        private Timer botStatusUpdateTimer;
+
+        public APIRequestService(DiscordSocketClient discord, IConfigurationRoot config)
         {
+            _discord = discord;
+
             _customMarketApiUrl = config["customMarketApiUrl"];
             _xivApiKey = config["xivApiKey"];
         }
@@ -151,6 +158,9 @@ namespace Astramentis.Services.MarketServices
             Interlocked.Increment(ref totalCustomAPIRequestsMadeSinceHeartbeat); // total since last heartbeat check
             Interlocked.Increment(ref concurrentCustomAPIRequestsTotal); // concurrent requests active
 
+            // if the timer isn't already started, start it up
+            Task.Run(() => InitiateTimer());
+
             while (i < exceptionRetryCount)
             {
                 try
@@ -209,6 +219,27 @@ namespace Astramentis.Services.MarketServices
 
             // return generic api failure code
             return CustomApiStatus.APIFailure;
+        }
+
+        private void InitiateTimer()
+        {
+            if (botStatusUpdateTimer == null)
+                botStatusUpdateTimer = new Timer(async delegate { await BotStatusUpdateTimer(); }, null, 0, 4000);
+        }
+
+        private async Task BotStatusUpdateTimer()
+        {
+            if (concurrentCustomAPIRequestsCompleted == concurrentCustomAPIRequestsTotal)
+            {
+                await _discord.SetGameAsync(null);
+
+                botStatusUpdateTimer.Dispose();
+                botStatusUpdateTimer = null;
+            }
+            else
+            {
+                await _discord.SetGameAsync($"{concurrentCustomAPIRequestsTotal} API requests...", type: ActivityType.Watching); // "watching x requests
+            }
         }
     }
 }
