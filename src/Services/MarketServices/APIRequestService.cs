@@ -158,8 +158,8 @@ namespace Astramentis.Services.MarketServices
             Interlocked.Increment(ref totalCustomAPIRequestsMadeSinceHeartbeat); // total since last heartbeat check
             Interlocked.Increment(ref concurrentCustomAPIRequestsTotal); // concurrent requests active
 
-            // if the timer isn't already started, start it up
-            Task.Run(() => InitiateTimer());
+            // start the timer - function has a null check so it will only do anything the first time we run it
+            Task.Run(InitiateTimer);
 
             while (i < exceptionRetryCount)
             {
@@ -223,15 +223,21 @@ namespace Astramentis.Services.MarketServices
 
         private void InitiateTimer()
         {
+            // this function is called every time a custom api call is made, but we only want it to initiate a timer once
             if (botStatusUpdateTimer == null)
                 botStatusUpdateTimer = new Timer(async delegate { await BotStatusUpdateTimer(); }, null, 0, 4000);
         }
 
         private async Task BotStatusUpdateTimer()
         {
+            // if requests are completed: remove the bot's status msg, reset the request counts, and get rid of the timer
             if (concurrentCustomAPIRequestsCompleted == concurrentCustomAPIRequestsTotal)
             {
                 await _discord.SetGameAsync(null);
+
+                // reset concurrent api requests values
+                Interlocked.Add(ref concurrentCustomAPIRequestsTotal, concurrentCustomAPIRequestsTotal * -1);
+                Interlocked.Add(ref concurrentCustomAPIRequestsCompleted, concurrentCustomAPIRequestsCompleted * -1);
 
                 botStatusUpdateTimer.Dispose();
                 botStatusUpdateTimer = null;
