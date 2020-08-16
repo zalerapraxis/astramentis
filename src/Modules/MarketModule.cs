@@ -102,7 +102,7 @@ namespace Astramentis.Modules
                     {
                         new EmbedFieldBuilder()
                         {
-                            Name = $"{parsedInput.ItemName}",
+                            Name = $"{parsedInput.ItemName} ({parsedInput.ItemId})",
                             Value = sbListing
                         }
                     }
@@ -211,7 +211,7 @@ namespace Astramentis.Modules
                     {
                         new EmbedFieldBuilder()
                         {
-                            Name = $"{parsedInput.ItemName}",
+                            Name = $"{parsedInput.ItemName} ({parsedInput.ItemId})",
                             Value = sbListing
                         }
                     }
