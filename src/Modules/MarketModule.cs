@@ -15,6 +15,7 @@ using Discord.Commands;
 using Astramentis.Enums;
 using Astramentis.Services.DatabaseServices;
 using Discord.WebSocket;
+using Microsoft.Extensions.Configuration;
 
 namespace Astramentis.Modules
 {
@@ -27,12 +28,13 @@ namespace Astramentis.Modules
         public APIHeartbeatService APIHeartbeatService { get; set; }
         public DatabaseMarketWatchlist DatabaseMarketWatchlist { get; set; }
         public MarketWatcherService MarketWatcherService { get; set; }
+        public IConfigurationRoot Config { get; set; }
 
         private Dictionary<IUser, IUserMessage> _dictFindItemUserEmbedPairs = new Dictionary<IUser, IUserMessage>();
 
         private Worlds DefaultWorld = Worlds.gilgamesh;
 
-        [Command("market price", RunMode = RunMode.Async)]
+        [Command("market price")]
         [Alias("mbp")]
         [Summary("Get prices for an item")]
         [Syntax("market price {optional: server} {name/ID}")]
@@ -139,7 +141,7 @@ namespace Astramentis.Modules
             });
         }
 
-        [Command("market history", RunMode = RunMode.Async)]
+        [Command("market history")]
         [Alias("mbh")]
         [Summary("Get history for an item")]
         [Syntax("market history {optional: server} {name/ID}")]
@@ -245,7 +247,7 @@ namespace Astramentis.Modules
         }
 
 
-        [Command("market analyze", RunMode = RunMode.Async)]
+        [Command("market analyze")]
         [Alias("mba")]
         [Summary("Get market analysis for an item")]
         [Syntax("market analyze {name/ID} {optional: server, defaults to Gilgamesh}")]
@@ -332,7 +334,7 @@ namespace Astramentis.Modules
         }
 
         // should be able to accept inputs in any order - if two values are provided, they will be treated as minilvl and maxilvl respectively
-        [Command("market exchange", RunMode = RunMode.Async)]
+        [Command("market exchange")]
         [Alias("mbe")]
         [Summary("Find the best items to spend your tomes/seals on - run without any options to view currency types")]
         [Syntax("market exchange {currency} {optional: server, defaults to Gilgamesh}")]
@@ -471,7 +473,7 @@ namespace Astramentis.Modules
         }
 
 
-        [Command("market order", RunMode = RunMode.Async)]
+        [Command("market order")]
         [Alias("mbo")]
         [Summary("Build a list of the lowest market prices for items, ordered by server")]
         [Syntax("market order {itemname/ID:count, itemname/ID:count, etc} or marker order {fending, crafting, etc} - add hq to an item name to require high quality")]
@@ -586,7 +588,7 @@ namespace Astramentis.Modules
             });
         }
 
-        [Command("market status", RunMode = RunMode.Async)]
+        [Command("market status")]
         [Alias("mbs")]
         [Summary("Display login status of servers & display number of API requests performed")]
         public async Task MarketStatus([Remainder] string input = null)
@@ -615,7 +617,7 @@ namespace Astramentis.Modules
             await ReplyAsync(MarketStatusStringBuilder.ToString());
         }
 
-        [Command("market watchlist add", RunMode = RunMode.Async)]
+        [Command("market watchlist add")]
         [Alias("mwa")]
         [RequireOwner]
         [Summary("Add item to market watchlist")]
@@ -656,7 +658,7 @@ namespace Astramentis.Modules
             await ReplyAsync($"Added item {watchlistEntry.itemName} ({watchlistEntry.itemId}) to watchlist.");
         }
 
-        [Command("market watchlist toggle", RunMode = RunMode.Async)]
+        [Command("market watchlist toggle")]
         [Alias("mwt", "mwm")]
         [RequireOwner]
         [Summary("Toggle watchlist checking & reporting")]
@@ -670,7 +672,7 @@ namespace Astramentis.Modules
             await ReplyAsync($"Watchlist is now {(MarketWatcherService.WatchlistMuted ? "muted" : "unmuted")}.");
         }
 
-        [Command("market watchlist cutoff", RunMode = RunMode.Async)]
+        [Command("market watchlist cutoff")]
         [Alias("mwc")]
         [RequireOwner]
         [Summary("Adjust watchlist analysis differential cutoff")]
@@ -682,7 +684,7 @@ namespace Astramentis.Modules
             await ReplyAsync($"Watchlist report cutoff set to {cutoff}%");
         }
 
-        [Command("market watchlist run", RunMode = RunMode.Async)]
+        [Command("market watchlist run")]
         [Alias("mwr")]
         [RequireOwner]
         [Summary("Force-run watchlist")]
@@ -691,7 +693,7 @@ namespace Astramentis.Modules
             await MarketWatcherService.WatchlistTimerTick();
         }
 
-        [Command("market watchlist list", RunMode = RunMode.Async)]
+        [Command("market watchlist list")]
         [Alias("mwl")]
         [RequireOwner]
         [Summary("Show the contents of the watchlist")]
@@ -1037,14 +1039,16 @@ namespace Astramentis.Modules
         {
             string apiStatusHumanResponse = "";
 
+            var discordBotOwnerId = ulong.Parse(Config["discordBotOwnerId"]);
+
             if (status == CustomApiStatus.NotLoggedIn)
-                apiStatusHumanResponse = $"Not logged in to Companion API. Contact {Context.Guild.GetUser(110866678161645568).Mention}.";
+                apiStatusHumanResponse = $"Not logged in to Companion API. Contact {Context.Guild.GetUser(discordBotOwnerId).Mention}.";
             if (status == CustomApiStatus.UnderMaintenance)
                 apiStatusHumanResponse = "SE's API is down for maintenance.";
             if (status == CustomApiStatus.AccessDenied)
-                apiStatusHumanResponse = $"Access denied. Contact {Context.Guild.GetUser(110866678161645568).Mention}.";
+                apiStatusHumanResponse = $"Access denied. Contact {Context.Guild.GetUser(discordBotOwnerId).Mention}.";
             if (status == CustomApiStatus.ServiceUnavailable || status == CustomApiStatus.APIFailure)
-                apiStatusHumanResponse = $"Something went wrong (API failure). Contact {Context.Guild.GetUser(110866678161645568).Mention}.";
+                apiStatusHumanResponse = $"Something went wrong (API failure). Contact {Context.Guild.GetUser(discordBotOwnerId).Mention}.";
 
             return apiStatusHumanResponse;
         }
@@ -1052,7 +1056,7 @@ namespace Astramentis.Modules
         //
         private string ReplaceWholeWord(string original, string wordToFind, string replacement, RegexOptions regexOptions = RegexOptions.None)
         {
-            string pattern = String.Format(@"\b{0}\b", wordToFind);
+            string pattern = $@"\b{wordToFind}\b";
             string replaced = Regex.Replace(original, pattern, replacement, regexOptions).Trim(); // remove the unwanted word
             string ret = Regex.Replace(replaced, @"\s+", " "); // clear out any excess whitespace
             return ret;

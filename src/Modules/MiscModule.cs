@@ -17,7 +17,7 @@ namespace Astramentis.Modules
     public class MiscModule : InteractiveBase
     {
         // TODO: add many-choice voting
-        [Command("vote", RunMode = RunMode.Async)]
+        [Command("vote")]
         [Summary("Start a vote using yes/no reactions")]
         [Syntax("vote {message}")]
         [Example("vote should we cancel raid tonight?")]

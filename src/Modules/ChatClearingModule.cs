@@ -17,9 +17,7 @@ namespace Astramentis.Modules
     [RequireContext(ContextType.Guild)]
     public class ChatClearingModule : ModuleBase<SocketCommandContext>
     {
-        public EventReactionAddedService EventReactionAddedService { get; set; }
-
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         // clear chatlogs
         [Command("clear")]

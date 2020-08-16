@@ -17,7 +17,7 @@ namespace Astramentis.Modules
     {
         public DatabaseSudo DatabaseSudo { get; set; }
 
-        [Command("sudo", RunMode = RunMode.Async)]
+        [Command("sudo")]
         [Summary("Ignores private scope of tags & allows bot administration")]
         [Example("sudo")]
         public async Task SudoToggleCommandAsync()
@@ -40,7 +40,7 @@ namespace Astramentis.Modules
                 await ReplyAsync("You are not in the sudoers list.");
         }
 
-        [Command("sudoer", RunMode = RunMode.Async)]
+        [Command("sudoer")]
         [Summary("Adds or removes a user from the sudo list")]
         [Syntax("sudoer {add/remove} {@user}")]
         [Example("sudoer add @Zalera")]

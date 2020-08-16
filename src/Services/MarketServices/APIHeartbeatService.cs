@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Astramentis.Enums;
 using Discord.WebSocket;
+using Microsoft.Extensions.Configuration;
 using NLog;
 
 namespace Astramentis.Services.MarketServices
@@ -16,11 +17,12 @@ namespace Astramentis.Services.MarketServices
     {
         private readonly DiscordSocketClient _discord;
         private readonly APIRequestService _apiRequestService;
+        private readonly IConfigurationRoot _config;
         private readonly Random _rng;
 
         public ConcurrentDictionary<Worlds, bool> serverLoginStatusTracker = new ConcurrentDictionary<Worlds, bool>();
 
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         private Timer _heartbeatTimer;
 
@@ -30,10 +32,14 @@ namespace Astramentis.Services.MarketServices
         // set to -1 for default behavior
         private static ParallelOptions parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = -1 };
 
-        public APIHeartbeatService(DiscordSocketClient discord, APIRequestService apiRequestService, Random rng)
+        public APIHeartbeatService(DiscordSocketClient discord, 
+            APIRequestService apiRequestService, 
+            IConfigurationRoot config,
+            Random rng)
         {
             _discord = discord;
             _apiRequestService = apiRequestService;
+            _config = config;
             _rng = rng;
 
             Logger.Log(LogLevel.Debug, $"Heartbeat timer started!");
@@ -61,7 +67,7 @@ namespace Astramentis.Services.MarketServices
             {
                 Logger.Log(LogLevel.Info, $"SE API error - received error: {globalCompanionStatusRequestResult}.");
 
-                var dm = await _discord.GetUser(110866678161645568).GetOrCreateDMChannelAsync();
+                var dm = await _discord.GetUser(ulong.Parse(_config["discordBotOwnerId"])).GetOrCreateDMChannelAsync();
                 await dm.SendMessageAsync($"Something's wrong with the API - received error: {globalCompanionStatusRequestResult}.");
             }
 

@@ -24,7 +24,7 @@ namespace Astramentis.Modules
         private Dictionary<IUser, IUserMessage> _dictFindTagUserEmbedPairs = new Dictionary<IUser, IUserMessage>();
         
 
-        [Command("tag", RunMode = RunMode.Async)]
+        [Command("tag")]
         [Summary("Get a tag by name")]
         [Syntax("tag {name}")]
         [Example("tag no_hit")]
@@ -58,7 +58,7 @@ namespace Astramentis.Modules
         }
 
 
-        [Command("tag add", RunMode = RunMode.Async)]
+        [Command("tag add")]
         [Summary("Add a new tag")]
         [Alias("tag create")]
         [Syntax("tag add {name} {content} - can also upload a file with the command to add that file to a tag")]
@@ -94,7 +94,7 @@ namespace Astramentis.Modules
         }
 
 
-        [Command("tag make", RunMode = RunMode.Async)]
+        [Command("tag make")]
         [Summary("React a ⭐ to a message you want to make into a tag")]
         [Syntax("React to a message with a ⭐ emoji and then run this command.")]
         public async Task TagMakeCommandAsync(string tagName = null)
@@ -125,7 +125,7 @@ namespace Astramentis.Modules
         }
 
 
-        [Command("tag remove", RunMode = RunMode.Async)]
+        [Command("tag remove")]
         [Summary("Remove a tag")]
         [Alias("tag delete", "tag rm")]
         [Syntax("tag remove {name}")]
@@ -146,7 +146,7 @@ namespace Astramentis.Modules
         }
 
 
-        [Command("tag edit", RunMode = RunMode.Async)]
+        [Command("tag edit")]
         [Summary("Edit a tag's contents")]
         [Syntax("tag edit {name} {content}")]
         [Example("tag edit statweights 19.7 1 0.151 0.163 0.138 0.151")]
@@ -167,7 +167,7 @@ namespace Astramentis.Modules
         }
 
 
-        [Command("tag rename", RunMode = RunMode.Async)]
+        [Command("tag rename")]
         [Summary("Rename a tag")]
         [Syntax("tag rename {name} {newName}")]
         [Example("tag rename statweights stattiers")]
@@ -187,7 +187,7 @@ namespace Astramentis.Modules
         }
 
 
-        [Command("tag describe", RunMode = RunMode.Async)]
+        [Command("tag describe")]
         [Summary("Describe a tag - descriptions are optional and used for tag lists & info")]
         [Syntax("tag describe {name} {description}")]
         [Example("tag describe stattiers MNK stat weights")]
@@ -207,7 +207,7 @@ namespace Astramentis.Modules
         }
 
 
-        [Command("tag global", RunMode = RunMode.Async)]
+        [Command("tag global")]
         [Summary("Toggle the tag's global status. Global tags can be used on other servers")]
         [Syntax("tag global {name} {true/false}")]
         [Example("tag global stattiers true")]
@@ -240,7 +240,7 @@ namespace Astramentis.Modules
         }
 
 
-        [Command("tag list", RunMode = RunMode.Async)]
+        [Command("tag list")]
         [Summary("Get a list of tags by you or someone else")]
         [Syntax("tag list (@username) - username is optional")]
         public async Task TagGetByUserCommandAsync(IUser user = null)
@@ -275,7 +275,7 @@ namespace Astramentis.Modules
         }
 
 
-        [Command("tag info", RunMode = RunMode.Async)]
+        [Command("tag info")]
         [Summary("Get tag info")]
         [Example("tag info {name}")]
         public async Task TagGetInfoCommandAsync(string tagName)
@@ -319,7 +319,7 @@ namespace Astramentis.Modules
         }
 
 
-        [Command("tags", RunMode = RunMode.Async)]
+        [Command("tags")]
         [Summary("Get list of all tags")]
         public async Task TagGetAllCommandAsync(string extra = null)
         {
@@ -358,7 +358,7 @@ namespace Astramentis.Modules
         }
 
 
-        [Command("tag search", RunMode = RunMode.Async)]
+        [Command("tag search")]
         [Summary("Search for a tag - tag search {searchterm}")]
         [Alias("tag find")]
         [Syntax("tag search {searchterm}")]

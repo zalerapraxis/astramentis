@@ -20,7 +20,7 @@ namespace Astramentis.Modules
         public MarketService MarketService { get; set; }
 
 
-        [Command("item search", RunMode = RunMode.Async)]
+        [Command("item search")]
         [Summary("Search for items by name - requires a search term")]
         [Alias("isearch")]
         [Syntax("item search {name}")]

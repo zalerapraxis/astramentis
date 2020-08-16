@@ -9,6 +9,7 @@ using Discord.Addons.Interactive;
 using Discord.Commands;
 using Astramentis.Services;
 using Astramentis.Services.DatabaseServiceComponents;
+using Microsoft.Extensions.Configuration;
 
 namespace Astramentis.Modules
 {
@@ -21,6 +22,7 @@ namespace Astramentis.Modules
         public ScheduleService ScheduleService { get; set; }
         public RaidEventsService RaidEventsService { get; set; }
         public DatabaseServers DatabaseServers { get; set; }
+        public IConfigurationRoot Config { get; set; }
 
 
         [Command("adjust")]
@@ -73,7 +75,7 @@ namespace Astramentis.Modules
         }
 
         // force sync calendar
-        [Command("sync", RunMode = RunMode.Async)]
+        [Command("sync")]
         [Summary("Force a calendar resync")]
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task CalendarSyncAsync()
@@ -168,14 +170,14 @@ namespace Astramentis.Modules
         // set up google api auth
         [RequireUserPermission(GuildPermission.Administrator)]
         [Summary("Sets up authentication with Google API")]
-        [Command("auth", RunMode = RunMode.Async)]
+        [Command("auth")]
         public async Task AuthAsync()
         {
             // before we begin, check if the pre-reqs are met
             if (!GoogleCalendarSyncService.DoesGoogleAPIClientIDFileExist())
             {
                 await ReplyAsync(
-                    $"We can't find some things we need for this to work. Contact {Context.Guild.GetUser(110866678161645568).Mention} (client_id.json file missing).");
+                    $"We can't find some things we need for this to work. Contact {Context.Guild.GetUser(ulong.Parse(Config["discordBotOwnerId"])).Mention} (client_id.json file missing).");
                 return;
             }
 

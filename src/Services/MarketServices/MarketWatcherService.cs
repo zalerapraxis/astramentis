@@ -120,7 +120,7 @@ namespace Astramentis.Services.MarketServices
             Task.WaitAll(itemTasks);
 
             // build embed & format data to send to my dm's
-            var dm = await _discord.GetUser(110866678161645568).GetOrCreateDMChannelAsync();
+            var dm = await _discord.GetUser(ulong.Parse(_config["discordBotOwnerId"])).GetOrCreateDMChannelAsync();
             var embed = new EmbedBuilder();
             foreach (var entry in WatchlistDifferentials)
             {
