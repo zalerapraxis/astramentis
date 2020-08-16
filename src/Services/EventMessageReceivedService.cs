@@ -17,8 +17,6 @@ namespace Astramentis.Services
         {
             _discord = discord;
 
-            Console.WriteLine("did this work");
-
             // uncomment this to subscribe to the messagereceived event
             _discord.MessageReceived += HandleNonCommandChatTriggers;
         }
