@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,10 +12,12 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Astramentis.Models;
 using Astramentis.Services.DatabaseServiceComponents;
+using Google;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Auth.OAuth2.Responses;
 using Google.Apis.Calendar.v3;
+using Google.Apis.Calendar.v3.Data;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
 using Microsoft.Extensions.Configuration;
@@ -409,6 +412,11 @@ namespace Astramentis.Services
             await Login(server);
         }
 
+        public bool DoesGoogleAPIClientIDFileExist()
+        {
+            return File.Exists(_filePath);
+        }
+
         private IEnumerable<Google.Apis.Calendar.v3.Data.Event> GetCalendarEvents(ICredential credential, string calendarId, DateTime min, DateTime max, int maxResults = 10)
         {
             var service = new CalendarService(new BaseClientService.Initializer()
@@ -426,7 +434,17 @@ namespace Astramentis.Services
             request.MaxResults = maxResults;
             request.OrderBy = EventsResource.ListRequest.OrderByEnum.StartTime;
 
-            var events = request.Execute()?.Items;
+            IList<Google.Apis.Calendar.v3.Data.Event> events = new List<Event>();
+
+            try
+            {
+                events = request.Execute()?.Items;
+            }
+            catch (GoogleApiException e)
+            {
+                Logger.Log(LogLevel.Error, $"Error getting Calendar events from Google: {e.HttpStatusCode}");
+            }
+            
 
             return events;
         }
