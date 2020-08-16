@@ -1,5 +1,5 @@
 ﻿prefix: ","
-discordBotOwnerId: 
+discordBotOwnerId: # leave blank to disable discord alert messages
 logLevel: "Trace" # Debug > Trace > Info > Warn > Error > Fatal - we need to implement this properly, eventually
 customMarketApiUrl: ""
 xivApiKey: ""

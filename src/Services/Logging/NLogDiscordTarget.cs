@@ -27,7 +27,6 @@ namespace Astramentis
 
         private async Task SendMessageToBotAdministrator(string message, IDictionary<string, object> properties)
         {
-            var wot = 110866678161645568;
             await DiscordClient.GetUser(DiscordOwnerId).SendMessageAsync(message);
         }
     }

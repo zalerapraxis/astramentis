@@ -3,6 +3,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using NLog;
@@ -34,6 +35,9 @@ namespace Astramentis
             _discord.Log += OnLogAsync;
             _commands.Log += OnLogAsync;
 
+            // used to check validity of Discord ID provided in config file for NLog Discord target
+            _discord.Ready += CheckAndConfigureDiscordLogger;
+
             // implement custom target to send messages to the bot admin via Discord DMs
             Target.Register<Astramentis.NLogDiscordTarget>("NLogDiscordTarget");
 
@@ -45,15 +49,35 @@ namespace Astramentis
             // configure targets for NLog to send messages to
             var logFile = new FileTarget("logFile") { FileName = _logFile, ArchiveEvery = FileArchivePeriod.Day, Layout = logLayout };
             var logConsole = new ConsoleTarget("logConsole") {Layout = logLayout };
-            // TODO: parse this to ulong somewhere else, or do a config check on startup to make sure everything's the right type
-            var logDiscord = new NLogDiscordTarget() { DiscordClient = discord, DiscordOwnerId = ulong.Parse(_config["discordBotOwnerId"]), Layout = logLayout};
 
             // tell NLog what range of LogLevels to send to each target
             logConfig.AddRule(LogLevel.Debug, LogLevel.Fatal, logFile);
             logConfig.AddRule(LogLevel.Debug, LogLevel.Fatal, logConsole);
-            logConfig.AddRule(LogLevel.Error, LogLevel.Fatal, logDiscord);
 
             NLog.LogManager.Configuration = logConfig;
+        }
+
+        private async Task CheckAndConfigureDiscordLogger()
+        {
+            var logConfig = LogManager.Configuration;
+
+            var logLayout = "${longdate}|${level:uppercase=true}|${logger:shortName=true}|${message}";
+
+            // check if discordBotOwnerId var is set in config
+            var enableDiscordAlertMessages = ulong.TryParse(_config["discordBotOwnerId"], out var discordBotOwnerId);
+            if (enableDiscordAlertMessages)
+            {
+                // check if the user ID is valid
+                if (_discord.GetUser(discordBotOwnerId) != null)
+                {
+                    var logDiscord = new NLogDiscordTarget() { DiscordClient = _discord, DiscordOwnerId = discordBotOwnerId, Layout = logLayout };
+                    logConfig.AddRule(LogLevel.Error, LogLevel.Fatal, logDiscord);
+                }
+                else
+                    Console.WriteLine("ERROR: The discordBotOwnerId provided in the config file is invalid. Discord log alerts are disabled.");
+            }
+
+            LogManager.Configuration = logConfig;
         }
         
         private async Task OnLogAsync(LogMessage msg)
