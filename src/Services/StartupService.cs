@@ -30,12 +30,14 @@ namespace Astramentis
 
         public async Task StartAsync()
         {
-            string discordToken = _config["tokens:discord"];     // Get the discord token from the config file
+            // Get the discord token from the config file
+            string discordToken = _config["tokens:discord"];     
             if (string.IsNullOrWhiteSpace(discordToken))
-                throw new Exception("Please enter your bot's token into the `_configuration.json` file found in the applications root directory.");
+                throw new Exception("Please enter your bot's token into the `_config.yml` file found in the application's root directory.");
 
-            await _discord.LoginAsync(TokenType.Bot, discordToken);     // Login to discord
-            await _discord.StartAsync();                                // Connect to the websocket
+            // login to discord and connect
+            await _discord.LoginAsync(TokenType.Bot, discordToken);     
+            await _discord.StartAsync();
 
             // wait for discord client to log in before loading modules
             while (_discord.ConnectionState != ConnectionState.Connected)
@@ -43,7 +45,18 @@ namespace Astramentis
                 await Task.Delay(1000);
             }
 
-            await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _provider);     // Load commands and modules into the command service
+            // check if the discordBotOwnerId entry in the config file is correct - check if it exists, and then check if it's valid
+            var discordBotOwnerIdSet = ulong.TryParse(_config["discordBotOwnerId"], out var discordBotOwnerId);
+            if (discordBotOwnerIdSet)
+            {
+                if (_discord.GetUser(discordBotOwnerId) == null)
+                    throw new Exception("Please verify that your Discord user ID in the `_config.yml` file is correct.");
+            }
+            else
+                throw new Exception("Please enter your Discord user ID into the `_config.yml` file found in the application's root directory.");
+
+            // Load commands and modules into the command service
+            await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _provider);     
         }
     }
 }

@@ -38,6 +38,7 @@ namespace Astramentis
             ConfigureServices(services);
 
             var provider = services.BuildServiceProvider();     // Build the service provider
+
             provider.GetRequiredService<LoggingService>();      // Start the logging service
             provider.GetRequiredService<CommandHandler>(); 		// Start the command handler service
 
