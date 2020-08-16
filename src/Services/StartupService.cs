@@ -39,10 +39,16 @@ namespace Astramentis
             await _discord.LoginAsync(TokenType.Bot, discordToken);     
             await _discord.StartAsync();
 
+            _discord.Ready += OnReady;
+        }
+
+        private async Task OnReady()
+        {
             // wait for discord client to log in before loading modules
-            while (_discord.ConnectionState != ConnectionState.Connected)
+            // is this necessary now that we're running this on Discord ready?
+            while (_discord.ConnectionState != ConnectionState.Connected || _discord.LoginState != LoginState.LoggedIn)
             {
-                await Task.Delay(1000);
+                await Task.Delay(100);
             }
 
             // check if the discordBotOwnerId entry in the config file is correct - check if it exists, and then check if it's valid
@@ -56,7 +62,7 @@ namespace Astramentis
                 throw new Exception("Please enter your Discord user ID into the `_config.yml` file found in the application's root directory.");
 
             // Load commands and modules into the command service
-            await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _provider);     
+            await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _provider);
         }
     }
 }
