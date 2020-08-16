@@ -127,10 +127,10 @@ namespace Astramentis.Services.MarketServices
                 if (entry.DifferentialLowest > DifferentialCutoff)
                 {
                     var sb = new StringBuilder();
-                    sb.AppendLine($"lowest diff: **{entry.DifferentialLowest}%** (avg diff: {entry.Differential}%) - avg sold: {entry.AvgSalePrice} - avg mrkt: {entry.AvgMarketPrice}");
+                    sb.AppendLine($"lowest diff: **{entry.DifferentialLowest}%** (avg diff: {entry.Differential}%) - avg sold: {entry.AvgSalePrice:N0} - avg mrkt: {entry.AvgMarketPrice:N0}");
                     foreach (var lowestPrices in entry.LowestPrices.Take(3))
                     {
-                        sb.Append($"• {lowestPrices.Price} on {lowestPrices.Server} ");
+                        sb.Append($"• {lowestPrices.Price:N0} on {lowestPrices.Server} ");
                     }
 
                     embed.AddField(new EmbedFieldBuilder()

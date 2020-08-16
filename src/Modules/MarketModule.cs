@@ -88,9 +88,9 @@ namespace Astramentis.Modules
 
                     if (listing.Quantity > 1)
                         // multiple units
-                        sbListing.Append($"for {listing.CurrentPrice * listing.Quantity} (**{listing.CurrentPrice}** per unit) ");
+                        sbListing.Append($"for {listing.CurrentPrice * listing.Quantity:N0} (**{listing.CurrentPrice:N0}** per unit) ");
                     else // single units
-                        sbListing.Append($"for **{listing.CurrentPrice}** ");
+                        sbListing.Append($"for **{listing.CurrentPrice:N0}** ");
                     sbListing.Append($"on **{listing.Server}** ");
                     sbListing.Append($"via **{listing.RetainerName}** ");
                     sbListing.AppendLine();
@@ -195,9 +195,9 @@ namespace Astramentis.Modules
 
                     if (listing.Quantity > 1)
                         // multiple units
-                        sbListing.Append($"for {listing.SoldPrice * listing.Quantity} (**{listing.SoldPrice}** per unit) ");
+                        sbListing.Append($"for {listing.SoldPrice * listing.Quantity:N0} (**{listing.SoldPrice:N0}** per unit) ");
                     else // single units
-                        sbListing.Append($"for **{listing.SoldPrice}** ");
+                        sbListing.Append($"for **{listing.SoldPrice:N0}** ");
                     sbListing.AppendLine();
                     sbListing.Append("››› Sold ");
                     sbListing.Append($"on **{listing.Server}** ");
@@ -300,11 +300,11 @@ namespace Astramentis.Modules
 
             // nq stuff - first line inline=true in case we had hq values
             StringBuilder nqFieldBuilder = new StringBuilder();
-            nqFieldBuilder.AppendLine($"Avg Listed Price: {nqMarketAnalysis.AvgMarketPrice}");
-            nqFieldBuilder.AppendLine($"Avg Sale Price: {nqMarketAnalysis.AvgSalePrice}");
+            nqFieldBuilder.AppendLine($"Avg Listed Price: {nqMarketAnalysis.AvgMarketPrice:N0}");
+            nqFieldBuilder.AppendLine($"Avg Sale Price: {nqMarketAnalysis.AvgSalePrice:N0}");
             nqFieldBuilder.AppendLine($"Differential: {nqMarketAnalysis.Differential}%");
             nqFieldBuilder.AppendLine($"Lowest diff: {nqMarketAnalysis.DifferentialLowest}%");
-            nqFieldBuilder.AppendLine($"Lowest Price: {nqMarketAnalysis.LowestPrices.FirstOrDefault().Price}");
+            nqFieldBuilder.AppendLine($"Lowest Price: {nqMarketAnalysis.LowestPrices.FirstOrDefault().Price:N0}");
             nqFieldBuilder.Append("Active:");
             if (nqMarketAnalysis.NumRecentSales >= 5)
                 nqFieldBuilder.AppendLine(" Yes");
@@ -398,10 +398,10 @@ namespace Astramentis.Modules
                 dealFieldNameBuilder.Append($"{item.Name}");
 
                 StringBuilder dealFieldContentsBuilder = new StringBuilder();
-                dealFieldContentsBuilder.AppendLine($"Avg Listed Price: {item.AvgMarketPrice}");
-                dealFieldContentsBuilder.AppendLine($"Avg Sale Price: {item.AvgSalePrice}");
+                dealFieldContentsBuilder.AppendLine($"Avg Listed Price: {item.AvgMarketPrice:N0}");
+                dealFieldContentsBuilder.AppendLine($"Avg Sale Price: {item.AvgSalePrice:N0}");
                 dealFieldContentsBuilder.AppendLine($"Currency cost: {item.CurrencyCost}");
-                dealFieldContentsBuilder.AppendLine($"Value ratio: {item.ValueRatio:0.000} gil/c");
+                dealFieldContentsBuilder.AppendLine($"Value ratio: {item.ValueRatio:N3} gil/c");
 
                 dealFieldContentsBuilder.Append($"Recent sales: {item.NumRecentSales}");
                 if (item.NumRecentSales >= 20)
@@ -549,7 +549,7 @@ namespace Astramentis.Modules
                 foreach (var item in serverList)
                 {
                     var quality = item.IsHQ ? "(HQ)" : "";
-                    var entry = $"{item.Name} {quality} - {item.Quantity} for {item.Price} (total: {item.Quantity * item.Price})";
+                    var entry = $"{item.Name} {quality} - {item.Quantity} for {item.Price:N0} (total: {item.Quantity * item.Price:N0})";
 
                     // handle field overflow by copying field contents to a list and re-initializing a new one to continue with
                     if (purchaseOrderSb.Length + entry.Length > 1024)
