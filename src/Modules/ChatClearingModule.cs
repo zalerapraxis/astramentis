@@ -14,21 +14,24 @@ namespace Astramentis.Modules
 {
     [Name("Clear")]
     [Summary("Clearing chat messages")]
-    [RequireContext(ContextType.Guild)]
     public class ChatClearingModule : ModuleBase<SocketCommandContext>
     {
+        public DiscordSocketClient DiscordSocketClient { get; set; }
+
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        // clear chatlogs
+        // clear chatlogs from server channels
         [Command("clear")]
         [Summary("Clears the last x messages in current channel - default 100")]
         [Alias("clean", "prune")]
         [Syntax("clear {optional: number of messages}")]
         [Example("clear 5")]
+        [RequireContext(ContextType.Guild)]
         [RequireBotPermission(ChannelPermission.ManageMessages)]
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task ClearChatlogsAsync(int count = 100)
         {
+            // get messages from channel
             var channel = Context.Channel as SocketTextChannel;
             var messages = await channel.GetMessagesAsync(count).FlattenAsync();
 
@@ -43,8 +46,12 @@ namespace Astramentis.Modules
             if (server != null && server.Events.Exists(x => x.AlertMessage != null))
                 messages = messages.Where(msg => server.Events.Any(x => msg.Id != x.AlertMessage.Id));
 
+            messages = messages.ToList();
+
             // delete the command message
             await Context.Message.DeleteAsync();
+
+            Logger.Log(LogLevel.Info, $"Deleting {messages.Count()} messages in the channel {channel.Name} in the server {channel.Guild.Name}.");
 
             try
             {
@@ -82,6 +89,30 @@ namespace Astramentis.Modules
                     // done with deleting stuff, so delete the notification
                     await responseMsg.DeleteAsync();
                 }
+            }
+        }
+
+        // clear chatlogs from DMs
+        [Command("clear")]
+        [Summary("Clears the last x messages in current channel - default 100")]
+        [Alias("clean", "prune")]
+        [Syntax("clear {optional: number of messages}")]
+        [Example("clear 5")]
+        [RequireContext(ContextType.DM)]
+        public async Task ClearDMChatlogsAsync(int count = 100)
+        {
+            var channel = Context.Channel as SocketDMChannel;
+            var messages = await channel.GetMessagesAsync().FlattenAsync();
+
+            var botMessages = messages.Where(x => x.Author.Id == DiscordSocketClient.CurrentUser.Id).Take(count).ToList();
+
+            Logger.Log(LogLevel.Info, $"Deleting {botMessages.Count} messages in a DM with {channel.Recipient}.");
+
+            // individually delete old messages
+            foreach (var message in botMessages)
+            {
+                await message.DeleteAsync();
+                await Task.Delay(1000);
             }
         }
     }
