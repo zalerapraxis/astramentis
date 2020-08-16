@@ -48,9 +48,9 @@ namespace Astramentis.Services.MarketServices
 
         private async Task HeartbeatCheck()
         {
-            Logger.Log(LogLevel.Info, $"Heartbeat check - {_apiRequestService.TotalAPIRequestsMade} API requests made ({_apiRequestService.TotalAPIRequestsMadeSinceHeartbeat} requests in the last hour) - starting server checks.");
+            Logger.Log(LogLevel.Info, $"Heartbeat check - {_apiRequestService.totalCustomAPIRequestsMade} API requests made ({_apiRequestService.totalCustomAPIRequestsMadeSinceHeartbeat} requests in the last hour) - starting server checks.");
             // thread-safe reset 30m counter
-            Interlocked.Exchange(ref _apiRequestService.TotalAPIRequestsMadeSinceHeartbeat, 0);
+            Interlocked.Exchange(ref _apiRequestService.totalCustomAPIRequestsMadeSinceHeartbeat, 0);
 
             // do a global companion status check to see if the API is down or something else is wrong
             CustomApiStatus globalCompanionStatusRequestResult = GetCompanionApiStatus().Result;

@@ -612,7 +612,7 @@ namespace Astramentis.Modules
             MarketStatusStringBuilder.AppendLine("**API status**");
             // TODO: add timezone conversion function somewhere and use it instead of this addhours(-4) crap
             MarketStatusStringBuilder.Append(
-                $"{APIRequestService.TotalAPIRequestsMade} requests since {System.Diagnostics.Process.GetCurrentProcess().StartTime.AddHours(-4)} ({APIRequestService.TotalAPIRequestsMadeSinceHeartbeat} since last heartbeat check).");
+                $"{APIRequestService.totalCustomAPIRequestsMade} requests since {System.Diagnostics.Process.GetCurrentProcess().StartTime.AddHours(-4)} ({APIRequestService.totalCustomAPIRequestsMadeSinceHeartbeat} since last heartbeat check).");
 
             await ReplyAsync(MarketStatusStringBuilder.ToString());
         }

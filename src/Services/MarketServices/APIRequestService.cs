@@ -14,7 +14,7 @@ namespace Astramentis.Services.MarketServices
 {
     public class APIRequestService
     {
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         private string _customMarketApiUrl;
         private string _xivApiKey;
@@ -22,11 +22,17 @@ namespace Astramentis.Services.MarketServices
         private int exceptionRetryCount = 5; // number of times to retry api requests
         private int exceptionRetryDelay = 1000; // ms delay between retries
 
-        private int concurrentAPIRequests = 0;
-        private int concurrentAPIRequestsMax = 20;
+        // XIVAPI concurrent/max request values for ratelimiting
+        private int concurrentXIVAPIRequests = 0;
+        private int concurrentXIVAPIRequestsMax = 20;
 
-        public int TotalAPIRequestsMade = 0;
-        public int TotalAPIRequestsMadeSinceHeartbeat = 0;
+        // custom API request values for tracking overall Companion API load
+        public int totalCustomAPIRequestsMade = 0;
+        public int totalCustomAPIRequestsMadeSinceHeartbeat = 0;
+
+        // custom API concurrent/max request values for tracking realtime Companion API load
+        public int concurrentCustomAPIRequestsCompleted = 0; // number of requests completed
+        public int concurrentCustomAPIRequestsTotal = 0; // number of requests to do
 
         public APIRequestService(IConfigurationRoot config)
         {
@@ -99,15 +105,15 @@ namespace Astramentis.Services.MarketServices
 
             while (i < exceptionRetryCount)
             {
-                while (concurrentAPIRequests >= concurrentAPIRequestsMax)
+                while (concurrentXIVAPIRequests >= concurrentXIVAPIRequestsMax)
                     await Task.Delay(1000);
-                Interlocked.Increment(ref concurrentAPIRequests);
+                Interlocked.Increment(ref concurrentXIVAPIRequests);
 
                 try
                 {
                     dynamic apiResponse = await url.GetJsonAsync();
 
-                    Interlocked.Decrement(ref concurrentAPIRequests);
+                    Interlocked.Decrement(ref concurrentXIVAPIRequests);
 
                     // if our request was a search, this will cover any no results errors
                     if (((IDictionary<String, object>) apiResponse).ContainsKey("Results") &&
@@ -140,9 +146,10 @@ namespace Astramentis.Services.MarketServices
             // number of retries attempted
             var i = 0;
 
-            // thread-safe tracking of number of custom API requests made
-            Interlocked.Increment(ref TotalAPIRequestsMade);
-            Interlocked.Increment(ref TotalAPIRequestsMadeSinceHeartbeat);
+            // thread-safe tracking of custom API requests made
+            Interlocked.Increment(ref totalCustomAPIRequestsMade); // total overall 
+            Interlocked.Increment(ref totalCustomAPIRequestsMadeSinceHeartbeat); // total since last heartbeat check
+            Interlocked.Increment(ref concurrentCustomAPIRequestsTotal); // concurrent requests active
 
             while (i < exceptionRetryCount)
             {
@@ -175,6 +182,7 @@ namespace Astramentis.Services.MarketServices
                                 return CustomApiStatus.NoResults;
 
                             // success, return response
+                            Interlocked.Increment(ref concurrentCustomAPIRequestsCompleted); // concurrent requests completed
                             return apiResponse;
                         }
 
@@ -184,6 +192,7 @@ namespace Astramentis.Services.MarketServices
                                 return CustomApiStatus.NoResults;
 
                             // success, return response
+                            Interlocked.Increment(ref concurrentCustomAPIRequestsCompleted); // concurrent requests completed
                             return apiResponse;
                         }
 

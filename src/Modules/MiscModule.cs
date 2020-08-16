@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Astramentis.Attributes;
 using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
 using Astramentis.Services;
+using Astramentis.Services.MarketServices;
 using Discord.WebSocket;
 
 namespace Astramentis.Modules
@@ -16,6 +18,8 @@ namespace Astramentis.Modules
     [Summary("Random stuff")]
     public class MiscModule : InteractiveBase
     {
+        public APIRequestService ApiRequestService { get; set; }
+
         // TODO: add many-choice voting
         [Command("vote")]
         [Summary("Start a vote using yes/no reactions")]
@@ -51,7 +55,14 @@ namespace Astramentis.Modules
         [Summary("Say hi. Just to check if the bot's alive.")]
         public async Task Doccer()
         {
-            await ReplyAsync("Hi!");
+            int i = 0;
+            while (i < 10)
+            {
+                Console.WriteLine($"{ApiRequestService.concurrentCustomAPIRequestsCompleted} / {ApiRequestService.concurrentCustomAPIRequestsTotal}");
+
+                Thread.Sleep(1000);
+                i++;
+            }
         }
     }
 }
