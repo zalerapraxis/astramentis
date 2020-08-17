@@ -607,9 +607,9 @@ namespace Astramentis.Modules
             {
                 // build order models for each recipe mat
                 var itemsList = new List<MarketItemCrossWorldOrderModel>();
-                foreach (var material in collectable.Materials)
+                foreach (var recipeMat in collectable.RecipeMaterials)
                 {
-                    itemsList.Add(new MarketItemCrossWorldOrderModel() { Name = material.Name, ItemID = material.ItemID, NeededQuantity = material.Quantity * numOfCollectables, ShouldBeHQ = false });
+                    itemsList.Add(new MarketItemCrossWorldOrderModel() { Name = recipeMat.Material.Name, ItemID = recipeMat.Material.ItemID, NeededQuantity = recipeMat.Quantity * numOfCollectables, ShouldBeHQ = false });
                 }
 
                 // get back purchase orders for the recipe mats

@@ -13,30 +13,26 @@ namespace Astramentis.Datasets
                 Name = "Rarefied Lignum Vitae Grinding Wheel",
                 TurnInAmount = 120,
                 SubcraftCount = 4,
-                Materials = new List<CollectableMaterial>()
+                RecipeMaterials = new List<CollectableRecipeMaterial>()
                 {
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Mythrite Ore",
-                        ItemID = 12534,
+                        Material = MythriteOre,
                         Quantity = 1
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Volcanic Tuff",
-                        ItemID = 27803,
+                        Material = VolcanicTuff,
                         Quantity = 3
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Lignum Vitae Log",
-                        ItemID = 27687,
+                        Material = LignumVitaeLog,
                         Quantity = 8
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Dimythrite Ore",
-                        ItemID = 27703,
+                        Material = DimythriteOre,
                         Quantity = 4
                     },
                 }
@@ -46,36 +42,31 @@ namespace Astramentis.Datasets
                 Name = "Rarefied Mythril Hatchet",
                 TurnInAmount = 120,
                 SubcraftCount = 4,
-                Materials = new List<CollectableMaterial>()
+                RecipeMaterials = new List<CollectableRecipeMaterial>()
                 {
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Mythrite Ore",
-                        ItemID = 12534,
+                        Material = MythriteOre,
                         Quantity = 2
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Mythrite Sand",
-                        ItemID = 12531,
+                        Material = MythriteSand,
                         Quantity = 1
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Dimythrite Sand",
-                        ItemID = 27702,
+                        Material = DimythriteSand,
                         Quantity = 4
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Lignum Vitae Log",
-                        ItemID = 27687,
+                        Material = LignumVitaeLog,
                         Quantity = 4
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Dimythrite Ore",
-                        ItemID = 27703,
+                        Material = DimythriteOre,
                         Quantity = 8
                     },
                 }
@@ -85,42 +76,36 @@ namespace Astramentis.Datasets
                 Name = "Rarefied Mythril Alembic",
                 TurnInAmount = 120,
                 SubcraftCount = 4,
-                Materials = new List<CollectableMaterial>()
+                RecipeMaterials = new List<CollectableRecipeMaterial>()
                 {
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Sea Swallow Skin",
-                        ItemID = 27736,
+                        Material = SeaSwallowSkin,
                         Quantity = 4
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Mythrite Ore",
-                        ItemID = 12534,
+                        Material = MythriteOre,
                         Quantity = 2
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Mythrite Sand",
-                        ItemID = 12531,
+                        Material = MythriteSand,
                         Quantity = 1
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Yellow Alumen",
-                        ItemID = 27817,
+                        Material = YellowAlumen,
                         Quantity = 1
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Dimythrite Sand",
-                        ItemID = 27702,
+                        Material = DimythriteSand,
                         Quantity = 4
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Dimythrite Ore",
-                        ItemID = 27703,
+                        Material = DimythriteOre,
                         Quantity = 8
                     },
                 }
@@ -130,36 +115,31 @@ namespace Astramentis.Datasets
                 Name = "Rarefied Mythril Ring",
                 TurnInAmount = 120,
                 SubcraftCount = 4,
-                Materials = new List<CollectableMaterial>()
+                RecipeMaterials = new List<CollectableRecipeMaterial>()
                 {
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Mythrite Sand",
-                        ItemID = 12531,
+                        Material = MythriteSand,
                         Quantity = 2
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Dimythrite Sand",
-                        ItemID = 27702,
+                        Material = DimythriteSand,
                         Quantity = 8
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Iridescent Cocoon",
-                        ItemID = 27750,
+                        Material = IridescentCocoon,
                         Quantity = 4
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Dwarven Cotton Boll",
-                        ItemID = 27759,
+                        Material = DwarvenCottonBoll,
                         Quantity = 4
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Effervescent Water",
-                        ItemID = 5491,
+                        Material = EffervescentWater,
                         Quantity = 1
                     },
                 }
@@ -169,36 +149,31 @@ namespace Astramentis.Datasets
                 Name = "Rarefied Swallowskin Coat",
                 TurnInAmount = 120,
                 SubcraftCount = 5,
-                Materials = new List<CollectableMaterial>()
+                RecipeMaterials = new List<CollectableRecipeMaterial>()
                 {
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Sea Swallow Skin",
-                        ItemID = 27736,
+                        Material = SeaSwallowSkin,
                         Quantity = 8
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Mythrite Sand",
-                        ItemID = 12531,
+                        Material = MythriteSand,
                         Quantity = 1
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Yellow Alumen",
-                        ItemID = 27817,
+                        Material = YellowAlumen,
                         Quantity = 2
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Dimythrite Sand",
-                        ItemID = 27702,
+                        Material = DimythriteSand,
                         Quantity = 4
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Dwarven Cotton Boll",
-                        ItemID = 27759,
+                        Material = DwarvenCottonBoll,
                         Quantity = 4
                     },
                 }
@@ -208,24 +183,21 @@ namespace Astramentis.Datasets
                 Name = "Rarefied Dwarven Cotton Beret",
                 TurnInAmount = 120,
                 SubcraftCount = 6,
-                Materials = new List<CollectableMaterial>()
+                RecipeMaterials = new List<CollectableRecipeMaterial>()
                 {
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Sea Swallow Skin",
-                        ItemID = 27736,
+                        Material = SeaSwallowSkin,
                         Quantity = 4
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Yellow Alumen",
-                        ItemID = 27817,
+                        Material = YellowAlumen,
                         Quantity = 1
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Dwarven Cotton Boll",
-                        ItemID = 27759,
+                        Material = DwarvenCottonBoll,
                         Quantity = 12
                     },
                 }
@@ -235,42 +207,36 @@ namespace Astramentis.Datasets
                 Name = "Rarefied Dwarven Mythril Grimoire",
                 TurnInAmount = 120,
                 SubcraftCount = 4,
-                Materials = new List<CollectableMaterial>()
+                RecipeMaterials = new List<CollectableRecipeMaterial>()
                 {
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Vampire Cup Vine",
-                        ItemID = 27773,
+                        Material = VampireCupVine,
                         Quantity = 1
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Mythrite Ore",
-                        ItemID = 12534,
+                        Material = MythriteOre,
                         Quantity = 2
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Mythrite Sand",
-                        ItemID = 12531,
+                        Material = MythriteSand,
                         Quantity = 3
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Lignum Vitae Log",
-                        ItemID = 27687,
+                        Material = LignumVitaeLog,
                         Quantity = 4
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Underground Spring Water",
-                        ItemID = 27782,
+                        Material = UndergroundSpringWater,
                         Quantity = 1
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Dimythrite Ore",
-                        ItemID = 27703,
+                        Material = DimythriteOre,
                         Quantity = 8
                     },
                 }
@@ -280,50 +246,181 @@ namespace Astramentis.Datasets
                 Name = "Rarefied Lemonade",
                 TurnInAmount = 120,
                 SubcraftCount = 2,
-                Materials = new List<CollectableMaterial>()
+                RecipeMaterials = new List<CollectableRecipeMaterial>()
                 {
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Amber Cloves",
-                        ItemID = 27821,
+                        Material = AmberCloves,
                         Quantity = 1
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Lemonette",
-                        ItemID = 27835,
+                        Material = Lemonette,
                         Quantity = 2
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Underground Spring Water",
-                        ItemID = 27782,
+                        Material = UndergroundSpringWater,
                         Quantity = 1
                     },
-                    new CollectableMaterial()
+                    new CollectableRecipeMaterial()
                     {
-                        Name = "Gianthive Chip",
-                        ItemID = 27834,
+                        Material = GianthiveChip,
                         Quantity = 5
                     },
                 }
             }
         };
+
+        private static CollectableMaterial DimythriteOre = new CollectableMaterial()
+        {
+            Name = "Dimythrite Ore",
+            ItemID = 27703,
+        };
+
+        private static CollectableMaterial MythriteOre = new CollectableMaterial()
+        {
+            Name = "Mythrite Ore",
+            ItemID = 12534,
+            GatherRate = 0.213
+        };
+
+        private static CollectableMaterial VolcanicTuff = new CollectableMaterial()
+        {
+            Name = "Volcanic Tuff",
+            ItemID = 27803,
+            GatherRate = 0.383
+        };
+
+        private static CollectableMaterial LignumVitaeLog = new CollectableMaterial()
+        {
+            Name = "Lignum Vitae Log",
+            ItemID = 27687,
+            GatherRate = 0.383
+        };
+
+        private static CollectableMaterial MythriteSand = new CollectableMaterial()
+        {
+            Name = "Mythrite Sand",
+            ItemID = 12531,
+        };
+
+        private static CollectableMaterial DimythriteSand = new CollectableMaterial()
+        {
+            Name = "Dimythrite Sand",
+            ItemID = 27702,
+        };
+
+        private static CollectableMaterial SeaSwallowSkin = new CollectableMaterial()
+        {
+            Name = "Sea Swallow Skin",
+            ItemID = 27736,
+        };
+
+        private static CollectableMaterial YellowAlumen = new CollectableMaterial()
+        {
+            Name = "Yellow Alumen",
+            ItemID = 27817,
+        };
+
+        private static CollectableMaterial IridescentCocoon = new CollectableMaterial()
+        {
+            Name = "Iridescent Cocoon",
+            ItemID = 27750,
+        };
+
+        private static CollectableMaterial DwarvenCottonBoll = new CollectableMaterial()
+        {
+            Name = "Dwarven Cotton Boll",
+            ItemID = 27759,
+        };
+
+        private static CollectableMaterial EffervescentWater = new CollectableMaterial()
+        {
+            Name = "Effervescent Water",
+            ItemID = 5491,
+        };
+
+        private static CollectableMaterial VampireCupVine = new CollectableMaterial()
+        {
+            Name = "Vampire Cup Vine",
+            ItemID = 27773,
+        };
+
+        private static CollectableMaterial UndergroundSpringWater = new CollectableMaterial()
+        {
+            Name = "Underground Spring Water",
+            ItemID = 27782,
+        };
+
+        private static CollectableMaterial AmberCloves = new CollectableMaterial()
+        {
+            Name = "Amber Cloves",
+            ItemID = 27821,
+        };
+
+        private static CollectableMaterial Lemonette = new CollectableMaterial()
+        {
+            Name = "Lemonette",
+            ItemID = 27835,
+        };
+
+        private static CollectableMaterial GianthiveChip = new CollectableMaterial()
+        {
+            Name = "Gianthive Chip",
+            ItemID = 27834,
+        };
     }
 
     public class Collectable
     {
+        /// <summary>
+        /// The name of the collectable
+        /// </summary>
         public string Name { get; set; }
+        /// <summary>
+        /// The amount of scrips you earn from turning this collectable in
+        /// </summary>
         public int TurnInAmount { get; set; }
+        /// <summary>
+        /// The number of requisite crafts required to make this collectable
+        /// </summary>
         public int SubcraftCount { get; set; }
+        /// <summary>
+        /// The total cost of all recipe materials for this collectable. This is assigned programmatically and shouldn't be hardcoded.
+        /// </summary>
         public int TotalPrice { get; set; }
-        public List<CollectableMaterial> Materials { get; set; }
+        /// <summary>
+        /// A list of the recipe materials required for this collectable
+        /// </summary>
+        public List<CollectableRecipeMaterial> RecipeMaterials { get; set; }
+    }
+
+    public class CollectableRecipeMaterial
+    {
+        /// <summary>
+        /// The base material, which contains its name and ID
+        /// </summary>
+        public CollectableMaterial Material { get; set; }
+        /// <summary>
+        /// Number of items required by this recipe
+        /// </summary>
+        public int Quantity { get; set; }
     }
 
     public class CollectableMaterial
     {
+        /// <summary>
+        /// The name of the material
+        /// </summary>
         public string Name { get; set; }
+        /// <summary>
+        /// The item's ingame ID
+        /// </summary>
         public int ItemID { get; set; }
-        public int Quantity { get; set; }
+        /// <summary>
+        /// Average time to gather one of this item, in seconds
+        /// </summary>
+        public double GatherRate { get; set; }
     }
 }
