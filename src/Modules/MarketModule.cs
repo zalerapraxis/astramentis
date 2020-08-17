@@ -458,6 +458,8 @@ namespace Astramentis.Modules
                 case "sky":
                 case "skybuilder":
                 case "skybuilders":
+                case "skybuilders'":
+                case "skybuilder's":
                     authorurl = "https://xivapi.com/i/065000/065073.png";
                     break;
             }
@@ -590,10 +592,11 @@ namespace Astramentis.Modules
 
         [Command("market collectable")]
         [Alias("mbc")]
-        [Summary("Build a list of the lowest market prices for items, ordered by server")]
+        [Summary("Determine the best collectable to make, based on estimated times & prices")]
         [Syntax(
-            "market order {itemname/ID:count, itemname/ID:count, etc} or marker order {fending, crafting, etc} - add hq to an item name to require high quality")]
-        [Example("mbo zonure skin:122, caprice fleece:20, 5:1000")]
+            "market collectible {number of collectables to make}")]
+        [Example("mbc 25")]
+        [RequireOwner]
         public async Task MarketGetBestCollectable(int numOfCollectables = 1)
         {
             // rough average of the time it takes to gather a single item
@@ -656,26 +659,41 @@ namespace Astramentis.Modules
             // sort from lowest to highest total price 
             var parsedCollectablesList = yellowCrafterScripCollectableList.OrderBy(x => x.TotalGatherTime);
 
-            var collectableListSb = new StringBuilder();
+
+            var collectableListEmbed = new EmbedBuilder();
+
             foreach (var collectable in parsedCollectablesList)
             {
-                collectableListSb.Append($"{collectable.Name}");
+                var collectableField = new EmbedFieldBuilder()
+                {
+                    Name = collectable.Name,
+                    IsInline = true
+                };
 
-                if (collectable.TotalPrice > 0)
-                    collectableListSb.Append($" - Price: {collectable.TotalPrice}");
+                var collectableFieldSb = new StringBuilder();
 
                 if (collectable.TotalGatherTime > 0)
-                    collectableListSb.Append($" - Est. gather time: {collectable.TotalGatherTime}m");
+                    collectableFieldSb.AppendLine($" - Est. gather time: {collectable.TotalGatherTime}m");
+
+                if (collectable.SubcraftCount > 0)
+                    collectableFieldSb.AppendLine($" - Est. subcraft time: {collectable.TotalSubcraftTime}m");
+
+                if (collectable.TotalPrice > 0)
+                    collectableFieldSb.AppendLine($" - Price: {collectable.TotalPrice}");
 
                 if (collectable.TotalTimedNodeCycles > 0)
-                    collectableListSb.Append($" - Timed node visits: {collectable.TotalTimedNodeCycles}");
+                    collectableFieldSb.AppendLine($" - Timed node visits: {collectable.TotalTimedNodeCycles}");
 
-                collectableListSb.AppendLine($" - Est. subcraft time: {collectable.TotalSubcraftTime}m");
+                collectableField.Value = collectableFieldSb.ToString();
+
+                collectableListEmbed.AddField(collectableField);
             }
 
             await plsWaitMsg.ModifyAsync(m =>
             {
-                m.Content = collectableListSb.ToString();
+                m.Content = null;
+                m.Embed = collectableListEmbed.Build();
+
             });
         }
 
