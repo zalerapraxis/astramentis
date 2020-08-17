@@ -594,8 +594,17 @@ namespace Astramentis.Modules
         [Syntax(
             "market order {itemname/ID:count, itemname/ID:count, etc} or marker order {fending, crafting, etc} - add hq to an item name to require high quality")]
         [Example("mbo zonure skin:122, caprice fleece:20, 5:1000")]
-        public async Task MarketGetBestCollectable(int numOfCollectables)
+        public async Task MarketGetBestCollectable(int numOfCollectables = 1)
         {
+            // rough average of the time it takes to gather a single item
+            // includes travel time
+            double secondsPerGatheredItem = 2.2;
+            // based on lemonette node, since lemonette is the only timed node used in collectables
+            var itemsPerTimedNode = 42;
+            // seconds per item when quicksynthing subcrafts
+            var secondsPerSubcraft = 3.5;
+
+
             var plsWaitMsg = await ReplyAsync("This could take some time. Hang tight.");
 
             // we specifically want all worlds enabled
@@ -605,11 +614,28 @@ namespace Astramentis.Modules
 
             foreach (var collectable in yellowCrafterScripCollectableList)
             {
-                // build order models for each recipe mat
-                var itemsList = new List<MarketItemCrossWorldOrderModel>();
-                foreach (var recipeMat in collectable.RecipeMaterials)
+                // === figure out how long it'll take to gather this recipe's materials
+                double totalTimeToGather = 0.0;
+                foreach (var recipeMat in collectable.RecipeMaterials.Where(x => x.Material.IsGatherable))
                 {
-                    itemsList.Add(new MarketItemCrossWorldOrderModel() { Name = recipeMat.Material.Name, ItemID = recipeMat.Material.ItemID, NeededQuantity = recipeMat.Quantity * numOfCollectables, ShouldBeHQ = false });
+                    // how many timed nodes will we need to hit
+                    if (recipeMat.Material.IsTimedNode)
+                    {
+                        // how many nodes we'll need to hit to gather the materials - round down
+                        collectable.TotalTimedNodeCycles = Math.Ceiling((double)(recipeMat.Quantity * numOfCollectables) / itemsPerTimedNode);
+                    }
+                    
+                    // regular node
+                    totalTimeToGather += (recipeMat.Quantity * numOfCollectables) * secondsPerGatheredItem;
+                }
+                collectable.TotalGatherTime = Math.Round(totalTimeToGather / 60, 1); // to minutes, round 
+
+
+                // === figure out how much the non-gatherable mats will cost to buy
+                var itemsList = new List<MarketItemCrossWorldOrderModel>();
+                foreach (var recipeMat in collectable.RecipeMaterials.Where(x => x.Material.IsGatherable == false))
+                {
+                    itemsList.Add(new MarketItemCrossWorldOrderModel() { Name = recipeMat.Material.Name, ItemID = recipeMat.Material.ItemID, NeededQuantity = (recipeMat.Quantity * numOfCollectables), ShouldBeHQ = false });
                 }
 
                 // get back purchase orders for the recipe mats
@@ -617,22 +643,34 @@ namespace Astramentis.Modules
 
                 // add up their costs
                 var totalValue = 0;
-                foreach (var wot in results)
+                foreach (var order in results)
                 {
-                    totalValue += wot.Price * wot.Quantity;
+                    totalValue += order.Price * order.Quantity;
                 }
-
                 collectable.TotalPrice = totalValue;
+
+                // === figure out how long it'll take to do the subcrafts, minutes
+                collectable.TotalSubcraftTime = Math.Round((collectable.SubcraftCount * numOfCollectables * secondsPerSubcraft) / 60, 1);
             }
 
             // sort from lowest to highest total price 
-            var parsedCollectablesList = yellowCrafterScripCollectableList.OrderBy(x => x.TotalPrice);
+            var parsedCollectablesList = yellowCrafterScripCollectableList.OrderBy(x => x.TotalGatherTime);
 
             var collectableListSb = new StringBuilder();
             foreach (var collectable in parsedCollectablesList)
             {
-                collectableListSb.AppendLine(
-                    $"{collectable.Name} - subcrafts: {collectable.SubcraftCount} - Total: {collectable.TotalPrice}");
+                collectableListSb.Append($"{collectable.Name}");
+
+                if (collectable.TotalPrice > 0)
+                    collectableListSb.Append($" - Price: {collectable.TotalPrice}");
+
+                if (collectable.TotalGatherTime > 0)
+                    collectableListSb.Append($" - Est. gather time: {collectable.TotalGatherTime}m");
+
+                if (collectable.TotalTimedNodeCycles > 0)
+                    collectableListSb.Append($" - Timed node visits: {collectable.TotalTimedNodeCycles}");
+
+                collectableListSb.AppendLine($" - Est. subcraft time: {collectable.TotalSubcraftTime}m");
             }
 
             await plsWaitMsg.ModifyAsync(m =>
