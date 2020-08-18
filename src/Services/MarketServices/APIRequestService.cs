@@ -238,7 +238,7 @@ namespace Astramentis.Services.MarketServices
             // if requests are completed: remove the bot's status msg, reset the request counts, and get rid of the timer
             if (concurrentCustomAPIRequestsCompleted == concurrentCustomAPIRequestsTotal)
             {
-                await _discord.SetGameAsync(null);
+                // await _discord.SetGameAsync(null);
 
                 // reset concurrent api requests values
                 Interlocked.Add(ref concurrentCustomAPIRequestsTotal, concurrentCustomAPIRequestsTotal * -1);
@@ -249,7 +249,7 @@ namespace Astramentis.Services.MarketServices
             }
             else
             {
-                await _discord.SetGameAsync($"{concurrentCustomAPIRequestsTotal} API requests...", type: ActivityType.Watching); // "watching x requests
+                // await _discord.SetGameAsync($"{concurrentCustomAPIRequestsTotal} API requests...", type: ActivityType.Watching); // "watching x requests
             }
         }
     }
