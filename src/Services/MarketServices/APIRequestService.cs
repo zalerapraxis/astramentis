@@ -163,7 +163,7 @@ namespace Astramentis.Services.MarketServices
             Interlocked.Increment(ref concurrentCustomAPIRequestsTotal); // concurrent requests active
 
             // start the timer - function has a null check so it will only do anything the first time we run it
-            Task.Run(InitiateTimer);
+            await Task.Run(InitiateTimer);
 
             while (i < exceptionRetryCount)
             {
@@ -173,6 +173,9 @@ namespace Astramentis.Services.MarketServices
 
                     if ((object)apiResponse != null)
                     {
+                        // request has been fulfilled in some way, increment the completed requests count
+                        Interlocked.Increment(ref concurrentCustomAPIRequestsCompleted); // concurrent requests completed
+
                         // check if custom API handled error - get apiResponse as dict of keyvalue pairs
                         // if the dict contains 'Error' key, it's a handled error
                         if (((IDictionary<String, object>)apiResponse).ContainsKey("Error"))
@@ -192,8 +195,6 @@ namespace Astramentis.Services.MarketServices
                         // check if prices or history key exists
                         if (((IDictionary<String, object>)apiResponse).ContainsKey("Prices"))
                         {
-                            Interlocked.Increment(ref concurrentCustomAPIRequestsCompleted); // concurrent requests completed
-
                             if (apiResponse.Prices == null || apiResponse.Prices.Count == 0)
                                 return CustomApiStatus.NoResults;
 
@@ -203,8 +204,6 @@ namespace Astramentis.Services.MarketServices
 
                         if (((IDictionary<String, object>) apiResponse).ContainsKey("Sales"))
                         {
-                            Interlocked.Increment(ref concurrentCustomAPIRequestsCompleted); // concurrent requests completed
-
                             if (apiResponse.Sales == null || apiResponse.Sales.Count == 0)
                                 return CustomApiStatus.NoResults;
 
