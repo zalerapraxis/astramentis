@@ -30,7 +30,7 @@ namespace Astramentis.Modules
         }
 
         [Command("support")]
-        [Summary("")]
+        [Summary("Send a message to the bot owner.")]
         [Syntax("support {message}")]
         [Example("support Hi, the bot's garbage, please fix")]
         public async Task SendSupportMessage([Remainder] string message)
