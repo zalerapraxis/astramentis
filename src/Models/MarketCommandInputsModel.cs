@@ -7,7 +7,7 @@ namespace Astramentis.Models
     public class MarketCommandInputsModel
     {
         public string ItemName { get; set; }
-        public int ItemId { get; set; }
+        public int ItemID { get; set; }
         public string ItemIconUrl { get; set; }
         public bool ItemHq { get; set; }
         public int NeededQuantity { get; set; } // for market order command

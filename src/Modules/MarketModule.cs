@@ -32,7 +32,7 @@ namespace Astramentis.Modules
 
         private Dictionary<IUser, IUserMessage> _dictFindItemUserEmbedPairs = new Dictionary<IUser, IUserMessage>();
 
-        private Worlds DefaultWorld = Worlds.gilgamesh;
+        private Worlds DefaultWorld = Worlds.adamantoise;
 
         [Command("market price")]
         [Alias("mbp")]
@@ -54,7 +54,7 @@ namespace Astramentis.Modules
                 return;
 
             // get market data
-            var marketQueryResults = await MarketService.GetMarketListings(parsedInput.ItemName, parsedInput.ItemId, parsedInput.ItemHq, parsedInput.WorldsToSearch);
+            var marketQueryResults = await MarketService.GetMarketListings(parsedInput.ItemName, parsedInput.ItemID, parsedInput.ItemHq, parsedInput.WorldsToSearch);
 
             // if no listings found, notify and end
             if (marketQueryResults.Count == 0)
@@ -102,7 +102,7 @@ namespace Astramentis.Modules
                     {
                         new EmbedFieldBuilder()
                         {
-                            Name = $"{parsedInput.ItemName} ({parsedInput.ItemId})",
+                            Name = $"{parsedInput.ItemName} ({parsedInput.ItemID})",
                             Value = sbListing
                         }
                     }
@@ -161,7 +161,7 @@ namespace Astramentis.Modules
                 return;
 
             // get history data
-            var historyQueryResults = await MarketService.GetHistoryListings(parsedInput.ItemName, parsedInput.ItemId, parsedInput.WorldsToSearch);
+            var historyQueryResults = await MarketService.GetHistoryListings(parsedInput.ItemName, parsedInput.ItemID, parsedInput.WorldsToSearch);
 
             // if no listings found, notify and end
             if (historyQueryResults.Count == 0)
@@ -211,7 +211,7 @@ namespace Astramentis.Modules
                     {
                         new EmbedFieldBuilder()
                         {
-                            Name = $"{parsedInput.ItemName} ({parsedInput.ItemId})",
+                            Name = $"{parsedInput.ItemName} ({parsedInput.ItemID})",
                             Value = sbListing
                         }
                     }
@@ -250,7 +250,7 @@ namespace Astramentis.Modules
         [Command("market analyze")]
         [Alias("mba")]
         [Summary("Get market analysis for an item")]
-        [Syntax("market analyze {name/ID} {optional: server, defaults to Gilgamesh}")]
+        [Syntax("market analyze {name/ID} {optional: server, defaults to Adamantoise}")]
         [Example("mba 27770")]
         public async Task MarketAnalyzeItem([Remainder] string input)
         {
@@ -267,7 +267,7 @@ namespace Astramentis.Modules
                 return;
 
             // get analyses
-            var marketAnalysis = await MarketService.CreateMarketAnalysis(parsedInput.ItemName, parsedInput.ItemId, parsedInput.WorldsToSearch);
+            var marketAnalysis = await MarketService.CreateMarketAnalysis(parsedInput.ItemName, parsedInput.ItemID, parsedInput.WorldsToSearch);
             var hqMarketAnalysis = marketAnalysis[0];
             var nqMarketAnalysis = marketAnalysis[1];
 
@@ -337,7 +337,7 @@ namespace Astramentis.Modules
         [Command("market exchange")]
         [Alias("mbe")]
         [Summary("Find the best items to spend your tomes/seals on - run without any options to view currency types")]
-        [Syntax("market exchange {currency} {optional: server, defaults to Gilgamesh}")]
+        [Syntax("market exchange {currency} {optional: server, defaults to Adamantoise}")]
         [Example("mbe ycs sargatanas")]
         public async Task MarketGetBestCurrencyExchangesAsync([Remainder] string input = null)
         {
@@ -527,7 +527,7 @@ namespace Astramentis.Modules
             var itemsList = new List<MarketItemCrossWorldOrderModel>();
             foreach (var item in parsedInputs)
             {
-                itemsList.Add(new MarketItemCrossWorldOrderModel() { Name = item.ItemName, ItemID = item.ItemId, NeededQuantity = item.NeededQuantity, ShouldBeHQ = item.ItemHq});
+                itemsList.Add(new MarketItemCrossWorldOrderModel() { Name = item.ItemName, ItemID = item.ItemID, NeededQuantity = item.NeededQuantity, ShouldBeHQ = item.ItemHq});
             }
             
             var results = await MarketService.GetMarketCrossworldPurchaseOrder(itemsList, parsedInputs[0].WorldsToSearch);
@@ -824,8 +824,13 @@ namespace Astramentis.Modules
         }
 
 
-        // for use with commands that take item names & potentially server as inputs
-        // cleans them up & splits them out, returns null if failure
+        /// <summary>
+        /// Clean up & parse command inputs
+        /// For use with commands that take item names & potentially server as inputs
+        /// </summary>
+        /// <param name="input">Command input</param>
+        /// <param name="function">The corresponding <c>InteractiveCommandReturn</c> for the command calling this function</param>
+        /// <returns>List of <c>MarketCommandInputsModel</c>, containing item name, ID and other input bits</returns>
         private async Task<List<MarketCommandInputsModel>> SplitCommandInputs(string input, InteractiveCommandReturn function)
         {
             List <MarketCommandInputsModel> inputsSplit = new List<MarketCommandInputsModel>();
@@ -853,11 +858,11 @@ namespace Astramentis.Modules
                 if (itemIdResponse == null)
                     return inputsSplit;
 
-                var itemId = itemIdResponse.Value;
+                var itemID = itemIdResponse.Value;
 
                 // TODO: do we need to check the success of this function afterwards?
                 // we can test by running various commands with incorrect spellings and see how commands react, if at all
-                var itemDetailsQueryResult = await APIRequestService.QueryXivapiWithItemId(itemId);
+                var itemDetailsQueryResult = await APIRequestService.QueryXivapiWithItemId(itemID);
 
                 var itemName = itemDetailsQueryResult.Name;
                 var itemIconUrl = $"https://xivapi.com/{itemDetailsQueryResult.Icon}";
@@ -865,7 +870,7 @@ namespace Astramentis.Modules
                 var inputModel = new MarketCommandInputsModel()
                 {
                     ItemName = itemName,
-                    ItemId = itemId,
+                    ItemID = itemID,
                     ItemIconUrl = itemIconUrl,
                     ItemHq = itemShouldBeHq,
                     NeededQuantity = quantity,
