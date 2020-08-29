@@ -18,8 +18,6 @@ namespace Astramentis.Modules
     [Summary("Random stuff")]
     public class MiscModule : InteractiveBase
     {
-        public APIRequestService ApiRequestService { get; set; }
-
         // TODO: add many-choice voting
         [Command("vote")]
         [Summary("Start a vote using yes/no reactions")]

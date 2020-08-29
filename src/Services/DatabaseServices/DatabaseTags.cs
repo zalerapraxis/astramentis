@@ -31,7 +31,7 @@ namespace Astramentis.Services.DatabaseServiceComponents
         public async Task<string> GetTagContentsFromDatabase(SocketCommandContext context, string tagName)
         {
             var database = _mongodb.GetDatabase(_mongodbName);
-            var tagCollection = database.GetCollection<Tag>("tags");
+            var tagCollection = database.GetCollection<DbTag>("tags");
 
             // filter by name, search for passed tag name, get first tag matching filter
             var filter = BuildTagFilterEq(context, "name", tagName);
@@ -47,7 +47,7 @@ namespace Astramentis.Services.DatabaseServiceComponents
                 tag.Uses += 1;
 
                 // stage uses change to tag
-                var update = Builders<Tag>.Update.Set("uses", tag.Uses);
+                var update = Builders<DbTag>.Update.Set("uses", tag.Uses);
 
                 // commit uses change to tag
                 await tagCollection.UpdateOneAsync(filter, update);
@@ -60,12 +60,12 @@ namespace Astramentis.Services.DatabaseServiceComponents
         }
 
         // called via. tag all command - returns all tags in db
-        public async Task<List<Tag>> GetAllTagsFromDatabase(SocketCommandContext context)
+        public async Task<List<DbTag>> GetAllTagsFromDatabase(SocketCommandContext context)
         {
             var database = _mongodb.GetDatabase(_mongodbName);
-            var tagCollection = database.GetCollection<Tag>("tags");
+            var tagCollection = database.GetCollection<DbTag>("tags");
 
-            FilterDefinition<Tag> filter;
+            FilterDefinition<DbTag> filter;
 
             filter = BuildTagFilterEmpty(context);
 
@@ -80,9 +80,9 @@ namespace Astramentis.Services.DatabaseServiceComponents
         public async Task<List<string>> SearchTagsInDatabase(SocketCommandContext context, string searchTerm)
         {
             var database = _mongodb.GetDatabase(_mongodbName);
-            var tagCollection = database.GetCollection<Tag>("tags");
+            var tagCollection = database.GetCollection<DbTag>("tags");
 
-            FilterDefinition<Tag> filter;
+            FilterDefinition<DbTag> filter;
 
             filter = BuildTagFilterRegex(context, "name", $"({searchTerm})");
 
@@ -105,9 +105,9 @@ namespace Astramentis.Services.DatabaseServiceComponents
         public async Task<List<string>> GetTagsByUserFromDatabase(SocketCommandContext context, IUser user = null)
         {
             var database = _mongodb.GetDatabase(_mongodbName);
-            var tagCollection = database.GetCollection<Tag>("tags");
+            var tagCollection = database.GetCollection<DbTag>("tags");
 
-            FilterDefinition<Tag> filter;
+            FilterDefinition<DbTag> filter;
 
             if (user != null)
                 filter = BuildTagFilterEq(context, "author_id", (long)user.Id);
@@ -128,10 +128,10 @@ namespace Astramentis.Services.DatabaseServiceComponents
         }
 
         // called via .tag info {name} command - returns tag object if tag found, or null otherwise
-        public async Task<Tag> GetTagInfoFromDatabase(SocketCommandContext context, string tagName)
+        public async Task<DbTag> GetTagInfoFromDatabase(SocketCommandContext context, string tagName)
         {
             var database = _mongodb.GetDatabase(_mongodbName);
-            var tagCollection = database.GetCollection<Tag>("tags");
+            var tagCollection = database.GetCollection<DbTag>("tags");
 
             // filter by name, search for passed tag name, get first tag matching filter
             var filter = BuildTagFilterEq(context, "name", tagName);
@@ -149,7 +149,7 @@ namespace Astramentis.Services.DatabaseServiceComponents
         // called via .tag add {name} {contents} command - returns true if add successful, false otherwise
         public async Task<bool> AddTagToDatabase(SocketCommandContext context, string tagName, string content)
         {
-            var newTag = new Tag()
+            var newTag = new DbTag()
             {
                 Name = tagName,
                 Text = content,
@@ -162,7 +162,7 @@ namespace Astramentis.Services.DatabaseServiceComponents
             };
 
             var database = _mongodb.GetDatabase(_mongodbName);
-            var tagCollection = database.GetCollection<Tag>("tags");
+            var tagCollection = database.GetCollection<DbTag>("tags");
 
             var filter = BuildTagFilterEq(context, "name", newTag.Name);
             var tagExists = tagCollection.FindAsync(filter).Result.Any();
@@ -183,7 +183,7 @@ namespace Astramentis.Services.DatabaseServiceComponents
         public async Task<int> RemoveTagFromDatabase(SocketCommandContext context, string tagName)
         {
             var database = _mongodb.GetDatabase(_mongodbName);
-            var tagCollection = database.GetCollection<Tag>("tags");
+            var tagCollection = database.GetCollection<DbTag>("tags");
 
             var filter = BuildTagFilterEq(context, "name", tagName);
             var tagExists = tagCollection.FindAsync(filter).Result.Any();
@@ -210,7 +210,7 @@ namespace Astramentis.Services.DatabaseServiceComponents
         public async Task<int> EditTagInDatabase(SocketCommandContext context, string tagName, string key, dynamic value)
         {
             var database = _mongodb.GetDatabase(_mongodbName);
-            var tagCollection = database.GetCollection<Tag>("tags");
+            var tagCollection = database.GetCollection<DbTag>("tags");
 
             var filter = BuildTagFilterEq(context, "name", tagName);
             var tagExists = tagCollection.FindAsync(filter).Result.Any();
@@ -224,7 +224,7 @@ namespace Astramentis.Services.DatabaseServiceComponents
                 if (CheckTagUserPermission(context, tag))
                 {
                     // stage change to tag
-                    var update = Builders<Tag>.Update.Set(key, value);
+                    var update = Builders<DbTag>.Update.Set(key, value);
 
                     // commit change to tag
                     tagCollection.UpdateOne(filter, update);
@@ -240,10 +240,10 @@ namespace Astramentis.Services.DatabaseServiceComponents
 
         // returns a built filter that matches any tags that are accessible by the current server
         // this function is for eq(key, value) filters
-        private FilterDefinition<Tag> BuildTagFilterEq(SocketCommandContext context, string key, dynamic value)
+        private FilterDefinition<DbTag> BuildTagFilterEq(SocketCommandContext context, string key, dynamic value)
         {
-            FilterDefinition<Tag> filter;
-            var builder = Builders<Tag>.Filter;
+            FilterDefinition<DbTag> filter;
+            var builder = Builders<DbTag>.Filter;
 
             // if sudo mode enabled & calling user is in sudoers list, return all matching tags
             // else, return only global tags and tags made in this server
@@ -274,10 +274,10 @@ namespace Astramentis.Services.DatabaseServiceComponents
 
         // returns a built filter that matches any tags that are accessible by the current server
         // this function is for regex (key, value) filters
-        private FilterDefinition<Tag> BuildTagFilterRegex(SocketCommandContext context, string key, dynamic value)
+        private FilterDefinition<DbTag> BuildTagFilterRegex(SocketCommandContext context, string key, dynamic value)
         {
-            FilterDefinition<Tag> filter;
-            var builder = Builders<Tag>.Filter;
+            FilterDefinition<DbTag> filter;
+            var builder = Builders<DbTag>.Filter;
 
             // if sudo mode enabled & calling user is in sudoers list, return all matching tags
             // else, return only global tags and tags made in this server
@@ -308,10 +308,10 @@ namespace Astramentis.Services.DatabaseServiceComponents
 
         // returns a built filter that matches any tags that are accessible by the current server
         // this function is for empty filters (return everything)
-        private FilterDefinition<Tag> BuildTagFilterEmpty(SocketCommandContext context)
+        private FilterDefinition<DbTag> BuildTagFilterEmpty(SocketCommandContext context)
         {
-            FilterDefinition<Tag> filter;
-            var builder = Builders<Tag>.Filter;
+            FilterDefinition<DbTag> filter;
+            var builder = Builders<DbTag>.Filter;
 
             // if sudo mode enabled & calling user is in sudoers list, return all matching tags
             // else, return only global tags and tags made in this server
@@ -341,7 +341,7 @@ namespace Astramentis.Services.DatabaseServiceComponents
         }
 
         // check if the calling user is either the author of the passed tag or if the calling user is an administrator
-        private bool CheckTagUserPermission(SocketCommandContext context, Tag tag)
+        private bool CheckTagUserPermission(SocketCommandContext context, DbTag tag)
         {
             var author = (ulong)tag.AuthorId;
             // get calling user in context of calling guild

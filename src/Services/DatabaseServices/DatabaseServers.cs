@@ -24,32 +24,32 @@ namespace Astramentis.Services.DatabaseServiceComponents
             _mongodbName = _databaseService._mongodbName;
         }
 
-        public async Task<List<DiscordServer>> GetServersInfo()
+        public async Task<List<DbDiscordServer>> GetServersInfo()
         {
             var database = _mongodb.GetDatabase(_mongodbName);
-            var serverCollection = database.GetCollection<DiscordServer>("servers");
+            var serverCollection = database.GetCollection<DbDiscordServer>("servers");
 
             var servers = await serverCollection.Find(new BsonDocument()).ToListAsync();
 
             return servers;
         }
 
-        public async Task<bool> AddServerInfo(DiscordServer newServer)
+        public async Task<bool> AddServerInfo(DbDiscordServer newServer)
         {
             var database = _mongodb.GetDatabase(_mongodbName);
-            var serverCollection = database.GetCollection<DiscordServer>("servers");
+            var serverCollection = database.GetCollection<DbDiscordServer>("servers");
 
             await serverCollection.InsertOneAsync(newServer);
 
             return true;
         }
 
-        public async Task<bool> RemoveServerInfo(DiscordServer server)
+        public async Task<bool> RemoveServerInfo(DbDiscordServer server)
         {
             var database = _mongodb.GetDatabase(_mongodbName);
-            var serverCollection = database.GetCollection<DiscordServer>("servers");
+            var serverCollection = database.GetCollection<DbDiscordServer>("servers");
 
-            var filter = Builders<DiscordServer>.Filter.Eq("server_id", server.ServerId);
+            var filter = Builders<DbDiscordServer>.Filter.Eq("server_id", server.ServerId);
 
             await serverCollection.DeleteOneAsync(filter);
 
@@ -59,13 +59,13 @@ namespace Astramentis.Services.DatabaseServiceComponents
         public async Task<bool> EditServerInfo(string serverId, string key, dynamic value)
         {
             var database = _mongodb.GetDatabase(_mongodbName);
-            var serverCollection = database.GetCollection<DiscordServer>("servers");
+            var serverCollection = database.GetCollection<DbDiscordServer>("servers");
 
-            var filter = Builders<DiscordServer>.Filter.Eq("server_id", serverId);
+            var filter = Builders<DbDiscordServer>.Filter.Eq("server_id", serverId);
             // do we need to check if server info exists?
 
             // stage change
-            var update = Builders<DiscordServer>.Update.Set(key, value);
+            var update = Builders<DbDiscordServer>.Update.Set(key, value);
 
             // commit change
             await serverCollection.UpdateOneAsync(filter, update);

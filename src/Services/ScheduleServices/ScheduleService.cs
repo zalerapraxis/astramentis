@@ -32,7 +32,7 @@ namespace Astramentis.Services
         }
 
         // send or modify messages alerting the user that an event will be starting soon
-        public async Task HandleReminders(DiscordServer server)
+        public async Task HandleReminders(DbDiscordServer server)
         {
             var firstCalendarEvent = server.Events[0];
 
@@ -131,7 +131,7 @@ namespace Astramentis.Services
         }
 
         // send or modify embed messages listing upcoming events from the raid calendar
-        public async Task SendEvents(DiscordServer server)
+        public async Task SendEvents(DbDiscordServer server)
         {
             // build embed
             var embed = BuildEventsEmbed(server);
@@ -169,7 +169,7 @@ namespace Astramentis.Services
         // posts the list of future events into the channel that called the command
         public async Task GetEvents(SocketCommandContext context)
         {
-            var server = DiscordServers.ServerList.Find(x => x.DiscordServerObject == context.Guild);
+            var server = DbDiscordServers.ServerList.Find(x => x.DiscordServerObject == context.Guild);
 
             // if command context is the reminders channel, there's already an event embed
             // so just update it instead of sending a new embed
@@ -183,7 +183,7 @@ namespace Astramentis.Services
         }
 
         // put together the events embed & return it to calling method
-        private Embed BuildEventsEmbed(DiscordServer server)
+        private Embed BuildEventsEmbed(DbDiscordServer server)
         {
             EmbedBuilder embedBuilder = new EmbedBuilder();
 
@@ -250,7 +250,7 @@ namespace Astramentis.Services
 
         // searches the _reminderChannel for a message from the bot containing an embed (how else can we filter this - title?)
         // if it finds one, return that message to the calling method to be set as _eventEmbedMessage
-        private async Task<IUserMessage> GetPreviousEmbed(DiscordServer server)
+        private async Task<IUserMessage> GetPreviousEmbed(DbDiscordServer server)
         {
             // get all messages in reminder channel
             var messages = await server.ReminderChannel.GetMessagesAsync().FlattenAsync();
@@ -272,7 +272,7 @@ namespace Astramentis.Services
         // searches the _reminderChannel for a message from the bot containing the passed param
         // (this should be the title of an event for which we are looking for a remindermessage to edit)
         // if it finds one, return that message to the calling method to be modified
-        private async Task<IUserMessage> GetPreviousReminderMessage(DiscordServer server, string messageContains)
+        private async Task<IUserMessage> GetPreviousReminderMessage(DbDiscordServer server, string messageContains)
         {
             // get all messages in reminder channel
             IEnumerable<IMessage> messages = null;

@@ -9,7 +9,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Astramentis.Services
 {
-    public class Tag
+    public class DbTag
     {
         [BsonId]
         public ObjectId Id { get; set; }
@@ -39,7 +39,7 @@ namespace Astramentis.Services
         public int Uses { get; set; }
     }
 
-    public class DiscordServer
+    public class DbDiscordServer
     {
         [BsonId]
         public ObjectId Id { get; set; }
@@ -82,7 +82,13 @@ namespace Astramentis.Services
         public UserCredential GoogleUserCredential { get; set; }
     }
 
-    public class SudoUser
+    // list of servers, used for global tag access & schedule data - not actually stored in the database
+    public class DbDiscordServers
+    {
+        public static List<DbDiscordServer> ServerList = new List<DbDiscordServer>();
+    }
+
+    public class DbSudoUser
     {
         [BsonId]
         public ObjectId Id { get; set; }
@@ -91,30 +97,45 @@ namespace Astramentis.Services
         public string Username { get; set; }
 
         [BsonElement("user_id")]
-        public string userId { get; set; }
+        public string UserId { get; set; }
     }
 
-    public class WatchlistEntry
+    public class DbWatchlistEntry
     {
         [BsonId]
         public ObjectId Id { get; set; }
 
         [BsonElement("itemname")]
-        public string itemName { get; set; }
+        public string ItemName { get; set; }
 
         [BsonElement("itemid")]
-        public int itemId{ get; set; }
+        public int ItemID{ get; set; }
 
         [BsonElement("hqonly")]
-        public bool hqOnly { get; set; }
+        public bool HQOnly { get; set; }
 
         [BsonElement("enabled")]
-        public bool enabled { get; set; }
+        public bool Enabled { get; set; }
     }
 
-    // internal list of servers, used for global tag access & schedule data - not actually stored in the database
-    public class DiscordServers
+    public class DbSupportMessage
     {
-        public static List<DiscordServer> ServerList = new List<DiscordServer>();
+        [BsonId]
+        public ObjectId Id { get; set; }
+
+        [BsonElement("message")]
+        public string Message { get; set; }
+
+        [BsonElement("messageId")]
+        public string MessageID { get; set; }
+
+        [BsonElement("authorId")]
+        public string AuthorID { get; set; }
+
+        [BsonElement("channelId")]
+        public string ChannelID { get; set; }
+
+        [BsonElement("guildId")]
+        public string GuildID { get; set; }
     }
 }

@@ -48,7 +48,7 @@ namespace Astramentis.Services
             // sets global ServersList variable
             await GetServersInfoFromDatabase();
 
-            foreach (var server in DiscordServers.ServerList)
+            foreach (var server in DbDiscordServers.ServerList)
             {
                 //authenticate
                 await _googleCalendarSyncService.Login(server);
@@ -101,7 +101,7 @@ namespace Astramentis.Services
         // timer executes these functions on each run
         private async void Timer_Tick()
         {
-            foreach (var server in DiscordServers.ServerList)
+            foreach (var server in DbDiscordServers.ServerList)
             {
                 // check if it's possible for us to sync
                 var syncStatus = _googleCalendarSyncService.CheckIfSyncPossible(server);
@@ -155,7 +155,7 @@ namespace Astramentis.Services
                     // set this server's discord channel & server refs
                     SetServerDiscordObjects(server);
                     // add this server to the ServerList
-                    DiscordServers.ServerList.Add(server);
+                    DbDiscordServers.ServerList.Add(server);
                 }
             }
         }
@@ -163,7 +163,7 @@ namespace Astramentis.Services
 
         // converts stored IDs from database into ulongs (mongo can't store ulong ha ha) and use them to
         // assign our discord objects
-        public void SetServerDiscordObjects(DiscordServer server)
+        public void SetServerDiscordObjects(DbDiscordServer server)
         {
             server.DiscordServerObject = _discord.GetGuild(Convert.ToUInt64(server.ServerId));
             server.ConfigChannel = _discord.GetChannel(Convert.ToUInt64(server.ConfigChannelId)) as ITextChannel;

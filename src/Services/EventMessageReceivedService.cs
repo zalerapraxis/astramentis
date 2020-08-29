@@ -42,8 +42,9 @@ namespace Astramentis.Services
 
             // check messages for keywords to respond to here
             // if we want to make more use of this, we'll probably want to make a list or db table of these
+            /*
             if (message.Content ==
-                "DON'T DRINK WATER AFTER EATING FISH!!! cuz the water may cause the fish to swim and then u will feel gluglgulguglu gluglgulgu in your stomach !!!!!!!!!!REMEMBER!!!!!!!!!!")
+                "fish")
             {
                 IEmote[] reactions = { new Emoji("🐟") };
 
@@ -53,6 +54,7 @@ namespace Astramentis.Services
                 }
                 
             }
+            */
         }
     }
 }

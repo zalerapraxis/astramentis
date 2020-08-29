@@ -58,7 +58,7 @@ namespace Astramentis.Services
         }
 
         // log in to all servers
-        public async Task Login(DiscordServer server)
+        public async Task Login(DbDiscordServer server)
         {
             var credentialPath = $@"{_credentialPathPrefix}/{server.ServerId}";
 
@@ -91,11 +91,11 @@ namespace Astramentis.Services
         }
 
         // called whenever .sync command is used, and at first program launch
-        public async Task<bool> ManualSync(DiscordServer server = null, SocketCommandContext context = null)
+        public async Task<bool> ManualSync(DbDiscordServer server = null, SocketCommandContext context = null)
         {
             // if server is null, context is not null - we're calling via command, so get the right server via context
             if (server == null && context != null)
-                server = DiscordServers.ServerList.Find(x => x.DiscordServerObject == context.Guild);
+                server = DbDiscordServers.ServerList.Find(x => x.DiscordServerObject == context.Guild);
 
             // check if we're authenticated and have a calendar id to sync from
             var syncStatus = CheckIfSyncPossible(server);
@@ -141,7 +141,7 @@ namespace Astramentis.Services
 
         // logic for pulling data from api and adding it to CalendarEvents list, returns bool representing
         // if calendar had events or not
-        public bool SyncFromGoogleCalendar(DiscordServer server)
+        public bool SyncFromGoogleCalendar(DbDiscordServer server)
         {
             // Set the timespan of events to sync
             var min = _scheduleService.GetCurrentTimePacific();
@@ -250,7 +250,7 @@ namespace Astramentis.Services
 
         public bool? AdjustUpcomingEvent(string function, int value, SocketCommandContext context)
         {
-            var server = DiscordServers.ServerList.Find(x => x.DiscordServerObject == context.Guild);
+            var server = DbDiscordServers.ServerList.Find(x => x.DiscordServerObject == context.Guild);
 
             // if no events, return null
             if (!server.Events.Any())
@@ -286,7 +286,7 @@ namespace Astramentis.Services
 
         // check if we're authorized and if we have a calendar id, and prompt the user to set up either if needed
         // returns true if we're authorized and have a calendar id, returns false if either checks are false
-        public CalendarSyncStatus CheckIfSyncPossible(DiscordServer server)
+        public CalendarSyncStatus CheckIfSyncPossible(DbDiscordServer server)
         {
             // check if we have credentials for google apiitem
             if (server.GoogleUserCredential == null)
@@ -334,11 +334,11 @@ namespace Astramentis.Services
         public async Task SetCalendarId(string calendarId, SocketCommandContext context)
         {
             // grab server by id of current guild via context
-            var server = DiscordServers.ServerList.Find(x => x.DiscordServerObject == context.Guild);
+            var server = DbDiscordServers.ServerList.Find(x => x.DiscordServerObject == context.Guild);
 
             // and its index in the ServerList so we can assign to the ServerList directly
-            var serverIndex = DiscordServers.ServerList.IndexOf(server);
-            DiscordServers.ServerList[serverIndex].CalendarId = calendarId;
+            var serverIndex = DbDiscordServers.ServerList.IndexOf(server);
+            DbDiscordServers.ServerList[serverIndex].CalendarId = calendarId;
 
             // and update the database as well
             await _databaseServers.EditServerInfo(server.ServerId, "calendar_id", calendarId);
@@ -381,7 +381,7 @@ namespace Astramentis.Services
             var authCode = userInput.Split('=', '&')[1];
 
             // grab server by id of current guild via context
-            var server = DiscordServers.ServerList.Find(x => x.DiscordServerObject == context.Guild);
+            var server = DbDiscordServers.ServerList.Find(x => x.DiscordServerObject == context.Guild);
 
             var credentialPath = $@"{_credentialPathPrefix}/{server.ServerId}";
 

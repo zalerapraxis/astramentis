@@ -36,7 +36,7 @@ namespace Astramentis.Modules
             var messages = await channel.GetMessagesAsync(count).FlattenAsync();
 
             // try to locate the server in our database
-            var server = DiscordServers.ServerList.Find(x => x.DiscordServerObject == Context.Guild);
+            var server = DbDiscordServers.ServerList.Find(x => x.DiscordServerObject == Context.Guild);
 
             // remove schedule embed message from the messages list, so it doesn't get deleted
             if (server != null && server.EventEmbedMessage != null)

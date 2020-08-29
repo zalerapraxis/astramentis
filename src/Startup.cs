@@ -78,21 +78,24 @@ namespace Astramentis
                 .AddSingleton<EventReactionAddedService>()
                 .AddSingleton<Random>()
 
+                // database service and supporting subservices
                 .AddSingleton<DatabaseService>()
                 .AddSingleton<DatabaseSudo>()
                 .AddSingleton<DatabaseTags>()
                 .AddSingleton<DatabaseServers>()
                 .AddSingleton<DatabaseMarketWatchlist>()
+                .AddSingleton<DatabaseSupport>()
 
+                // scheduling backend
                 .AddSingleton<RaidEventsService>()
                 .AddSingleton<GoogleCalendarSyncService>()
                 .AddSingleton<ScheduleService>()
 
+                // market backend
                 .AddSingleton<APIRequestService>() // api request functions
-                .AddSingleton<APIHeartbeatService>() // api life checks
-
-                .AddSingleton<MarketService>()
-                .AddSingleton<MarketWatcherService>()
+                .AddSingleton<APIHeartbeatService>() // api health checks
+                .AddSingleton<MarketService>() // market data processing
+                .AddSingleton<MarketWatcherService>() // market watchlist 
 
                 .AddSingleton(Configuration) // Add the configuration to the collection
                 ;

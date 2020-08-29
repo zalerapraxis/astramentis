@@ -69,7 +69,7 @@ namespace Astramentis.Services.MarketServices
          
             foreach (var item in watchlist)
             {
-                list.Add($"{item.itemName} {(item.hqOnly ? "(HQ)" : "")}");
+                list.Add($"{item.ItemName} {(item.HQOnly ? "(HQ)" : "")}");
             }
 
             return list;
@@ -107,10 +107,10 @@ namespace Astramentis.Services.MarketServices
             var itemTasks = Task.Run(() => Parallel.ForEach(watchlist, parallelOptions, watchlistEntry =>
             {
                 var apiResponse =
-                    _marketService.CreateMarketAnalysis(watchlistEntry.itemName, watchlistEntry.itemId, worldsToSearch).Result;
+                    _marketService.CreateMarketAnalysis(watchlistEntry.ItemName, watchlistEntry.ItemID, worldsToSearch).Result;
 
                 var analysis = apiResponse[2]; // overall analysis
-                if (watchlistEntry.hqOnly)
+                if (watchlistEntry.HQOnly)
                 {
                     analysis = apiResponse[0]; // overwrite with hq analysis if needed
                 }

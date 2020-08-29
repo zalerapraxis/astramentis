@@ -754,17 +754,17 @@ namespace Astramentis.Modules
             var inputId = await MarketService.SearchForItemByNameExact(input);
 
             // build entry
-            var watchlistEntry = new WatchlistEntry()
+            var watchlistEntry = new DbWatchlistEntry()
             {
-                itemName = input,
-                itemId = inputId[0].ID,
-                hqOnly = inputShouldBeHq
+                ItemName = input,
+                ItemID = inputId[0].ID,
+                HQOnly = inputShouldBeHq
             };
 
             // add to database
             await DatabaseMarketWatchlist.AddToWatchlist(watchlistEntry);
 
-            await ReplyAsync($"Added item {watchlistEntry.itemName} ({watchlistEntry.itemId}) to watchlist.");
+            await ReplyAsync($"Added item {watchlistEntry.ItemName} ({watchlistEntry.ItemID}) to watchlist.");
         }
 
         [Command("market watchlist toggle")]

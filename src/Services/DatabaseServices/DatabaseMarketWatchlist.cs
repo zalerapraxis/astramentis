@@ -22,20 +22,20 @@ namespace Astramentis.Services.DatabaseServices
             _mongodbName = _databaseService._mongodbName;
         }
 
-        public async Task<List<WatchlistEntry>> GetWatchlist()
+        public async Task<List<DbWatchlistEntry>> GetWatchlist()
         {
             var database = _mongodb.GetDatabase(_mongodbName);
-            var watchlistCollection = database.GetCollection<WatchlistEntry>("watchlist");
+            var watchlistCollection = database.GetCollection<DbWatchlistEntry>("watchlist");
 
             var watchlist = await watchlistCollection.Find(new BsonDocument()).ToListAsync();
 
             return watchlist;
         }
 
-        public async Task<bool> AddToWatchlist(WatchlistEntry entry)
+        public async Task<bool> AddToWatchlist(DbWatchlistEntry entry)
         {
             var database = _mongodb.GetDatabase(_mongodbName);
-            var watchlistCollection = database.GetCollection<WatchlistEntry>("watchlist");
+            var watchlistCollection = database.GetCollection<DbWatchlistEntry>("watchlist");
 
             await watchlistCollection.InsertOneAsync(entry);
 

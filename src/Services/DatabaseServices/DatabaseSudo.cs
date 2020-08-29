@@ -30,14 +30,14 @@ namespace Astramentis.Services.DatabaseServiceComponents
         // called via .tag add {name} {contents} command - returns true if add successful, false otherwise
         public async Task AddUserToSudoers(IUser user)
         {
-            var newUser = new SudoUser()
+            var newUser = new DbSudoUser()
             {
                 Username = user.Username,
-                userId = user.Id.ToString()
+                UserId = user.Id.ToString()
             };
 
             var database = _mongodb.GetDatabase(_mongodbName);
-            var sudoCollection = database.GetCollection<SudoUser>("sudoers");
+            var sudoCollection = database.GetCollection<DbSudoUser>("sudoers");
 
             await sudoCollection.InsertOneAsync(newUser);
         }
@@ -45,9 +45,9 @@ namespace Astramentis.Services.DatabaseServiceComponents
         public async Task RemoveUserFromSudoers(IUser user)
         {
             var database = _mongodb.GetDatabase(_mongodbName);
-            var sudoCollection = database.GetCollection<SudoUser>("sudoers");
+            var sudoCollection = database.GetCollection<DbSudoUser>("sudoers");
 
-            var filter = Builders<SudoUser>.Filter.Eq("user_id", user.Id.ToString());
+            var filter = Builders<DbSudoUser>.Filter.Eq("user_id", user.Id.ToString());
 
             await sudoCollection.DeleteOneAsync(filter);
         }
@@ -55,10 +55,10 @@ namespace Astramentis.Services.DatabaseServiceComponents
         public bool IsUserSudoer(SocketCommandContext context)
         {
             var database = _mongodb.GetDatabase(_mongodbName);
-            var sudoersCollection = database.GetCollection<SudoUser>("sudoers");
+            var sudoersCollection = database.GetCollection<DbSudoUser>("sudoers");
 
-            var builder = Builders<SudoUser>.Filter;
-            FilterDefinition<SudoUser> filter = builder.Eq("user_id", context.User.Id.ToString());
+            var builder = Builders<DbSudoUser>.Filter;
+            FilterDefinition<DbSudoUser> filter = builder.Eq("user_id", context.User.Id.ToString());
 
             var userInSudoers = sudoersCollection.FindAsync(filter).Result.Any();
 
