@@ -68,7 +68,15 @@ namespace Astramentis.Modules
 
             await supportMsgChannel.SendMessageAsync($"{supportMsgAuthor.Mention} {messageContents}");
 
-            await DatabaseSupport.RemoveSupportMessage(supportMessage.MessageID);
+            await ReplyAsync("Do you want to keep the support message for later?");
+            var response = Interactive.NextMessageAsync(Context, true, true, TimeSpan.FromSeconds(10)).Result.Content;
+
+            if (response.Contains("yes") || response.Contains("y") || response.Contains("yea") ||
+                response.Contains("yeah"))
+                return;
+
+            await DatabaseSupport.RemoveSupportMessage(id);
+            await ReplyAsync("Support message cleared.");
         }
     }
 }
