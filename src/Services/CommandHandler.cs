@@ -65,7 +65,7 @@ namespace Astramentis
                 {
                     // don't track unknown commands, like someone sending "..."
                     // don't track commands that just didn't get input correctly
-                    if (result.Error != CommandError.UnknownCommand && result.Error != CommandError.BadArgCount) 
+                    if (result.Error != CommandError.UnknownCommand) 
                     {
                         await context.Channel.SendMessageAsync(result.ToString());
                         Logger.Log(LogLevel.Error, $"Command \"{msg}\" failed: {result}");
@@ -101,6 +101,9 @@ namespace Astramentis
                 cmdResult.Append($" successfully");
             else
                 cmdResult.Append($" unsuccessfully with error code {result.Error}");
+
+            if (result.Error == CommandError.Exception)
+                cmdResult.Append($" ({result.ErrorReason})");
 
             cmdResult.Append($" in {timer?.ElapsedMilliseconds}ms");
 
