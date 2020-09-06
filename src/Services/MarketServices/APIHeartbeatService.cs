@@ -52,26 +52,29 @@ namespace Astramentis.Services.MarketServices
             // thread-safe reset 30m counter
             Interlocked.Exchange(ref _apiRequestService.totalCustomAPIRequestsMadeSinceHeartbeat, 0);
 
-            // do a global companion status check to see if the API is down or something else is wrong
+            // do a global companion status check to see if the API is down or if something else is wrong
             CustomApiStatus globalCompanionStatusRequestResult = GetCompanionApiStatus().Result;
 
-            // companion maintenance, reset timer and stop
+            // if companion is in maintenance, reset timer and don't do anything else
             if (globalCompanionStatusRequestResult == CustomApiStatus.UnderMaintenance) 
             {
                 AdjustHeartbeatTimer();
                 Logger.Log(LogLevel.Info, $"The SE API is down for maintenance at the moment. Trying again later.");
                 return;
             }
-            // log any error responses that aren't logged-out or maintenance issues
+
+            // log any error responses that aren't logged-out or maintenance issues & send DM to bot owner
+            // this is deprecated now as any errors from the APIRequestService will give us logs and DMs already
+            /*
             if (globalCompanionStatusRequestResult != CustomApiStatus.OK && globalCompanionStatusRequestResult != CustomApiStatus.NotLoggedIn && globalCompanionStatusRequestResult != CustomApiStatus.UnderMaintenance)
             {
                 Logger.Log(LogLevel.Info, $"SE API error - received error: {globalCompanionStatusRequestResult}.");
 
                 var dm = await _discord.GetUser(ulong.Parse(_config["discordBotOwnerId"])).GetOrCreateDMChannelAsync();
                 await dm.SendMessageAsync($"Something's wrong with the API - received error: {globalCompanionStatusRequestResult}.");
-            }
+            } */
 
-            // figure out each server's status
+            // figure out each server's login status
             serverLoginStatusTracker.Clear();
             var tasks = Task.Run(() => Parallel.ForEach((Worlds[])Enum.GetValues(typeof(Worlds)), parallelOptions, async server =>
             {
@@ -88,6 +91,7 @@ namespace Astramentis.Services.MarketServices
             }));
             await Task.WhenAll(tasks);
 
+            // get how many servers are logged in currently
             var serverLoggedInCount = serverLoginStatusTracker.Count(x => x.Value == true);
             Logger.Log(LogLevel.Info, $"{serverLoggedInCount} of {serverLoginStatusTracker.Count} servers are logged in. ");
 
@@ -135,7 +139,7 @@ namespace Astramentis.Services.MarketServices
         private async Task<CustomApiStatus> GetCompanionApiStatus(string server = null)
         {
             if (server == null)
-                server = "gilgamesh";
+                server = "adamantoise";
 
             // run test query
             var apiResponse = await _apiRequestService.QueryCustomApiForHistory(_rng.Next(2, 19), server);

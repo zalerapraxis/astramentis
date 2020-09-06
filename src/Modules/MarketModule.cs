@@ -1131,11 +1131,10 @@ namespace Astramentis.Modules
 
             if (isApiUp)
                 return true;
-            else
-            {
-                await InformUserOfAPIFailure();
-                return false;
-            }
+            
+            await InformUserOfAPIFailure();
+            return false;
+            
         }
 
         //
