@@ -1155,13 +1155,13 @@ namespace Astramentis.Modules
             var discordBotOwnerId = ulong.Parse(Config["discordBotOwnerId"]);
 
             if (status == CustomApiStatus.NotLoggedIn)
-                apiStatusHumanResponse = $"Not logged in to Companion API. Contact {Context.Guild.GetUser(discordBotOwnerId).Mention}.";
+                apiStatusHumanResponse = $"Not logged in to Companion API. I'll be trying to log in soon.";
             if (status == CustomApiStatus.UnderMaintenance)
-                apiStatusHumanResponse = "SE's API is down for maintenance.";
+                apiStatusHumanResponse = "SE's API is down for maintenance. Check back later.";
             if (status == CustomApiStatus.AccessDenied)
-                apiStatusHumanResponse = $"Access denied. Contact {Context.Guild.GetUser(discordBotOwnerId).Mention}.";
+                apiStatusHumanResponse = $"Access denied. I'm working on it.";
             if (status == CustomApiStatus.ServiceUnavailable || status == CustomApiStatus.APIFailure)
-                apiStatusHumanResponse = $"Something went wrong (API failure). Contact {Context.Guild.GetUser(discordBotOwnerId).Mention}.";
+                apiStatusHumanResponse = $"Something broke somewhere. I'm working on it.";
 
             return apiStatusHumanResponse;
         }
