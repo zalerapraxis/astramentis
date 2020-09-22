@@ -164,10 +164,15 @@ namespace Astramentis.Services
                 // build a list of the events we pulled from gcal
                 foreach (var eventItem in events)
                 {
+                    // we should detect the timezone here in some fashion and then correct the below start/end datetimes to the corresponding offsets
+                    var test = eventItem.Start.TimeZone;
+
                     // api wrapper will always pull times in local time aka eastern because it sucks
                     // so just subtract 3 hours to get pacific time
                     eventItem.Start.DateTime = eventItem.Start.DateTime - TimeSpan.FromHours(8);
                     eventItem.End.DateTime = eventItem.End.DateTime - TimeSpan.FromHours(8);
+
+                    
 
                     // don't add items from the past
                     if (eventItem.End.DateTime < _scheduleService.GetCurrentTimePacific())
@@ -298,6 +303,7 @@ namespace Astramentis.Services
             if (server.CalendarId == null)
                 return CalendarSyncStatus.EmptyCalendarId;
 
+            /*
             // if server object is assigned, the bot is connected, but the bot is not connected to this server, we're probably kicked
             if (server.DiscordServerObject != null && server.DiscordServerObject.Available &&
                 ((SocketGuild) server.DiscordServerObject).IsConnected == false)
@@ -310,6 +316,7 @@ namespace Astramentis.Services
                 }));
                 return CalendarSyncStatus.ServerUnavailable;
             }
+            */
             
             return CalendarSyncStatus.OK;
         }
