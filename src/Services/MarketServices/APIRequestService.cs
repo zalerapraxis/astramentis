@@ -244,8 +244,11 @@ namespace Astramentis.Services.MarketServices
                 Interlocked.Add(ref concurrentCustomAPIRequestsTotal, concurrentCustomAPIRequestsTotal * -1);
                 Interlocked.Add(ref concurrentCustomAPIRequestsCompleted, concurrentCustomAPIRequestsCompleted * -1);
 
-                botStatusUpdateTimer.Dispose();
-                botStatusUpdateTimer = null;
+                if (botStatusUpdateTimer != null)
+                {
+                    botStatusUpdateTimer.Dispose();
+                    botStatusUpdateTimer = null;
+                }
             }
             else
             {
