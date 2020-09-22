@@ -45,6 +45,12 @@ namespace Astramentis.Services
 
         public async Task Initialize()
         {
+            // wait for discord client to log in before loading server/channel info
+            while (_discord.ConnectionState != ConnectionState.Connected || _discord.LoginState != LoginState.LoggedIn)
+            {
+                await Task.Delay(100);
+            }
+
             // sets global ServersList variable
             await GetServersInfoFromDatabase();
 
