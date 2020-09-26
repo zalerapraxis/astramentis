@@ -355,7 +355,7 @@ namespace Astramentis.Modules
                 categoryListBuilder.AppendLine("ygs - Yellow Gatherer Scrip items");
                 categoryListBuilder.AppendLine("ycs - Yellow Crafter Scrip items");
                 categoryListBuilder.AppendLine("tome/tomes - tome mats (phantasmagoria)");
-                categoryListBuilder.AppendLine("sky - skybuilders' scrips");
+                categoryListBuilder.AppendLine("sky/skybuilders - skybuilders' scrips");
 
                 await ReplyAsync(categoryListBuilder.ToString());
                 return;
