@@ -123,14 +123,17 @@ namespace Astramentis.Services
 
                 // if the event is over an hour from now and an alert message exists, delete it.
                 // this should not normally occur as the alertmessage should be deleted just before the event has concluded.
-                // If we get here, it typically signifies a timezone error.
+                // If we get here, it typically signifies a timezone error or that the bot was unable to delete the old message.
                 if (calendarEvent.StartDate > GetCurrentTimeAfterOffset() + TimeSpan.FromMinutes(60) && calendarEvent.AlertMessage != null)
                 {
                     // await calendarEvent.AlertMessage.DeleteAsync();
 
                     calendarEvent.AlertMessage = null;
-                    Logger.Log(LogLevel.Error, $"{server.ServerName} - The event start date is over an hour away, we would have deleted the alert message. " +
-                                               $"This should not occur normally, and typically signifies a timezone error.");
+                    Logger.Log(LogLevel.Error, 
+                        $"{server.ServerName} - {calendarEvent.Name} on {calendarEvent.StartDate.DayOfWeek} at {calendarEvent.StartDate.TimeOfDay} - " + 
+                        $"The event start date is over an hour away, we would have deleted the alert message. " +
+                        $"This should not occur normally, and typically signifies a timezone error, or that the bot was unable" +
+                        $"to delete its previous message.");
                 }
             }
         }
