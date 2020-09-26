@@ -22,6 +22,8 @@ namespace Astramentis.Services
 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
+        private int timezoneOffsetFallback = 8;
+
         public ScheduleService(
             DiscordSocketClient discord,
             IConfigurationRoot config,
@@ -47,7 +49,7 @@ namespace Astramentis.Services
             {
                 // get amount of time between the calendarevent start time and the current time
                 // and round it to the nearest 5m interval, so usually on the 5m interval
-                var timeStartDelta = RoundToNearestMinutes(calendarEvent.StartDate - GetCurrentTimePacific(), 5);
+                var timeStartDelta = RoundToNearestMinutes(calendarEvent.StartDate - GetCurrentTimeAfterOffset(), 5);
 
                 // if it's less than an hour but more than fifteen minutes, and we haven't sent an alert message, send an alert message
                 if (timeStartDelta.TotalHours < 1 && timeStartDelta.TotalMinutes > 15)
@@ -91,11 +93,11 @@ namespace Astramentis.Services
 
                 // if the event is currently active (after start date but before end date)
                 // update the alert message to reflect how much time is left until the event is over
-                if (calendarEvent.StartDate < GetCurrentTimePacific() &&
-                    calendarEvent.EndDate > GetCurrentTimePacific())
+                if (calendarEvent.StartDate < GetCurrentTimeAfterOffset() &&
+                    calendarEvent.EndDate > GetCurrentTimeAfterOffset())
                 {
                     // get amount of time between the current time and the calendarevent end time
-                    var timeEndDelta = RoundToNearestMinutes(calendarEvent.EndDate - GetCurrentTimePacific(), 5);
+                    var timeEndDelta = RoundToNearestMinutes(calendarEvent.EndDate - GetCurrentTimeAfterOffset(), 5);
 
                     var messageContents = $"{calendarEvent.Name} is underway, ending in" + GetTimeDeltaFormatting(timeEndDelta) + ".";
 
@@ -113,19 +115,22 @@ namespace Astramentis.Services
                 }
 
                 // if the event is almost past, delete the alertmessage
-                if (calendarEvent.EndDate < GetCurrentTimePacific() + TimeSpan.FromMinutes(5))
+                if (calendarEvent.EndDate < GetCurrentTimeAfterOffset() + TimeSpan.FromMinutes(5))
                 {
                     await calendarEvent.AlertMessage.DeleteAsync();
                     calendarEvent.AlertMessage = null;
                 }
 
-                // if the event is over an hour from now and an alert message exists, delete it. This should not occur normally.
-                if (calendarEvent.StartDate > GetCurrentTimePacific() + TimeSpan.FromMinutes(60) && calendarEvent.AlertMessage != null)
+                // if the event is over an hour from now and an alert message exists, delete it.
+                // this should not normally occur as the alertmessage should be deleted just before the event has concluded.
+                // If we get here, it typically signifies a timezone error.
+                if (calendarEvent.StartDate > GetCurrentTimeAfterOffset() + TimeSpan.FromMinutes(60) && calendarEvent.AlertMessage != null)
                 {
                     // await calendarEvent.AlertMessage.DeleteAsync();
 
                     calendarEvent.AlertMessage = null;
-                    Logger.Log(LogLevel.Debug, $"DEBUG - {server.ServerName} - The event start date is over an hour away, we would have deleted the alert message. This should not occur normally.");
+                    Logger.Log(LogLevel.Error, $"{server.ServerName} - The event start date is over an hour away, we would have deleted the alert message. " +
+                                               $"This should not occur normally, and typically signifies a timezone error.");
                 }
             }
         }
@@ -198,7 +203,7 @@ namespace Astramentis.Services
             foreach (var calendarEvent in server.Events)
             {
                 // don't add items from the past
-                if (calendarEvent.EndDate < GetCurrentTimePacific())
+                if (calendarEvent.EndDate < GetCurrentTimeAfterOffset())
                     continue;
 
                 // get the time difference between the event and now
@@ -209,20 +214,20 @@ namespace Astramentis.Services
                 StringBuilder stringBuilder = new StringBuilder();
 
                 // if event hasn't started yet
-                if (calendarEvent.StartDate > GetCurrentTimePacific())
+                if (calendarEvent.StartDate > GetCurrentTimeAfterOffset())
                 {
                     stringBuilder.AppendLine($"Starts on {calendarEvent.StartDate,0:M/dd} at {calendarEvent.StartDate,0: h:mm tt} {calendarEvent.Timezone} and ends at {calendarEvent.EndDate,0: h:mm tt} {calendarEvent.Timezone}");
                     stringBuilder.Append(":watch: Starts in");
-                    timeDelta = RoundToNearestMinutes(calendarEvent.StartDate - GetCurrentTimePacific(), 5);
+                    timeDelta = RoundToNearestMinutes(calendarEvent.StartDate - GetCurrentTimeAfterOffset(), 5);
                 }
                     
                 // if event has started but hasn't finished
-                else if (calendarEvent.StartDate < GetCurrentTimePacific() &&
-                         calendarEvent.EndDate > GetCurrentTimePacific())
+                else if (calendarEvent.StartDate < GetCurrentTimeAfterOffset() &&
+                         calendarEvent.EndDate > GetCurrentTimeAfterOffset())
                 {
                     stringBuilder.AppendLine($"Currently underway, ending at {calendarEvent.EndDate,0: h:mm tt} {calendarEvent.Timezone}");
                     stringBuilder.Append(":watch: Ends in");
-                    timeDelta = RoundToNearestMinutes(calendarEvent.EndDate - GetCurrentTimePacific(), 5);
+                    timeDelta = RoundToNearestMinutes(calendarEvent.EndDate - GetCurrentTimeAfterOffset(), 5);
                 }
 
 
@@ -333,14 +338,40 @@ namespace Astramentis.Services
             return new TimeSpan(0, totalMinutes - totalMinutes % minutes, 0);
         }
 
-        public DateTime GetCurrentTimePacific()
+        /// <summary>
+        /// DateTime.Now but adjusted for the desired timezone offset set in config
+        /// </summary>
+        /// <returns></returns>
+        public DateTime GetCurrentTimeAfterOffset()
         {
-            double offset;
-            var configParseResult = double.TryParse(_config["timezoneOffset"], out offset);
-            if (!configParseResult)
-                offset = 8; // pacific is UTC-8, and we'll probably be running in UTC
+            var offset = GetTimezoneOffset();
 
             return DateTime.Now - TimeSpan.FromHours(offset);
+        }
+
+        /// <summary>
+        /// Pulls the desired timezone offset from the config file, as an int.
+        /// </summary>
+        /// <returns></returns>
+        public int GetTimezoneOffset()
+        {
+            int offset;
+            var configParseResult = int.TryParse(_config["timezoneOffset"], out offset);
+
+            if (!configParseResult)
+            {
+                Logger.Log(LogLevel.Warn, "Timezone offset not set in config file, falling back to UTC-8");
+                offset = timezoneOffsetFallback;
+            }
+
+            // the calendar API will try to pull values in the local timezone of the host running the application
+            // the discord bot host sits in UTC but my dev machine sits in UTC-4
+            // so we effectively have to treat Pacific as ET-3 instead of UTC-7: shave off 4 hours.
+#if DEBUG
+            offset = offset - 4;
+#endif
+
+            return offset;
         }
     }
 }

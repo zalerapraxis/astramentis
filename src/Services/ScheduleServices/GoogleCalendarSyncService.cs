@@ -144,8 +144,8 @@ namespace Astramentis.Services
         public bool SyncFromGoogleCalendar(DbDiscordServer server)
         {
             // Set the timespan of events to sync
-            var min = _scheduleService.GetCurrentTimePacific();
-            var max = _scheduleService.GetCurrentTimePacific().AddMonths(1);
+            var min = _scheduleService.GetCurrentTimeAfterOffset();
+            var max = _scheduleService.GetCurrentTimeAfterOffset().AddMonths(1);
 
             // pull events from the specified google calendar
             // string is the calendar id of the calendar to sync with
@@ -168,14 +168,11 @@ namespace Astramentis.Services
                     var test = eventItem.Start.TimeZone;
 
                     // api wrapper will always pull times in local time aka eastern because it sucks
-                    // so just subtract 3 hours to get pacific time
-                    eventItem.Start.DateTime = eventItem.Start.DateTime - TimeSpan.FromHours(8);
-                    eventItem.End.DateTime = eventItem.End.DateTime - TimeSpan.FromHours(8);
-
-                    
+                    eventItem.Start.DateTime = eventItem.Start.DateTime - TimeSpan.FromHours(_scheduleService.GetTimezoneOffset());
+                    eventItem.End.DateTime = eventItem.End.DateTime - TimeSpan.FromHours(_scheduleService.GetTimezoneOffset());
 
                     // don't add items from the past
-                    if (eventItem.End.DateTime < _scheduleService.GetCurrentTimePacific())
+                    if (eventItem.End.DateTime < _scheduleService.GetCurrentTimeAfterOffset())
                         continue;
 
                     DateTime startDate;
@@ -441,6 +438,8 @@ namespace Astramentis.Services
             request.MaxResults = maxResults;
             request.OrderBy = EventsResource.ListRequest.OrderByEnum.StartTime;
 
+            //request.TimeZone = "America/Los_Angeles";
+
             IList<Google.Apis.Calendar.v3.Data.Event> events = new List<Event>();
 
             try
@@ -452,7 +451,6 @@ namespace Astramentis.Services
                 Logger.Log(LogLevel.Error, $"Error getting Calendar events from Google: {e.HttpStatusCode}");
             }
             
-
             return events;
         }
     }

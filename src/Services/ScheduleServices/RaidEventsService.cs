@@ -69,7 +69,7 @@ namespace Astramentis.Services
             // the amount of time between now and the next interval, in this case the next real-world 15 min interval in the hour
             // this value is used only for the first run of the timer, and is not relevant afterwards. it tells the timer to wait
             // until the next 15m interval before it runs, and effectively lines up the timer to run every 15 minutes of each hour.
-            var timeUntilNextInterval = GetTimeUntilNextInterval(_scheduleService.GetCurrentTimePacific(), _timerInterval);
+            var timeUntilNextInterval = GetTimeUntilNextInterval(_scheduleService.GetCurrentTimeAfterOffset(), _timerInterval);
 
             // _timerInterval expressed in milliseconds
             var intervalMs = Convert.ToInt32(_timerInterval.TotalMilliseconds);
@@ -88,7 +88,7 @@ namespace Astramentis.Services
         public async Task<string> ResyncTimer()
         {
             // documentation for these lines is in the StartTimer method
-            var timeUntilNextInterval = GetTimeUntilNextInterval(_scheduleService.GetCurrentTimePacific(), _timerInterval);
+            var timeUntilNextInterval = GetTimeUntilNextInterval(_scheduleService.GetCurrentTimeAfterOffset(), _timerInterval);
             var intervalMs = Convert.ToInt32(_timerInterval.TotalMilliseconds);
             var resultTime = DateTime.Now.AddMilliseconds(timeUntilNextInterval).ToString("HH:mm:ss");
 
