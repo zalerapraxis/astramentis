@@ -31,6 +31,9 @@ namespace Astramentis.Modules
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task ClearChatlogsAsync(int count = 100)
         {
+            // delete the command message
+            await Context.Message.DeleteAsync();
+
             // get messages from channel
             var channel = Context.Channel as SocketTextChannel;
             var messages = await channel.GetMessagesAsync(count).FlattenAsync();
@@ -47,9 +50,6 @@ namespace Astramentis.Modules
                 messages = messages.Where(msg => server.Events.Any(x => msg.Id != x.AlertMessage.Id));
 
             messages = messages.ToList();
-
-            // delete the command message
-            await Context.Message.DeleteAsync();
 
             Logger.Log(LogLevel.Info, $"Deleting {messages.Count()} messages in the channel {channel.Name} in the server {channel.Guild.Name}.");
 
@@ -90,6 +90,8 @@ namespace Astramentis.Modules
                     await responseMsg.DeleteAsync();
                 }
             }
+
+            Logger.Log(LogLevel.Info, $"Finished deleting {messages.Count()} messages in the channel {channel.Name} in the server {channel.Guild.Name}.");
         }
 
         // clear chatlogs from DMs
@@ -114,6 +116,8 @@ namespace Astramentis.Modules
                 await message.DeleteAsync();
                 await Task.Delay(1000);
             }
+
+            Logger.Log(LogLevel.Info, $"Finished deleting {botMessages.Count} messages in a DM with {channel.Recipient}.");
         }
     }
 }
