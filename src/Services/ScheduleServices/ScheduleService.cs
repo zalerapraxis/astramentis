@@ -261,7 +261,9 @@ namespace Astramentis.Services
         private async Task<IUserMessage> GetPreviousEmbed(DbDiscordServer server)
         {
             // get all messages in reminder channel
-            var messages = await server.ReminderChannel.GetMessagesAsync().FlattenAsync();
+            // getmessages set to 500 to reduce the amount of times the bot has to repost the embed because ory's
+            // group chats too much in their scheduling channel
+            var messages = await server.ReminderChannel.GetMessagesAsync(500).FlattenAsync();
             // try to get a pre-existing embed message matching our usual event embed parameters
             // return the results
             try
