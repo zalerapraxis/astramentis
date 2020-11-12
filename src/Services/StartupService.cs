@@ -44,22 +44,20 @@ namespace Astramentis
 
         private async Task OnReady()
         {
-            // wait for discord client to log in before loading modules
-            // is this necessary now that we're running this on Discord ready?
-            while (_discord.ConnectionState != ConnectionState.Connected || _discord.LoginState != LoginState.LoggedIn)
-            {
-                await Task.Delay(100);
-            }
-
+            // this check breaks because getuser always returns null now for some reason, despite
+            // the discord client being marked as ready. going to test not having this check for now. 
+            /*
             // check if the discordBotOwnerId entry in the config file is correct - check if it exists, and then check if it's valid
             var discordBotOwnerIdSet = ulong.TryParse(_config["discordBotOwnerId"], out var discordBotOwnerId);
             if (discordBotOwnerIdSet)
             {
+                var test = _discord.GetUser(discordBotOwnerId);
                 if (_discord.GetUser(discordBotOwnerId) == null)
                     throw new Exception("Please verify that your Discord user ID in the `_config.yml` file is correct.");
             }
             else
                 throw new Exception("Please enter your Discord user ID into the `_config.yml` file found in the application's root directory.");
+            */
 
             // Load commands and modules into the command service
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _provider);
