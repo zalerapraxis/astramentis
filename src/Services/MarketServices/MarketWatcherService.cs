@@ -77,11 +77,9 @@ namespace Astramentis.Services.MarketServices
 
         public async Task WatchlistTimerTick()
         {
-            Logger.Log(LogLevel.Debug, $"Watchlist timer ticked.");
-
             // adjust timer & start it again
             var _watchlistTimerInterval = Convert.ToInt32(TimeSpan.FromMinutes(10).TotalMilliseconds) + _rng.Next(-60000, 60000);
-            Logger.Log(LogLevel.Debug, $"Next tick at {DateTime.Now.AddMilliseconds(_watchlistTimerInterval):hh:mm:ss tt}");
+            Logger.Log(LogLevel.Debug, $"Watchlist timer ticked. Next tick at {DateTime.Now.AddMilliseconds(_watchlistTimerInterval):hh:mm:ss tt}");
             _watchlistTimer.Change(_watchlistTimerInterval, Timeout.Infinite);
 
             if (_apiHeartbeatService.ApiStatus != CustomApiStatus.OK)
@@ -93,7 +91,7 @@ namespace Astramentis.Services.MarketServices
             // Don't do anything if the watchlist is muted
             if (WatchlistMuted)
             {
-                Logger.Log(LogLevel.Info, "Watchlist is muted, skipping.");
+                Logger.Log(LogLevel.Debug, "Watchlist is muted, skipping.");
                 return;
             }
 
@@ -143,6 +141,8 @@ namespace Astramentis.Services.MarketServices
 
             if (embed.Fields.Any())
                 await dm.SendMessageAsync(null, false, embed.Build());
+            else
+                Logger.Log(LogLevel.Debug, $"No items on watchlist met differential cutoff of {DifferentialCutoff}.");
         }
     }
 }
