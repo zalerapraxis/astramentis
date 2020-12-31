@@ -231,6 +231,48 @@ namespace Astramentis.Datasets
                 CurrencyCost = 2,
                 VendorLocation = "Tempest (Ondo Cups)"
             },
+            new CurrencyTradeableItem()
+            {
+                Name = "Heavens' Eye Materia VII",
+                ItemID = 25187,
+                CurrencyCost = 120,
+                VendorLocation = "Anywhere"
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Savage Aim Materia VII",
+                ItemID = 25188,
+                CurrencyCost = 120,
+                VendorLocation = "Anywhere"
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Savage Might Materia VII",
+                ItemID = 25189,
+                CurrencyCost = 120,
+                VendorLocation = "Anywhere"
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Heavens' Eye Materia VIII",
+                ItemID = 26728,
+                CurrencyCost = 120,
+                VendorLocation = "Anywhere"
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Savage Aim Materia VIII",
+                ItemID = 26729,
+                CurrencyCost = 120,
+                VendorLocation = "Anywhere"
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Savage Might Materia VIII",
+                ItemID = 26730,
+                CurrencyCost = 120,
+                VendorLocation = "Anywhere"
+            },
         };
 
         public static List<CurrencyTradeableItem> NutsItemsList = new List<CurrencyTradeableItem>()
