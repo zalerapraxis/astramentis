@@ -649,36 +649,72 @@ namespace Astramentis.Datasets
             {
                 Name = "Dwarven Chromite",
                 ItemID = 29969,
-                CurrencyCost = 20
+                CurrencyCost = 10
             },
             new CurrencyTradeableItem()
             {
                 Name = "Workbench Resin",
                 ItemID = 29971,
-                CurrencyCost = 20
+                CurrencyCost = 10
             },
             new CurrencyTradeableItem()
             {
                 Name = "Tempest Adhesive",
                 ItemID = 29973,
-                CurrencyCost = 20
+                CurrencyCost = 10
             },
             new CurrencyTradeableItem()
             {
                 Name = "Caprice Fleece",
                 ItemID = 29975,
-                CurrencyCost = 20
+                CurrencyCost = 10
             },
             new CurrencyTradeableItem()
             {
                 Name = "Megalania Skin",
                 ItemID = 29977,
-                CurrencyCost = 20
+                CurrencyCost = 10
             },
             new CurrencyTradeableItem()
             {
                 Name = "Dried Hi-Ether",
                 ItemID = 29979,
+                CurrencyCost = 10
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Horsetail",
+                ItemID = 32944,
+                CurrencyCost = 20
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Gardenia Fruit",
+                ItemID = 32947,
+                CurrencyCost = 20
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Thylacoleo Skin",
+                ItemID = 32948,
+                CurrencyCost = 20
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Aluminum Ore",
+                ItemID = 32945,
+                CurrencyCost = 20
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Workbench Refining Sand",
+                ItemID = 32946,
+                CurrencyCost = 20
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Spirit Extract",
+                ItemID = 32949,
                 CurrencyCost = 20
             },
         };
