@@ -913,14 +913,14 @@ namespace Astramentis.Modules
                 // no results
                 if (itemIdQueryResult.Count == 0)
                 {
-                    await Context.Channel.SendMessageAsync("No tradeable items found. Try to expand your search terms, or check for typos. ");
+                    await Context.Channel.SendMessageAsync($"No tradable items found for the search term \"{input}\". Check for typos.");
                     return null;
                 }
 
                 // too many results
                 if (itemIdQueryResult.Count > 15)
                 {
-                    await Context.Channel.SendMessageAsync("Too many results found. Try narrowing down your search terms.");
+                    await Context.Channel.SendMessageAsync($"Too many results found ({itemIdQueryResult.Count}). Try narrowing down your search terms.");
                     return null;
                 }
 

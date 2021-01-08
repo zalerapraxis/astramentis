@@ -426,7 +426,7 @@ namespace Astramentis.Services
             var service = new CalendarService(new BaseClientService.Initializer()
             {
                 HttpClientInitializer = credential,
-                ApplicationName = "Doccer Bot calendar sync",
+                ApplicationName = "Astramentis Bot calendar sync",
             });
 
             EventsResource.ListRequest request = service.Events.List(calendarId);
