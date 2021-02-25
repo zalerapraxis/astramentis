@@ -88,11 +88,11 @@ namespace Astramentis.Modules
 
                     if (listing.Quantity > 1)
                         // multiple units
-                        sbListing.Append($"for {listing.CurrentPrice * listing.Quantity:N0} (**{listing.CurrentPrice:N0}** per unit) ");
+                        sbListing.Append($"for {listing.CurrentPrice * listing.Quantity:N0} (**{listing.CurrentPrice:N0}** per) ");
                     else // single units
                         sbListing.Append($"for **{listing.CurrentPrice:N0}** ");
-                    sbListing.Append($"on **{listing.Server}** ");
-                    sbListing.Append($"via **{listing.RetainerName}** ");
+                    sbListing.Append($"- **{listing.Server}** ");
+                    sbListing.Append($"- **{listing.RetainerName}** ");
                     sbListing.AppendLine();
                 }
 
@@ -195,13 +195,13 @@ namespace Astramentis.Modules
 
                     if (listing.Quantity > 1)
                         // multiple units
-                        sbListing.Append($"for {listing.SoldPrice * listing.Quantity:N0} (**{listing.SoldPrice:N0}** per unit) ");
+                        sbListing.Append($"for {listing.SoldPrice * listing.Quantity:N0} (**{listing.SoldPrice:N0}** per) ");
                     else // single units
                         sbListing.Append($"for **{listing.SoldPrice:N0}** ");
                     sbListing.AppendLine();
                     sbListing.Append("››› Sold ");
-                    sbListing.Append($"on **{listing.Server}** ");
-                    sbListing.Append($"at {listing.SaleDate}");
+                    sbListing.Append($"- **{listing.Server}** ");
+                    sbListing.Append($"- {listing.SaleDate}");
                     sbListing.AppendLine();
                 }
 
