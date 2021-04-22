@@ -480,7 +480,7 @@ namespace Astramentis.Modules
         [Summary("Build a list of the lowest market prices for items, ordered by server")]
         [Syntax("market order {itemname/ID:count, itemname/ID:count, etc} or marker order {fending, crafting, etc} - add hq to an item name to require high quality")]
         [Example("mbo zonure skin:122, caprice fleece:20, 5:1000")]
-        public async Task MarketCrossWorldPurchaseOrderAsync([Remainder] string input = null)
+        public async Task MarketCrossWorldPurchaseOrderAsync([Remainder] string commandInput = null)
         {
             // check if companion api is down
             if (await IsCompanionAPIUsable() == false)
@@ -488,9 +488,9 @@ namespace Astramentis.Modules
 
             // check if user input a gearset request instead of item lists - no spaces so we avoid catching things like
             // 'facet coat of casting' under the 'casting' gearset
-            if (!input.Contains(" ") && MarketOrderGearsetDataset.Gearsets.Any(x => input.Contains(x.Key)))
+            if (!commandInput.Contains(" ") && MarketOrderGearsetDataset.Gearsets.Any(x => commandInput.Contains(x.Key)))
             {
-                var gearset = MarketOrderGearsetDataset.Gearsets.FirstOrDefault(x => x.Key.Equals(input)).Value;
+                var gearset = MarketOrderGearsetDataset.Gearsets.FirstOrDefault(x => x.Key.Equals(commandInput)).Value;
 
                 var i = 1;
                 var gearsetInputSb = new StringBuilder();
@@ -508,12 +508,12 @@ namespace Astramentis.Modules
                     i++;
                 }
 
-                input = gearsetInputSb.ToString();
+                commandInput = gearsetInputSb.ToString();
             }
 
             // regarding interactivecommandreturn, we can't actually take advantage of the interactiveuserselect stuff since this command typically
             // takes multiple items and it's not designed for that - we pass this param so it knows to NOT try to handle this interactively
-            List<MarketCommandInputsModel> parsedInputs = await SplitCommandInputs(input, InteractiveCommandReturn.Order);
+            List<MarketCommandInputsModel> parsedInputs = await SplitCommandInputs(commandInput, InteractiveCommandReturn.Order);
 
             if (!parsedInputs.Any())
             {
@@ -532,10 +532,31 @@ namespace Astramentis.Modules
             // sort the results into different lists, grouped by server
             var purchaseOrder = results.GroupBy(x => x.Server).ToList();
 
+            // check the list to verify if we got back all of the items we requested
+            // if any are missing, add them to the stringbuilder
+            string itemsMissingFromOrder = null;
+            var itemsMissingFromOrderStringBuilder = new StringBuilder();
+            foreach (var input in parsedInputs)
+            {
+                if (!results.Any(x => x.Name == input.ItemName))
+                {
+                    itemsMissingFromOrderStringBuilder.Append($"{input.ItemName}");
+                    if (input != parsedInputs.Last())
+                    {
+                        itemsMissingFromOrderStringBuilder.Append(", ");
+                    }
+                }
+            }
+            if (itemsMissingFromOrderStringBuilder.Length > 0)
+            {
+                itemsMissingFromOrder = $"The following orders could not be fulfilled due to lack of supply: {itemsMissingFromOrderStringBuilder}";
+            }
+
             // to get the overall cost of the order
             var totalCost = 0;
-            var purchaseOrderEmbed = new EmbedBuilder();
 
+            // build the embed
+            var purchaseOrderEmbed = new EmbedBuilder();
             foreach (var server in purchaseOrder)
             {
                 List<StringBuilder> purchaseOrderFields = new List<StringBuilder>();
@@ -580,7 +601,7 @@ namespace Astramentis.Modules
 
             }
 
-            await ReplyAsync("If any orders are incomplete, it's likely they'd take too many purchases to process.", false, purchaseOrderEmbed.Build());
+            await ReplyAsync(itemsMissingFromOrder, false, purchaseOrderEmbed.Build());
 
         }
 
