@@ -22,7 +22,7 @@ namespace Astramentis
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         // ulong is command message id, to match up between command received and command executed
-        private Dictionary<ulong, Stopwatch> CommandElapsedTimersTracker = new Dictionary<ulong, Stopwatch>();
+        private Dictionary<ulong, Timer> CommandElapsedTimersTracker = new Dictionary<ulong, Timer>();
 
         // DiscordSocketClient, CommandService, IConfigurationRoot, and IServiceProvider are injected automatically from the IServiceProvider
         public CommandHandler(
@@ -56,8 +56,7 @@ namespace Astramentis
                 var result = await _commands.ExecuteAsync(context, argPos, _provider);
 
                 // start up timer for this command, add to tracker list
-                var timer = new Stopwatch();
-                timer.Start();
+                var timer = new Timer(x => timerElapsed(msg), null, 3000, Timeout.Infinite);
                 CommandElapsedTimersTracker.Add(context.Message.Id, timer);
 
                 // handle command failed
@@ -74,6 +73,13 @@ namespace Astramentis
             }
         }
 
+        private void timerElapsed(SocketUserMessage msg)
+        {
+            // react to the message with a waiting emoji to show we're still working on it
+            var watchEmoji = new Emoji("⏳");
+            msg.AddReactionAsync(watchEmoji);
+        }
+
         private async Task OnCommandCompletion(Optional<CommandInfo> command, ICommandContext context, IResult result)
         {
             // don't do anything if the command given isn't valid
@@ -82,12 +88,19 @@ namespace Astramentis
 
             // grab the timer from the tracker list using the message id of the command
             CommandElapsedTimersTracker.TryGetValue(context.Message.Id, out var timer);
-
-            timer?.Stop();
-            var cmdResult = new System.Text.StringBuilder();
-
+            timer?.Dispose();
+            // check if the timer reacted to the message with a waiting emoji
+            // if so, remove the emoji
+            if (context.Message.Reactions.ContainsKey(new Emoji("⏳")))
+            {
+                await context.Message.RemoveReactionAsync(new Emoji("⏳"), context.Client.CurrentUser);
+            }
+            // remove this command entry from the time tracker
+            CommandElapsedTimersTracker.Remove(context.Message.Id);
 
             // build log message
+            var cmdResult = new System.Text.StringBuilder();
+
             cmdResult.Append($"Command \"{command.Value.Name}\"");
 
             if (context.Guild == null)
@@ -105,12 +118,7 @@ namespace Astramentis
             if (result.Error == CommandError.Exception)
                 cmdResult.Append($" ({result.ErrorReason})");
 
-            cmdResult.Append($" in {timer?.ElapsedMilliseconds}ms");
-
-            Logger.Log(LogLevel.Info, cmdResult.ToString());
-
-            // remove this command entry from the time tracker
-            CommandElapsedTimersTracker.Remove(context.Message.Id);
+            Logger.Log(LogLevel.Info, cmdResult.ToString());           
         }
     }
 }

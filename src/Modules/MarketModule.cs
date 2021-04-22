@@ -521,9 +521,6 @@ namespace Astramentis.Modules
                 return;
             }
 
-            var plsWaitMsg = await ReplyAsync("This could take some time. Hang tight.");
-
-
             var itemsList = new List<MarketItemCrossWorldOrderModel>();
             foreach (var item in parsedInputs)
             {
@@ -583,11 +580,8 @@ namespace Astramentis.Modules
 
             }
 
-            await plsWaitMsg.ModifyAsync(m =>
-            {
-                m.Content = "If any orders are incomplete, it's likely they'd take too many purchases to process.";
-                m.Embed = purchaseOrderEmbed.Build();
-            });
+            await ReplyAsync("If any orders are incomplete, it's likely they'd take too many purchases to process.", false, purchaseOrderEmbed.Build());
+
         }
 
         [Command("market collectable")]
@@ -606,9 +600,6 @@ namespace Astramentis.Modules
             var itemsPerTimedNode = 42;
             // seconds per item when quicksynthing subcrafts
             var secondsPerSubcraft = 3.5;
-
-
-            var plsWaitMsg = await ReplyAsync("This could take some time. Hang tight.");
 
             // we specifically want all worlds enabled
             var worlds = GetServer(" ", false);
@@ -689,12 +680,7 @@ namespace Astramentis.Modules
                 collectableListEmbed.AddField(collectableField);
             }
 
-            await plsWaitMsg.ModifyAsync(m =>
-            {
-                m.Content = null;
-                m.Embed = collectableListEmbed.Build();
-
-            });
+            await ReplyAsync(null, false, collectableListEmbed.Build());
         }
 
         [Command("market status")]
