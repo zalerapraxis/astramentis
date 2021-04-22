@@ -139,7 +139,7 @@ namespace Astramentis.Services.MarketServices
                     await Task.Delay(exceptionRetryDelay);
 
                     // slow down further if we're being given a rate limit error
-                    if (exception.Call.HttpStatus == (HttpStatusCode)429)
+                    if (exception.Call.HttpResponseMessage.StatusCode == HttpStatusCode.TooManyRequests)
                     {
                         Logger.Log(LogLevel.Warn, $"Performing URL request ({url}) resulted in a rate limit error, delaying 5 seconds.");
                         await Task.Delay(5000);
@@ -230,10 +230,10 @@ namespace Astramentis.Services.MarketServices
         {
             // this function is called every time a custom api call is made, but we only want it to initiate a timer once
             if (botStatusUpdateTimer == null)
-                botStatusUpdateTimer = new Timer(async delegate { await BotStatusUpdateTimer(); }, null, 0, 4000);
+                botStatusUpdateTimer = new Timer(delegate { BotStatusUpdateTimer(); }, null, 0, 4000);
         }
 
-        private async Task BotStatusUpdateTimer()
+        private void BotStatusUpdateTimer()
         {
             // if requests are completed: remove the bot's status msg, reset the request counts, and get rid of the timer
             if (concurrentCustomAPIRequestsCompleted == concurrentCustomAPIRequestsTotal)
