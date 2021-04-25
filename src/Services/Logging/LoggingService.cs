@@ -56,7 +56,7 @@ namespace Astramentis.Services.Logging
 
         private async Task OnLogAsync(LogMessage msg)
         {
-            Logger.Log(ConvertLogSeverityToLogLevel(msg.Severity), msg.Message);
+            Logger.Log(ConvertLogSeverityToLogLevel(msg.Severity), $"{msg.Message} {msg.Exception}" );
         }
 
         // convert discord's logseverity to nlog's loglevel

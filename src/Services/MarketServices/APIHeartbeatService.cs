@@ -93,7 +93,7 @@ namespace Astramentis.Services.MarketServices
 
             // get how many servers are logged in currently
             var serverLoggedInCount = serverLoginStatusTracker.Count(x => x.Value == true);
-            Logger.Log(LogLevel.Info, $"{serverLoggedInCount} of {serverLoginStatusTracker.Count} servers are logged in. ");
+            Logger.Log(LogLevel.Info, $"{serverLoggedInCount} of {serverLoginStatusTracker.Count} game servers are logged in. ");
 
             // if any servers are down, try to log them in
             // use a random delay to avoid potential bans
