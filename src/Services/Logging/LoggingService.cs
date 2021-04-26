@@ -13,7 +13,6 @@ namespace Astramentis.Services.Logging
     public class LoggingService
     {
         private readonly DiscordSocketClient _discord;
-        private readonly CommandService _commands;
         private readonly IConfigurationRoot _config;
 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
@@ -22,16 +21,12 @@ namespace Astramentis.Services.Logging
         private string _logFile => Path.Combine(_logDirectory, "log.txt");
 
         // DiscordSocketClient and CommandService are injected automatically from the IServiceProvider
-        public LoggingService(DiscordSocketClient discord, CommandService commands, IConfigurationRoot config)
+        public LoggingService(DiscordSocketClient discord, IConfigurationRoot config)
         {
             _logDirectory = Path.Combine(AppContext.BaseDirectory, "logs");
-            
+
             _discord = discord;
-            _commands = commands;
             _config = config;
-            
-            _discord.Log += OnLogAsync;
-            _commands.Log += OnLogAsync;
 
             // implement custom target to send messages to the bot admin via Discord DMs
             Target.Register<NLogDiscordTarget>("NLogDiscordTarget");
@@ -52,33 +47,6 @@ namespace Astramentis.Services.Logging
             logConfig.AddRule(LogLevel.Error, LogLevel.Fatal, logDiscord);
 
             LogManager.Configuration = logConfig;
-        }
-
-        private async Task OnLogAsync(LogMessage msg)
-        {
-            Logger.Log(ConvertLogSeverityToLogLevel(msg.Severity), $"{msg.Message} {msg.Exception}" );
-        }
-
-        // convert discord's logseverity to nlog's loglevel
-        private LogLevel ConvertLogSeverityToLogLevel(LogSeverity logSeverity)
-        {
-            switch (logSeverity)
-            {
-                case LogSeverity.Critical:  // total failure
-                    return LogLevel.Fatal;
-                case LogSeverity.Error:     // recoverable failure
-                    return LogLevel.Error;
-                case LogSeverity.Warning:   // may cause problems
-                    return LogLevel.Warn;
-                case LogSeverity.Debug:     // debug info without discord.net stuff
-                    return LogLevel.Debug;
-                case LogSeverity.Info:      // usual level of info
-                    return LogLevel.Info;
-                case LogSeverity.Verbose:   // everything including discord.net stuff
-                    return LogLevel.Trace;
-            }
-
-            return LogLevel.Off;
         }
     }
 }

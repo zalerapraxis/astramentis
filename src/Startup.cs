@@ -40,6 +40,7 @@ namespace Astramentis
             var provider = services.BuildServiceProvider();     // Build the service provider
 
             provider.GetRequiredService<LoggingService>();      // Start the logging service
+            provider.GetRequiredService<DiscordClientLoggingService>();
             provider.GetRequiredService<CommandHandler>(); 		// Start the command handler service
 
             await provider.GetRequiredService<StartupService>().StartAsync();       // Start the startup service
@@ -74,6 +75,7 @@ namespace Astramentis
                 .AddSingleton<CommandHandler>()
                 .AddSingleton<StartupService>()
                 .AddSingleton<LoggingService>()
+                .AddSingleton<DiscordClientLoggingService>()
                 .AddSingleton<InteractiveService>()
                 .AddSingleton<EventMessageReceivedService>()
                 .AddSingleton<EventReactionAddedService>()
