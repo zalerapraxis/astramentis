@@ -41,13 +41,17 @@ namespace Astramentis.Modules
             // try to locate the server in our database
             var server = DbDiscordServers.ServerList.Find(x => x.DiscordServerObject == Context.Guild);
 
-            // remove schedule embed message from the messages list, so it doesn't get deleted
-            if (server != null && server.EventEmbedMessage != null)
-                messages = messages.Where(msg => msg.Id != server.EventEmbedMessage.Id);
+            // if we located the server in our database, check for anything we need to avoid deleting
+            if (server != null)
+            {
+                // if a schedule embed message exists, remove it from the message list so it doesn't get deleted
+                if (server.EventEmbedMessage != null)
+                    messages = messages.Where(msg => msg.Id != server.EventEmbedMessage.Id);
 
-            // remove reminder messages from the messages list, so they don't get deleted
-            if (server != null && server.Events.Exists(x => x.AlertMessage != null))
-                messages = messages.Where(msg => server.Events.Any(x => msg.Id != x.AlertMessage.Id));
+                // if a reminder message exists, remove it from the message list so it doesn't get deleted
+                if (server.Events.Exists(x => x.AlertMessage != null))
+                    messages = messages.Where(msg => server.Events.Any(x => msg.Id != x.AlertMessage.Id));
+            }
 
             messages = messages.ToList();
 
