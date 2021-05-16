@@ -55,11 +55,7 @@ namespace Astramentis
                 // Execute the command
                 var result = await _commands.ExecuteAsync(context, argPos, _provider);
 
-                // start up timer for this command, add to tracker list
-                var timer = new Timer(x => timerElapsed(msg), null, 3000, Timeout.Infinite);
-                CommandElapsedTimersTracker.Add(context.Message.Id, timer);
-
-                // handle command failed
+                // handle command failed - aka not a command
                 if (!result.IsSuccess)
                 {
                     // don't track unknown commands, like someone sending "..."
@@ -69,6 +65,13 @@ namespace Astramentis
                         await context.Channel.SendMessageAsync(result.ToString());
                         Logger.Log(LogLevel.Error, $"Command \"{msg}\" failed: {result}");
                     }
+                }
+                // handle command success
+                else
+                {
+                    // start up timer for this command, add to tracker list
+                    var timer = new Timer(x => timerElapsed(msg), null, 3000, Timeout.Infinite);
+                    CommandElapsedTimersTracker.Add(context.Message.Id, timer);
                 }
             }
         }
