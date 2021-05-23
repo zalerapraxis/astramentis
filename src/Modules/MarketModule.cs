@@ -601,7 +601,11 @@ namespace Astramentis.Modules
 
             }
 
-            await ReplyAsync(itemsMissingFromOrder, false, purchaseOrderEmbed.Build());
+            // sending a null embed will cause an exception, so check for it before we send out
+            if (purchaseOrderEmbed.Title != null)
+                await ReplyAsync(null, false, purchaseOrderEmbed.Build());
+            else
+                await ReplyAsync(itemsMissingFromOrder, false);
 
         }
 
