@@ -32,7 +32,7 @@ namespace Astramentis.Modules
 
         private Dictionary<IUser, IUserMessage> _dictFindItemUserEmbedPairs = new Dictionary<IUser, IUserMessage>();
 
-        private Worlds DefaultWorld = Worlds.adamantoise;
+        private Worlds DefaultWorld = Worlds.gilgamesh;
 
         [Command("market price")]
         [Alias("mbp")]
