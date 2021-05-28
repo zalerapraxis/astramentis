@@ -46,10 +46,10 @@ namespace Astramentis.Modules
 
             var module = CommandService.Modules.FirstOrDefault(x => x.Name.ToLower() == requestedModule.ToLower());
 
-            // this shouldn't happen
+            // mistyped module
             if (module == null)
             {
-                await ReplyAsync("You can't use any commands on this server.");
+                await ReplyAsync("There's no module by that name. Check your spelling, or use the `help` command.");
                 return;
             }
 
