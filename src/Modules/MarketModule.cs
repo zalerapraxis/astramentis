@@ -486,10 +486,17 @@ namespace Astramentis.Modules
             if (await IsCompanionAPIUsable() == false)
                 return;
 
-            // check if user input a gearset request instead of item lists - no spaces so we avoid catching things like
+            // check if user input a gearset request instead of item lists - no 'of' so we avoid catching things like
             // 'facet coat of casting' under the 'casting' gearset
-            if (!commandInput.Contains(" ") && MarketOrderGearsetDataset.Gearsets.Any(x => commandInput.Contains(x.Key)))
+            if (!commandInput.Contains("of") && MarketOrderGearsetDataset.Gearsets.Any(x => commandInput.Contains(x.Key)))
             {
+                bool hq = false;
+                if (commandInput.Contains("hq"))
+                {
+                    commandInput = commandInput.Replace("hq", "").Trim();
+                    hq = true;
+                }
+                
                 var gearset = MarketOrderGearsetDataset.Gearsets.FirstOrDefault(x => x.Key.Equals(commandInput)).Value;
 
                 var i = 1;
@@ -501,6 +508,9 @@ namespace Astramentis.Modules
                         count = 2;
 
                     gearsetInputSb.Append($"{item}:{count}");
+
+                    if (hq)
+                        gearsetInputSb.Append($" hq");
 
                     if (i < gearset.Count)
                         gearsetInputSb.Append(", ");
