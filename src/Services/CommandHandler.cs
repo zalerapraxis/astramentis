@@ -62,7 +62,7 @@ namespace Astramentis
                     // don't track commands that just didn't get input correctly
                     if (result.Error != CommandError.UnknownCommand) 
                     {
-                        await context.Channel.SendMessageAsync(result.ToString());
+                        await context.Channel.SendMessageAsync($"Command failed: {result}");
                         Logger.Log(LogLevel.Error, $"Command \"{msg}\" failed: {result}");
                     }
                 }
