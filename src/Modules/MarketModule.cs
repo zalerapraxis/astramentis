@@ -753,7 +753,7 @@ namespace Astramentis.Modules
         [Summary("Add item to market watchlist")]
         [Syntax("market watchlist add {name/id}")]
         [Example("mwa heavens' eye materia viii")]
-        public async Task MarketWatchlistAdd([Remainder] string input = null)
+        public async Task MarketWatchlistAdd([Remainder] string input)
         {
             // check if companion api is down
             if (await IsCompanionAPIUsable() == false)
