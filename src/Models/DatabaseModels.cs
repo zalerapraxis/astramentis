@@ -113,9 +113,6 @@ namespace Astramentis.Services
 
         [BsonElement("hqonly")]
         public bool HQOnly { get; set; }
-
-        [BsonElement("enabled")]
-        public bool Enabled { get; set; }
     }
 
     public class DbSupportMessage

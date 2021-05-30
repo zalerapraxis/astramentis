@@ -41,7 +41,7 @@ namespace Astramentis.Modules
         [Example("mbp grade 3 tincture of strength cactuar")]
         public async Task MarketGetItemPrice([Remainder] string input)
         {
-            // check if companion api is down
+            // check if companion api is down - func will inform if not
             if (await IsCompanionAPIUsable() == false)
                 return;
 
@@ -148,7 +148,7 @@ namespace Astramentis.Modules
         [Example("mbh gold ore")]
         public async Task MarketGetItemHistory([Remainder] string input)
         {
-            // check if companion api is down
+            // check if companion api is down - func will inform if not
             if (await IsCompanionAPIUsable() == false)
                 return;
 
@@ -254,7 +254,7 @@ namespace Astramentis.Modules
         [Example("mba 27770")]
         public async Task MarketAnalyzeItem([Remainder] string input)
         {
-            // check if companion api is down
+            // check if companion api is down - func will inform if not
             if (await IsCompanionAPIUsable() == false)
                 return;
 
@@ -361,7 +361,7 @@ namespace Astramentis.Modules
                 return;
             }
 
-            // check if companion api is down
+            // check if companion api is down - func will inform if not
             if (await IsCompanionAPIUsable() == false)
                 return;
 
@@ -482,7 +482,7 @@ namespace Astramentis.Modules
         [Example("mbo zonure skin:122, caprice fleece:20, 5:1000")]
         public async Task MarketCrossWorldPurchaseOrderAsync([Remainder] string commandInput = null)
         {
-            // check if companion api is down
+            // check if companion api is down - func will inform if not
             if (await IsCompanionAPIUsable() == false)
                 return;
 
@@ -755,7 +755,7 @@ namespace Astramentis.Modules
         [Example("mwa heavens' eye materia viii")]
         public async Task MarketWatchlistAdd([Remainder] string input)
         {
-            // check if companion api is down
+            // check if companion api is down - func will inform if not
             if (await IsCompanionAPIUsable() == false)
                 return;
 
@@ -786,6 +786,38 @@ namespace Astramentis.Modules
             await DatabaseMarketWatchlist.AddToWatchlist(watchlistEntry);
 
             await ReplyAsync($"Added item {watchlistEntry.ItemName} ({watchlistEntry.ItemID}) to watchlist.");
+        }
+
+        [Command("market watchlist remove")]
+        [Alias("mwr")]
+        [RequireOwner]
+        [Summary("Remove item from market watchlist")]
+        [Syntax("market watchlist remove {name/id}")]
+        [Example("mwr heavens' eye materia viii")]
+        public async Task MarketWatchlistRemove([Remainder] string input)
+        {
+            // check if companion api is down - func will inform if not
+            if (await IsCompanionAPIUsable() == false)
+                return;
+
+            // clean inputs
+            input = input.ToLower();
+            input = CleanCommandInput(input);
+
+            // grab item id 
+            var inputId = await MarketService.SearchForItemByNameExact(input);
+
+            // build entry
+            var watchlistEntry = new DbWatchlistEntry()
+            {
+                ItemName = input,
+                ItemID = inputId[0].ID,
+            };
+
+            // add to database
+            await DatabaseMarketWatchlist.RemoveFromWatchlist(watchlistEntry);
+
+            await ReplyAsync($"Removed item {watchlistEntry.ItemName} ({watchlistEntry.ItemID}) from watchlist.");
         }
 
         [Command("market watchlist toggle")]

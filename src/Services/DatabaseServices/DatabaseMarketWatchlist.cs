@@ -41,5 +41,23 @@ namespace Astramentis.Services.DatabaseServices
 
             return true;
         }
+
+        public async Task<bool> RemoveFromWatchlist(DbWatchlistEntry entry)
+        {
+            var database = _mongodb.GetDatabase(_mongodbName);
+            var watchlistCollection = database.GetCollection<DbWatchlistEntry>("watchlist");
+
+            FilterDefinition<DbWatchlistEntry> filter;
+            var builder = Builders<DbWatchlistEntry>.Filter;
+
+            filter = builder.Eq("itemname", entry.ItemName);
+
+            var exists = watchlistCollection.FindAsync(filter).Result.Any();
+
+            if (exists)
+                await watchlistCollection.DeleteOneAsync(filter);
+
+            return true;
+        }
     }
 }
