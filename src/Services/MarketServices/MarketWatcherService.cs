@@ -117,8 +117,10 @@ namespace Astramentis.Services.MarketServices
             }));
             Task.WaitAll(itemTasks);
 
-            // build embed & format data to send to my dm's
-            var dm = await _discord.GetUser(ulong.Parse(_config["discordBotOwnerId"])).GetOrCreateDMChannelAsync();
+            // build embed & format data to send to my server's watchlist channel
+            // should we implement a null check here?
+            // var dm = await _discord.GetUser(ulong.Parse(_config["discordBotOwnerId"])).GetOrCreateDMChannelAsync();
+            var channel = _discord.GetChannel(848651281069113354) as ITextChannel;
             var embed = new EmbedBuilder();
             foreach (var entry in WatchlistDifferentials)
             {
@@ -140,7 +142,7 @@ namespace Astramentis.Services.MarketServices
             }
 
             if (embed.Fields.Any())
-                await dm.SendMessageAsync(null, false, embed.Build());
+                await channel.SendMessageAsync(null, false, embed.Build());
             else
                 Logger.Log(LogLevel.Debug, $"No items on watchlist met differential cutoff of {DifferentialCutoff}.");
         }
