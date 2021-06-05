@@ -847,7 +847,7 @@ namespace Astramentis.Modules
         }
 
         [Command("market watchlist run")]
-        [Alias("mwr")]
+        [Alias("mwrun")]
         [RequireOwner]
         [Summary("Force-run watchlist")]
         public async Task MarketWatchlistForceRun()
