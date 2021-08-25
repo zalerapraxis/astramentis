@@ -139,7 +139,7 @@ namespace Astramentis.Services.MarketServices
         private async Task<CustomApiStatus> GetCompanionApiStatus(string server = null)
         {
             if (server == null)
-                server = "adamantoise";
+                server = "gilgamesh";
 
             // run test query
             var apiResponse = await _apiRequestService.QueryCustomApiForHistory(_rng.Next(2, 19), server);
