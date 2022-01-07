@@ -130,7 +130,7 @@ namespace Astramentis.Datasets
             {
                 Name = "Silkmoth Scales",
                 ItemID = 27764,
-                CurrencyCost = 20,
+                CurrencyCost = 1,
                 VendorLocation = "Lakeland (Fort Jobb)"
             },
             new CurrencyTradeableItem()
@@ -256,22 +256,169 @@ namespace Astramentis.Datasets
             {
                 Name = "Heavens' Eye Materia VIII",
                 ItemID = 26728,
-                CurrencyCost = 120,
+                CurrencyCost = 240,
                 VendorLocation = "Anywhere"
             },
             new CurrencyTradeableItem()
             {
                 Name = "Savage Aim Materia VIII",
                 ItemID = 26729,
-                CurrencyCost = 120,
+                CurrencyCost = 240,
                 VendorLocation = "Anywhere"
             },
             new CurrencyTradeableItem()
             {
                 Name = "Savage Might Materia VIII",
                 ItemID = 26730,
-                CurrencyCost = 120,
+                CurrencyCost = 240,
                 VendorLocation = "Anywhere"
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Glamour Prism",
+                ItemID = 21800,
+                CurrencyCost = 6,
+                VendorLocation = "Anywhere (Shadowbringers)"
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Glamour Dispeller",
+                ItemID = 7621,
+                CurrencyCost = 6,
+                VendorLocation = "Anywhere (Shadowbringers)"
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Cordial",
+                ItemID = 6141,
+                CurrencyCost = 4,
+                VendorLocation = "Anywhere (Shadowbringers)"
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Luncheon Toad Skin",
+                ItemID = 36243,
+                CurrencyCost = 2,
+                VendorLocation = "Labyrinthos"
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Yakow Chuck",
+                ItemID = 36254,
+                CurrencyCost = 2,
+                VendorLocation = "Labyrinthos"
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Berkanan Sap",
+                ItemID = 36261,
+                CurrencyCost = 2,
+                VendorLocation = "Labyrinthos"
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Gaja Hide",
+                ItemID = 36242,
+                CurrencyCost = 2,
+                VendorLocation = "Thavnair"
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Kumbhira Skin",
+                ItemID = 36245,
+                CurrencyCost = 2,
+                VendorLocation = "Thavnair"
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Hamsa Tenderloin",
+                ItemID = 36253,
+                CurrencyCost = 2,
+                VendorLocation = "Thavnair"
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Amra",
+                ItemID = 36264,
+                CurrencyCost = 2,
+                VendorLocation = "Thavnair"
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Almasty Fur",
+                ItemID = 36203,
+                CurrencyCost = 2,
+                VendorLocation = "Garlemald"
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Saiga Hide",
+                ItemID = 36244,
+                CurrencyCost = 2,
+                VendorLocation = "Garlemald"
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Ovibos Milk",
+                ItemID = 36255,
+                CurrencyCost = 2,
+                VendorLocation = "Garlemald"
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Nousse Flesh",
+                ItemID = 36257,
+                CurrencyCost = 2,
+                VendorLocation = "Mare Lamentorum"
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Lunatender Blossom",
+                ItemID = 36258,
+                CurrencyCost = 2,
+                VendorLocation = "Mare Lamentorum"
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Dynamite Ash",
+                ItemID = 36259,
+                CurrencyCost = 2,
+                VendorLocation = "Mare Lamentorum"
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Ophiotauros Hide",
+                ItemID = 36246,
+                CurrencyCost = 2,
+                VendorLocation = "Elpis"
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Egg of Elpis",
+                ItemID = 36256,
+                CurrencyCost = 2,
+                VendorLocation = "Elpis"
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Bird of Elips Breast",
+                ItemID = 36630,
+                CurrencyCost = 2,
+                VendorLocation = "Elpis"
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Petalouda Scales",
+                ItemID = 36260,
+                CurrencyCost = 2,
+                VendorLocation = "Elpis"
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Dynamis Crystal",
+                ItemID = 36262,
+                CurrencyCost = 2,
+                VendorLocation = "Ultima Thule"
             },
         };
 
@@ -299,12 +446,6 @@ namespace Astramentis.Datasets
             {
                 Name = "Savage Might Materia VII",
                 ItemID = 25189,
-                CurrencyCost = 150
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Battledance Materia VII",
-                ItemID = 25190,
                 CurrencyCost = 150
             },
             new CurrencyTradeableItem()
@@ -345,12 +486,6 @@ namespace Astramentis.Datasets
             },
             new CurrencyTradeableItem()
             {
-                Name = "Battledance Materia VIII",
-                ItemID = 26731,
-                CurrencyCost = 400
-            },
-            new CurrencyTradeableItem()
-            {
                 Name = "Quickarm Materia VIII",
                 ItemID = 26738,
                 CurrencyCost = 400
@@ -363,9 +498,75 @@ namespace Astramentis.Datasets
             },
             new CurrencyTradeableItem()
             {
-                Name = "Crystarium Striking Dummy",
-                ItemID = 27315,
-                CurrencyCost = 300
+                Name = "Piety Materia IX",
+                ItemID = 33917,
+                CurrencyCost = 150
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Heavens' Eye Materia IX",
+                ItemID = 33918,
+                CurrencyCost = 150
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Savage Aim Materia IX",
+                ItemID = 33919,
+                CurrencyCost = 150
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Savage Might Materia IX",
+                ItemID = 33920,
+                CurrencyCost = 150
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Quickarm Materia IX",
+                ItemID = 33928,
+                CurrencyCost = 150
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Quicktongue Materia IX",
+                ItemID = 33929,
+                CurrencyCost = 150
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Piety Materia X",
+                ItemID = 33930,
+                CurrencyCost = 400
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Heavens' Eye Materia X",
+                ItemID = 33931,
+                CurrencyCost = 400
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Savage Aim Materia X",
+                ItemID = 33932,
+                CurrencyCost = 400
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Savage Might Materia X",
+                ItemID = 33933,
+                CurrencyCost = 400
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Quickarm Materia X",
+                ItemID = 33941,
+                CurrencyCost = 400
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Quicktongue Materia X",
+                ItemID = 33942,
+                CurrencyCost = 400
             },
         };
 
@@ -373,21 +574,111 @@ namespace Astramentis.Datasets
         {
             new CurrencyTradeableItem()
             {
+                Name = "Craftsman's Competence Materia IV",
+                ItemID = 5702,
+                CurrencyCost = 25
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Craftsman's Cunning Materia IV",
+                ItemID = 5707,
+                CurrencyCost = 25
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Craftsman's Command Materia IV",
+                ItemID = 5712,
+                CurrencyCost = 25
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Craftsman's Competence Materia V",
+                ItemID = 5703,
+                CurrencyCost = 200
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Craftsman's Cunning Materia V",
+                ItemID = 5708,
+                CurrencyCost = 200
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Craftsman's Command Materia V",
+                ItemID = 5713,
+                CurrencyCost = 200
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Craftsman's Competence Materia VI",
+                ItemID = 18025,
+                CurrencyCost = 200
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Craftsman's Cunning Materia VI",
+                ItemID = 18026,
+                CurrencyCost = 200
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Craftsman's Command Materia VI",
+                ItemID = 18027,
+                CurrencyCost = 200
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Craftsman's Competence Materia VII",
+                ItemID = 25194,
+                CurrencyCost = 200
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Craftsman's Cunning Materia VII",
+                ItemID = 25195,
+                CurrencyCost = 200
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Craftsman's Command Materia VII",
+                ItemID = 25196,
+                CurrencyCost = 200
+            },
+            new CurrencyTradeableItem()
+            {
                 Name = "Craftsman's Competence Materia VIII",
                 ItemID = 26735,
-                CurrencyCost = 500
+                CurrencyCost = 200
             },
             new CurrencyTradeableItem()
             {
                 Name = "Craftsman's Cunning Materia VIII",
                 ItemID = 26736,
-                CurrencyCost = 500
+                CurrencyCost = 200
             },
             new CurrencyTradeableItem()
             {
                 Name = "Craftsman's Command Materia VIII",
                 ItemID = 26737,
-                CurrencyCost = 500
+                CurrencyCost = 200
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Craftsman's Competence Materia IX",
+                ItemID = 33925,
+                CurrencyCost = 250
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Craftsman's Cunning Materia IX",
+                ItemID = 33926,
+                CurrencyCost = 250
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Craftsman's Command Materia IX",
+                ItemID = 33927,
+                CurrencyCost = 250
             },
             new CurrencyTradeableItem()
             {
@@ -461,185 +752,245 @@ namespace Astramentis.Datasets
         {
             new CurrencyTradeableItem()
             {
-                Name = "Gatherer's Guerdon Materia VIII",
-                ItemID = 26732,
-                CurrencyCost = 500
+                Name = "Gatherer's Guerdon Materia IV",
+                ItemID = 5687,
+                CurrencyCost = 25
             },
             new CurrencyTradeableItem()
             {
-                Name = "Gatherer's Guile Materia VIII",
-                ItemID = 26733,
-                CurrencyCost = 500
+                Name = "Gatherer's Guile Materia IV",
+                ItemID = 5692,
+                CurrencyCost = 25
             },
             new CurrencyTradeableItem()
             {
-                Name = "Gatherer's Grasp Materia VIII",
-                ItemID = 26734,
-                CurrencyCost = 500
+                Name = "Gatherer's Grasp Materia IV",
+                ItemID = 5697,
+                CurrencyCost = 25
             },
             new CurrencyTradeableItem()
             {
-                Name = "Chiaroglow Aethersand",
-                ItemID = 26734,
-                CurrencyCost = 100
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Scuroglow Aethersand",
-                ItemID = 27812,
-                CurrencyCost = 100
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Agedeep Aethersand",
-                ItemID = 27813,
+                Name = "Gatherer's Guerdon Materia V",
+                ItemID = 5688,
                 CurrencyCost = 200
             },
             new CurrencyTradeableItem()
             {
-                Name = "Agewood Aethersand",
-                ItemID = 27814,
+                Name = "Gatherer's Guile Materia V",
+                ItemID = 5693,
                 CurrencyCost = 200
             },
             new CurrencyTradeableItem()
             {
-                Name = "Ageflow Aethersand",
-                ItemID = 27815,
+                Name = "Gatherer's Grasp Materia V",
+                ItemID = 5698,
                 CurrencyCost = 200
             },
-        };
-
-        public static List<CurrencyTradeableItem> YellowCrafterScripsItemsList = new List<CurrencyTradeableItem>()
-        {
-            new CurrencyTradeableItem()
-            {
-                Name = "Craftsman's Competence Materia VI",
-                ItemID = 18025,
-                CurrencyCost = 250
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Craftsman's Cunning Materia VI",
-                ItemID = 18026,
-                CurrencyCost = 250
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Craftsman's Command Materia VI",
-                ItemID = 18027,
-                CurrencyCost = 250
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Craftsman's Competence Materia VII",
-                ItemID = 25194,
-                CurrencyCost = 250
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Craftsman's Cunning Materia VII",
-                ItemID = 25195,
-                CurrencyCost = 250
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Craftsman's Command Materia VII",
-                ItemID = 18027,
-                CurrencyCost = 250
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Oddly Specific Petrified Log",
-                ItemID = 29661,
-                CurrencyCost = 50
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Oddly Specific Iron Sand",
-                ItemID = 29662,
-                CurrencyCost = 50
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Oddly Specific Iron Ore",
-                ItemID = 29663,
-                CurrencyCost = 50
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Oddly Specific Uncut Gemstone",
-                ItemID = 29664,
-                CurrencyCost = 50
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Oddly Specific Skin",
-                ItemID = 29665,
-                CurrencyCost = 50
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Oddly Specific Cotton",
-                ItemID = 29666,
-                CurrencyCost = 50
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Oddly Specific Quartz",
-                ItemID = 29667,
-                CurrencyCost = 50
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Oddly Specific Seeds",
-                ItemID = 29668,
-                CurrencyCost = 50
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Slithersand",
-                ItemID = 31320,
-                CurrencyCost = 500
-            },
-        };
-
-        public static List<CurrencyTradeableItem> YellowGathererScripsItemsList = new List<CurrencyTradeableItem>()
-        {
             new CurrencyTradeableItem()
             {
                 Name = "Gatherer's Guerdon Materia VI",
                 ItemID = 18022,
-                CurrencyCost = 250
+                CurrencyCost = 200
             },
             new CurrencyTradeableItem()
             {
                 Name = "Gatherer's Guile Materia VI",
                 ItemID = 18023,
-                CurrencyCost = 250
+                CurrencyCost = 200
             },
             new CurrencyTradeableItem()
             {
                 Name = "Gatherer's Grasp Materia VI",
                 ItemID = 18024,
-                CurrencyCost = 250
+                CurrencyCost = 200
             },
             new CurrencyTradeableItem()
             {
                 Name = "Gatherer's Guerdon Materia VII",
                 ItemID = 25191,
-                CurrencyCost = 250
+                CurrencyCost = 200
             },
             new CurrencyTradeableItem()
             {
                 Name = "Gatherer's Guile Materia VII",
                 ItemID = 25192,
-                CurrencyCost = 250
+                CurrencyCost = 200
             },
             new CurrencyTradeableItem()
             {
                 Name = "Gatherer's Grasp Materia VII",
                 ItemID = 25193,
+                CurrencyCost = 200
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Gatherer's Guerdon Materia VIII",
+                ItemID = 26732,
+                CurrencyCost = 200
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Gatherer's Guile Materia VIII",
+                ItemID = 26733,
+                CurrencyCost = 200
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Gatherer's Grasp Materia VIII",
+                ItemID = 26734,
+                CurrencyCost = 200
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Gatherer's Guerdon Materia IX",
+                ItemID = 33922,
                 CurrencyCost = 250
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Gatherer's Guile Materia IX",
+                ItemID = 33923,
+                CurrencyCost = 250
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Gatherer's Grasp Materia IX",
+                ItemID = 33924,
+                CurrencyCost = 250
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Levinstrike Aethersand",
+                ItemID = 30590,
+                CurrencyCost = 30
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Chiaroglow Aethersand",
+                ItemID = 26734,
+                CurrencyCost = 10
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Scuroglow Aethersand",
+                ItemID = 27812,
+                CurrencyCost = 10
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Agedeep Aethersand",
+                ItemID = 27813,
+                CurrencyCost = 20
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Agewood Aethersand",
+                ItemID = 27814,
+                CurrencyCost = 20
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Ageflow Aethersand",
+                ItemID = 27815,
+                CurrencyCost = 20
+            },
+        };
+
+        public static List<CurrencyTradeableItem> PurpleCrafterScripsItemsList = new List<CurrencyTradeableItem>()
+        {
+            new CurrencyTradeableItem()
+            {
+                Name = "Craftsman's Competence Materia X",
+                ItemID = 33938,
+                CurrencyCost = 500
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Craftsman's Cunning Materia X",
+                ItemID = 33939,
+                CurrencyCost = 500
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Craftsman's Command Materia X",
+                ItemID = 33940,
+                CurrencyCost = 500
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Butterbeef",
+                ItemID = 36099,
+                CurrencyCost = 15
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Giant Pumpkin",
+                ItemID = 36100,
+                CurrencyCost = 15
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "White Peach",
+                ItemID = 36101,
+                CurrencyCost = 15
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Subtle Cinnamon Sticks",
+                ItemID = 36102,
+                CurrencyCost = 15
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Glass Scallop",
+                ItemID = 36103,
+                CurrencyCost = 15
+            },
+        };
+
+        public static List<CurrencyTradeableItem> PurpleGathererScripsItemsList = new List<CurrencyTradeableItem>()
+        {
+            new CurrencyTradeableItem()
+            {
+                Name = "Gatherer's Guerdon Materia VI",
+                ItemID = 33935,
+                CurrencyCost = 500
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Gatherer's Guile Materia VI",
+                ItemID = 33936,
+                CurrencyCost = 500
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Gatherer's Grasp Materia VI",
+                ItemID = 33937,
+                CurrencyCost = 500
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Moonlight Aethersand",
+                ItemID = 36223,
+                CurrencyCost = 100
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Endstone Aethersand",
+                ItemID = 36224,
+                CurrencyCost = 200
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Endwood Aethersand",
+                ItemID = 36225,
+                CurrencyCost = 200
+            },
+            new CurrencyTradeableItem()
+            {
+                Name = "Endtide Aethersand",
+                ItemID = 36226,
+                CurrencyCost = 200
             },
         };
 
@@ -647,121 +998,37 @@ namespace Astramentis.Datasets
         {
             new CurrencyTradeableItem()
             {
-                Name = "Chalicotherium Skin",
-                ItemID = 27737,
-                CurrencyCost = 5
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Multifaceted Varnish",
-                ItemID = 27695,
-                CurrencyCost = 5
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Multifaceted Abrasive",
-                ItemID = 27718,
-                CurrencyCost = 5
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Multifaceted Resin",
-                ItemID = 27719,
-                CurrencyCost = 5
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Multifaceted Alumen",
-                ItemID = 27744,
-                CurrencyCost = 5
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Multifaceted Cotton Cloth",
-                ItemID = 27762,
-                CurrencyCost = 5
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Multifaceted Alchemic",
-                ItemID = 27796,
-                CurrencyCost = 5
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Dwarven Chromite",
-                ItemID = 29969,
-                CurrencyCost = 10
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Workbench Resin",
-                ItemID = 29971,
-                CurrencyCost = 10
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Tempest Adhesive",
-                ItemID = 29973,
-                CurrencyCost = 10
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Caprice Fleece",
-                ItemID = 29975,
-                CurrencyCost = 10
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Megalania Skin",
-                ItemID = 29977,
-                CurrencyCost = 10
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Dried Hi-Ether",
-                ItemID = 29979,
-                CurrencyCost = 10
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Horsetail",
-                ItemID = 32944,
+                Name = "Alchemical Charcoal",
+                ItemID = 36218,
                 CurrencyCost = 20
             },
             new CurrencyTradeableItem()
             {
-                Name = "Gardenia Fruit",
-                ItemID = 32947,
+                Name = "Alchemical Abrasive",
+                ItemID = 36219,
                 CurrencyCost = 20
             },
             new CurrencyTradeableItem()
             {
-                Name = "Thylacoleo Skin",
-                ItemID = 32948,
+                Name = "Thavnairian Horsetail",
+                ItemID = 36220,
                 CurrencyCost = 20
             },
             new CurrencyTradeableItem()
             {
-                Name = "Aluminum Ore",
-                ItemID = 32945,
+                Name = "Thavnairian Thread",
+                ItemID = 36221,
                 CurrencyCost = 20
             },
             new CurrencyTradeableItem()
             {
-                Name = "Workbench Refining Sand",
-                ItemID = 32946,
-                CurrencyCost = 20
-            },
-            new CurrencyTradeableItem()
-            {
-                Name = "Spirit Extract",
-                ItemID = 32949,
+                Name = "Amynodon Hide",
+                ItemID = 36222,
                 CurrencyCost = 20
             },
         };
 
-        public static List<CurrencyTradeableItem> SkybuildersTomeItemsList = new List<CurrencyTradeableItem>()
+        public static List<CurrencyTradeableItem> SkybuildersScripItemsList = new List<CurrencyTradeableItem>()
         {
             new CurrencyTradeableItem()
             {
