@@ -12,6 +12,9 @@ namespace Astramentis.Services
 {
     public class MarketService
     {
+        public string DefaultWorld = Worldss.brynhildr.ToString();
+        public List<string> DefaultDatacenter = Datacenter.Aether;
+
         private readonly APIRequestService _apiRequestService;
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
@@ -152,6 +155,9 @@ namespace Astramentis.Services
                 // assign recent sale count
                 analysisHQ.NumRecentSales = CountRecentSales(salesHQ);
 
+                // assign total items avail
+                analysisHQ.NumTotalItems = CountTotalItemsAvailable(marketHQ);
+
                 // assign average price of last 5 sales
                 analysisHQ.AvgSalePrice = GetAveragePricePerUnit(salesHQ.Take(10).ToList());
 
@@ -192,6 +198,9 @@ namespace Astramentis.Services
             // assign recent sale count
             analysisNQ.NumRecentSales = CountRecentSales(salesNQ);
 
+            // assign total items avail
+            analysisNQ.NumTotalItems = CountTotalItemsAvailable(marketNQ);
+
             // assign average price of last few sales
             analysisNQ.AvgSalePrice = GetAveragePricePerUnit(salesNQ.Take(10).ToList());
 
@@ -230,6 +239,9 @@ namespace Astramentis.Services
             // handle overall items list
             // assign recent sale count
             analysisOverall.NumRecentSales = CountRecentSales(salesOverall);
+
+            // assign total items available count
+            analysisOverall.NumTotalItems = CountTotalItemsAvailable(marketOverall);
 
             // assign average price of last few sales
             analysisOverall.AvgSalePrice = GetAveragePricePerUnit(salesOverall.Take(10).ToList());
@@ -300,10 +312,10 @@ namespace Astramentis.Services
                     itemsList = CurrencyTradeableItemsDataset.WhiteCrafterScripsItemsList;
                     break;
                 case "ygs":
-                    itemsList = CurrencyTradeableItemsDataset.YellowGathererScripsItemsList;
+                    itemsList = CurrencyTradeableItemsDataset.PurpleGathererScripsItemsList;
                     break;
                 case "ycs":
-                    itemsList = CurrencyTradeableItemsDataset.YellowCrafterScripsItemsList;
+                    itemsList = CurrencyTradeableItemsDataset.PurpleCrafterScripsItemsList;
                     break;
                 case "tome":
                 case "tomes":
@@ -312,7 +324,7 @@ namespace Astramentis.Services
                 case "sky":
                 case "skybuilder":
                 case "skybuilders":
-                    itemsList = CurrencyTradeableItemsDataset.SkybuildersTomeItemsList;
+                    itemsList = CurrencyTradeableItemsDataset.SkybuildersScripItemsList;
                     break;
                 default:
                     return itemsList;
@@ -404,6 +416,18 @@ namespace Astramentis.Services
             if (sales == 0 || listings.Count == 0)
                 return 0;
             return sales;
+        }
+
+        private int CountTotalItemsAvailable(List<MarketItemListingModel> listings)
+        {
+            var itemsAvailable = 0;
+            foreach (var item in listings)
+            {
+                itemsAvailable += item.Quantity;
+            }
+            if (itemsAvailable == 0)
+                return 0;
+            return itemsAvailable;
         }
 
         // for market

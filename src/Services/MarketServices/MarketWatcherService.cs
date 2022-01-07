@@ -53,7 +53,7 @@ namespace Astramentis.Services.MarketServices
             _rng = rng;
 
             // build worlds list
-            foreach (var world in (Worlds[])Enum.GetValues(typeof(Worlds)))
+            foreach (var world in _marketService.DefaultDatacenter)
             {
                 worldsToSearch.Add(world.ToString());
             }

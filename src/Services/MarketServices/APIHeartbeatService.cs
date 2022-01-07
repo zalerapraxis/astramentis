@@ -20,7 +20,7 @@ namespace Astramentis.Services.MarketServices
         private readonly IConfigurationRoot _config;
         private readonly Random _rng;
 
-        public ConcurrentDictionary<Worlds, bool> serverLoginStatusTracker = new ConcurrentDictionary<Worlds, bool>();
+        public ConcurrentDictionary<Worldss, bool> serverLoginStatusTracker = new ConcurrentDictionary<Worldss, bool>();
 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
@@ -76,7 +76,7 @@ namespace Astramentis.Services.MarketServices
 
             // figure out each server's login status
             serverLoginStatusTracker.Clear();
-            var tasks = Task.Run(() => Parallel.ForEach((Worlds[])Enum.GetValues(typeof(Worlds)), parallelOptions, async server =>
+            var tasks = Task.Run(() => Parallel.ForEach((Worldss[])Enum.GetValues(typeof(Worldss)), parallelOptions, async server =>
             {
                 CustomApiStatus serverStatusRequestResult = GetCompanionApiStatus(server.ToString()).Result;
                 bool serverLoggedIn = false;

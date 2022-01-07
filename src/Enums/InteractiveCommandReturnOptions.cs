@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Astramentis.Enums
 {
-    public enum InteractiveCommandReturn
+    public enum InteractiveCommandReturnOptions
     {
         /// <summary>
         ///     Market Price command

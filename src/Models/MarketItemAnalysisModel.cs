@@ -14,6 +14,7 @@ namespace Astramentis.Models
         public int AvgSalePrice { get; set; }
         public int AvgMarketPrice { get; set; }
         public int NumRecentSales { get; set; }
+        public int NumTotalItems { get; set; }
         public bool ItemHasListings { get; set; }
         public bool ItemHasHistory { get; set; }
         public List<MarketItemAnalysisLowestPricesModel> LowestPrices { get; set; }

@@ -20,7 +20,7 @@ using Microsoft.Extensions.Configuration;
 namespace Astramentis.Modules
 {
     [Name("Market")]
-    [Summary("Get data from FFXIV markets on Aether")]
+    [Summary("Get data from FFXIV markets")]
     public class MarketModule : InteractiveBase
     {
         public MarketService MarketService { get; set; }
@@ -32,7 +32,7 @@ namespace Astramentis.Modules
 
         private Dictionary<IUser, IUserMessage> _dictFindItemUserEmbedPairs = new Dictionary<IUser, IUserMessage>();
 
-        private Worlds DefaultWorld = Worlds.gilgamesh;
+        
 
         [Command("market price")]
         [Alias("mbp")]
@@ -46,7 +46,7 @@ namespace Astramentis.Modules
                 return;
 
             // clean up inputs & parse them out
-            MarketCommandInputsModel parsedInput = (await SplitCommandInputs(input, InteractiveCommandReturn.Price)).FirstOrDefault();
+            MarketCommandInputsModel parsedInput = (await SplitCommandInputs(input, InteractiveCommandReturnOptions.Price)).FirstOrDefault();
 
             if (parsedInput == null)
                 // splitcommandinputs passed data off to InteractiveUserSelectItem, which will
@@ -153,7 +153,7 @@ namespace Astramentis.Modules
                 return;
 
             // clean up inputs & parse them out
-            MarketCommandInputsModel parsedInput = (await SplitCommandInputs(input, InteractiveCommandReturn.History)).FirstOrDefault();
+            MarketCommandInputsModel parsedInput = (await SplitCommandInputs(input, InteractiveCommandReturnOptions.History)).FirstOrDefault();
 
             if (parsedInput == null)
                 // splitcommandinputs passed data off to InteractiveUserSelectItem, which will
@@ -259,7 +259,7 @@ namespace Astramentis.Modules
                 return;
 
             // clean up inputs & parse them out
-            MarketCommandInputsModel parsedInput = (await SplitCommandInputs(input, InteractiveCommandReturn.Analyze)).FirstOrDefault();
+            MarketCommandInputsModel parsedInput = (await SplitCommandInputs(input, InteractiveCommandReturnOptions.Analyze)).FirstOrDefault();
 
             if (parsedInput == null)
                 // splitcommandinputs passed data off to InteractiveUserSelectItem, which will
@@ -295,6 +295,8 @@ namespace Astramentis.Modules
                 else
                     hqFieldBuilder.AppendLine("");
 
+                hqFieldBuilder.Append($"Total items avail: {hqMarketAnalysis.NumTotalItems}");
+
                 analysisEmbedBuilder.AddField("HQ", hqFieldBuilder.ToString());
             }
 
@@ -315,6 +317,8 @@ namespace Astramentis.Modules
                 nqFieldBuilder.AppendLine("+");
             else
                 nqFieldBuilder.AppendLine("");
+
+            nqFieldBuilder.Append($"Total items avail: {nqMarketAnalysis.NumTotalItems}");
 
             analysisEmbedBuilder.AddField("NQ", nqFieldBuilder.ToString());
 
@@ -352,8 +356,8 @@ namespace Astramentis.Modules
                 categoryListBuilder.AppendLine("nuts - sacks of nuts from hunts :peanut:");
                 categoryListBuilder.AppendLine("wgs - White Gatherer Scrip items");
                 categoryListBuilder.AppendLine("wcs - White Crafter Scrip items");
-                categoryListBuilder.AppendLine("ygs - Yellow Gatherer Scrip items");
-                categoryListBuilder.AppendLine("ycs - Yellow Crafter Scrip items");
+                categoryListBuilder.AppendLine("pgs - Purple Gatherer Scrip items");
+                categoryListBuilder.AppendLine("pcs - Purple Crafter Scrip items");
                 categoryListBuilder.AppendLine("tome/tomes - tome mats (phantasmagoria)");
                 categoryListBuilder.AppendLine("sky/skybuilders - skybuilders' scrips");
 
@@ -523,7 +527,7 @@ namespace Astramentis.Modules
 
             // regarding interactivecommandreturn, we can't actually take advantage of the interactiveuserselect stuff since this command typically
             // takes multiple items and it's not designed for that - we pass this param so it knows to NOT try to handle this interactively
-            List<MarketCommandInputsModel> parsedInputs = await SplitCommandInputs(commandInput, InteractiveCommandReturn.Order);
+            List<MarketCommandInputsModel> parsedInputs = await SplitCommandInputs(commandInput, InteractiveCommandReturnOptions.Order);
 
             if (!parsedInputs.Any())
             {
@@ -850,6 +854,7 @@ namespace Astramentis.Modules
         [Alias("mwrun")]
         [RequireOwner]
         [Summary("Force-run watchlist")]
+        [Example("mwrun")]
         public async Task MarketWatchlistForceRun()
         {
             await MarketWatcherService.WatchlistTimerTick();
@@ -884,7 +889,7 @@ namespace Astramentis.Modules
         /// <param name="input">Command input</param>
         /// <param name="function">The corresponding <c>InteractiveCommandReturn</c> for the command calling this function</param>
         /// <returns>List of <c>MarketCommandInputsModel</c>, containing item name, ID and other input bits</returns>
-        private async Task<List<MarketCommandInputsModel>> SplitCommandInputs(string input, InteractiveCommandReturn function)
+        private async Task<List<MarketCommandInputsModel>> SplitCommandInputs(string input, InteractiveCommandReturnOptions function)
         {
             List <MarketCommandInputsModel> inputsSplit = new List<MarketCommandInputsModel>();
 
@@ -938,7 +943,7 @@ namespace Astramentis.Modules
 
 
         // provides an item id for market commands - 
-        private async Task<int?> GetItemIdFromInput(string input, InteractiveCommandReturn function, List<string> worldsToSearch)
+        private async Task<int?> GetItemIdFromInput(string input, InteractiveCommandReturnOptions function, List<string> worldsToSearch)
         {
             int itemId;
 
@@ -950,7 +955,7 @@ namespace Astramentis.Modules
             {
                 List<ItemSearchResultModel> itemIdQueryResult;
 
-                if (function == InteractiveCommandReturn.Order)
+                if (function == InteractiveCommandReturnOptions.Order)
                     itemIdQueryResult = await MarketService.SearchForItemByNameExact(input);
                 else
                     itemIdQueryResult = await MarketService.SearchForItemByName(input);
@@ -982,7 +987,7 @@ namespace Astramentis.Modules
                 // if more than one result was found, send the results to the selection function to narrow it down to one
                 // terminate this function, as the selection function will eventually re-call this method with a single result item
                 // 10 is the max number of items we can use interactiveuserselectitem with
-                if (itemIdQueryResult.Count > 1 && itemIdQueryResult.Count < 15 && function != InteractiveCommandReturn.Order)
+                if (itemIdQueryResult.Count > 1 && itemIdQueryResult.Count < 15 && function != InteractiveCommandReturnOptions.Order)
                 {
                     await InteractiveUserSelectItem(itemIdQueryResult, function, worldsToSearch);
                     return null;
@@ -990,7 +995,7 @@ namespace Astramentis.Modules
 
                 // if we can't find a singular item to return, and interactiveuserselection would kick in, but this was called from
                 // the market order command, then end the function and return null
-                if (itemIdQueryResult.Count > 1 && function == InteractiveCommandReturn.Order)
+                if (itemIdQueryResult.Count > 1 && function == InteractiveCommandReturnOptions.Order)
                     return null;
 
                 // if only one result was found, select it and continue without any prompts
@@ -1008,7 +1013,7 @@ namespace Astramentis.Modules
         // it's expected that this function will be the last call in a function before that terminates, and that the callback function
         // will re-run the function with the user-selected data
         // optional server parameter to preserve server filter option
-        private async Task InteractiveUserSelectItem(List<ItemSearchResultModel> itemsList, InteractiveCommandReturn function, List<string> worldsToSearch)
+        private async Task InteractiveUserSelectItem(List<ItemSearchResultModel> itemsList, InteractiveCommandReturnOptions function, List<string> worldsToSearch)
         {
             string[] numbers = new[] { "0⃣", "1⃣", "2⃣", "3⃣", "4⃣", "5⃣", "6⃣", "7⃣", "8⃣", "9⃣", "🇦", "🇧", "🇨", "🇩", "🇪" };
             var numberEmojis = new List<Emoji>();
@@ -1037,7 +1042,9 @@ namespace Astramentis.Modules
             {
                 var counter = i;
                 var itemId = itemsList[i].ID;
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 messageContents.AddCallBack(numberEmojis[counter], async (c, r) => HandleInteractiveUserSelectCallback(itemId, function, worldsToSearch));
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             }
 
             var message = await InlineReactionReplyAsync(messageContents);
@@ -1051,14 +1058,14 @@ namespace Astramentis.Modules
         // this might get modified to accept a 'function' param that will run in a switch:case to
         // select what calling function this callback handler should re-run with the user-selected data
         // optional server parameter to preserve server filter option
-        private async Task HandleInteractiveUserSelectCallback(int itemId, InteractiveCommandReturn function, List<string> worldsToSearch)
+        private async Task HandleInteractiveUserSelectCallback(int itemId, InteractiveCommandReturnOptions function, List<string> worldsToSearch)
         {
             string searchLocation = "";
 
             // if user originally specified a world for the command, set it as the searchLocation to pass back to the command
-            if (worldsToSearch.Intersect(Enum.GetNames(typeof(Worlds))).Count() == 1)
+            if (worldsToSearch.Intersect(MarketService.DefaultDatacenter).Count() == 1)
             {
-                searchLocation = worldsToSearch.FirstOrDefault(x => Enum.GetNames(typeof(Worlds)).Contains(x));
+                searchLocation = worldsToSearch.FirstOrDefault(x => MarketService.DefaultDatacenter.Contains(x));
             }
 
             // grab the calling user's pair of calling user & searchResults embed
@@ -1070,13 +1077,13 @@ namespace Astramentis.Modules
 
             switch (function)
             {
-                case InteractiveCommandReturn.Price:
+                case InteractiveCommandReturnOptions.Price:
                     await MarketGetItemPrice($"{searchLocation} {itemId}");
                     break;
-                case InteractiveCommandReturn.History:
+                case InteractiveCommandReturnOptions.History:
                     await MarketGetItemHistory($"{searchLocation} {itemId}");
                     break;
-                case InteractiveCommandReturn.Analyze:
+                case InteractiveCommandReturnOptions.Analyze:
                     await MarketAnalyzeItem($"{searchLocation} {itemId}");
                     break;
             }
@@ -1086,12 +1093,16 @@ namespace Astramentis.Modules
         // can be either one server, in the case of the user requesting a specific server, or all servers in a datacenter
         private List<string> GetServer(string input, bool useDefaultWorld)
         {
+
+            //TODO: somewhere in here, we need to add a check to our database that queries for a user's preferred datacenter
+            // we'll also need to add a command to allow the user to *set* that preferred datacenter
+
             var resultsList = new List<string>();
 
             string server = null;
 
             // look to see if the input contains one of the server names
-            foreach (var world in Enum.GetValues(typeof(Worlds)))
+            foreach (var world in MarketService.DefaultDatacenter)
             {
                 if (input.Contains(world.ToString()))
                 {
@@ -1110,12 +1121,12 @@ namespace Astramentis.Modules
             // return the default world instead of the default datacenter
             if (useDefaultWorld && server == null)
             {
-                resultsList.Add(DefaultWorld.ToString());
+                resultsList.Add(MarketService.DefaultWorld.ToString());
                 return resultsList;
             }
 
             // otherwise, add every server in the datacenter
-            foreach (var world in Enum.GetValues(typeof(Worlds)))
+            foreach (var world in MarketService.DefaultDatacenter)
                 resultsList.Add(world.ToString());
 
             return resultsList;
@@ -1128,7 +1139,7 @@ namespace Astramentis.Modules
             string result = input;
 
             // add each possible input into a list of words to look for
-            foreach (var world in Enum.GetValues(typeof(Worlds)))
+            foreach (var world in MarketService.DefaultDatacenter)
                 wordsToRemove.Add(world.ToString());
             wordsToRemove.Add("hq");
 
