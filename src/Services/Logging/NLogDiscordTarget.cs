@@ -26,7 +26,7 @@ namespace Astramentis.Services.Logging
 
         private async Task SendMessageToBotAdministrator(string message)
         {
-            await DiscordClient.GetUser(DiscordBotOwnerId).SendMessageAsync(message);
+            //await DiscordClient.GetUser(DiscordBotOwnerId).SendMessageAsync(message);
         }
     }
 }
